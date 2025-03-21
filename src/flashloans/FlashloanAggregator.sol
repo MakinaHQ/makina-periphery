@@ -283,11 +283,7 @@ contract FlashloanAggregator is
         );
 
         // Repay the flashloan
-        IERC20(address(tokens[0])).safeTransferFrom(
-            caliber,
-            msg.sender,
-            amounts[0]
-        );
+        IERC20(address(tokens[0])).safeTransfer(msg.sender, amounts[0]);
     }
 
     /// @notice Callback handler for Balancer V3 flashloan.
@@ -312,7 +308,7 @@ contract FlashloanAggregator is
         _handleFlashloanCallback(caliber, instruction, token, amount);
 
         // Repay the flashloan
-        IERC20(token).safeTransferFrom(caliber, msg.sender, amount);
+        IERC20(token).safeTransfer(msg.sender, amount);
 
         // Settle the balance
         IVaultV3(msg.sender).settle(IERC20(token), amount);
@@ -337,9 +333,6 @@ contract FlashloanAggregator is
 
         // Handle the flashloan callback
         _handleFlashloanCallback(caliber, instruction, token, assets);
-
-        // Transfer the tokens from the Caliber to this contract
-        IERC20(token).safeTransferFrom(caliber, address(this), assets);
 
         // Approve the Morpho pool to spend the tokens
         IERC20(token).safeIncreaseAllowance(morphoPool, assets);
@@ -372,7 +365,7 @@ contract FlashloanAggregator is
         _handleFlashloanCallback(caliber, instruction, token, amount);
 
         // Repay the flashloan
-        IERC20(token).safeTransferFrom(caliber, msg.sender, amount);
+        IERC20(token).safeTransfer(msg.sender, amount);
 
         return keccak256("ERC3156FlashBorrower.onFlashLoan");
     }

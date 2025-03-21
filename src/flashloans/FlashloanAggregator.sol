@@ -462,6 +462,7 @@ contract FlashloanAggregator is
         return IPoolAddressesProvider(aaveV3AddressProvider);
     }
 
+    /// @inheritdoc IFlashLoanSimpleReceiver
     function POOL() external view returns (IPool) {
         return IPool(IPoolAddressesProvider(aaveV3AddressProvider).getPool());
     }

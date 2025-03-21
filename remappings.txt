@@ -1,0 +1,7 @@
+@makina-core/=lib/makina-core/src/
+@openzeppelin/contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/
+@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts
+@balancer-v2-interfaces/=lib/balancer-v2-monorepo/pkg/interfaces/contracts/
+@balancer-v3-interfaces/=lib/balancer-v3-monorepo/pkg/interfaces/contracts/
+@morpho/=lib/morpho-blue/src/
+@aave/=lib/aave-v3-origin/src/contracts/

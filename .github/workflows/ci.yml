@@ -1,0 +1,71 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+env:
+  FOUNDRY_PROFILE: ci
+  MAINNET_RPC_URL: ${{ secrets.MAINNET_RPC_URL }}
+  BASE_RPC_URL: ${{ secrets.BASE_RPC_URL }}
+  SEPOLIA_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
+  BASE_SEPOLIA_RPC_URL: ${{ secrets.BASE_SEPOLIA_RPC_URL }}
+
+jobs:
+  check:
+    strategy:
+      fail-fast: true
+
+    name: Foundry project
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install modules
+        run: |
+          yarn
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - name: Show Forge version
+        run: |
+          forge --version
+
+      - name: Run Forge fmt
+        run: |
+          forge fmt --check
+        id: fmt
+
+      - name: Run Forge build with IR
+        run: |
+          FOUNDRY_PROFILE=ir forge build
+        id: build-via-ir
+
+      - name: Run Forge build
+        run: |
+          forge build --sizes
+        id: build
+
+      - name: Run Forge tests
+        run: |
+          forge test -vvv
+        id: test
+
+      - name: Run Forge coverage
+        run: |
+          FOUNDRY_FUZZ_RUNS=32 forge coverage --report lcov --gas-report --no-match-coverage '(script|test|src/caliber/vm)'
+        id: coverage
+
+      - name: Report coverage
+        uses: romeovs/lcov-reporter-action@v0.4.0
+        with:
+          lcov-file: ./lcov.info
+          github-token: ${{ secrets.GITHUB_TOKEN }}

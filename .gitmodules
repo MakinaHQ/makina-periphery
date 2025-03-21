@@ -1,0 +1,21 @@
+[submodule "lib/forge-std"]
+	path = lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
+[submodule "lib/makina-core"]
+	path = lib/makina-core
+	url = https://github.com/MakinaHQ/makina-core
+[submodule "lib/openzeppelin-contracts-upgradeable"]
+	path = lib/openzeppelin-contracts-upgradeable
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable
+[submodule "lib/openzeppelin-contracts"]
+	path = lib/openzeppelin-contracts
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts
+[submodule "lib/balancer-v3-monorepo"]
+	path = lib/balancer-v3-monorepo
+	url = https://github.com/balancer/balancer-v3-monorepo
+[submodule "lib/balancer-v2-monorepo"]
+	path = lib/balancer-v2-monorepo
+	url = https://github.com/balancer/balancer-v2-monorepo
+[submodule "lib/morpho-blue"]
+	path = lib/morpho-blue
+	url = https://github.com/morpho-org/morpho-blue

@@ -282,7 +282,7 @@ contract FlashloanAggregator is
         uint256 amount
     ) internal {
         // Send the flashloan amount to the Caliber.
-        IERC20(token).safeTransfer(caliber, amount);
+        IERC20(token).safeIncreaseAllowance(caliber, amount);
         // Calls `manageFlashLoan` on the Caliber.
         ICaliber(caliber).manageFlashLoan(instruction, token, amount);
     }

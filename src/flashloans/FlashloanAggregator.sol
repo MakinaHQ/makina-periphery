@@ -12,6 +12,10 @@ import {IMorphoFlashLoanCallback} from "@morpho/interfaces/IMorphoCallbacks.sol"
 import {IERC3156FlashLender} from "@openzeppelin/contracts/interfaces/IERC3156FlashLender.sol";
 import {IERC3156FlashBorrower} from "@openzeppelin/contracts/interfaces/IERC3156FlashBorrower.sol";
 
+import {IPool} from "@aave/interfaces/IPool.sol";
+import {IPoolAddressesProvider} from "@aave/interfaces/IPoolAddressesProvider.sol";
+import {IFlashLoanSimpleReceiver} from "@aave/misc/flashloan/interfaces/IFlashLoanSimpleReceiver.sol";
+
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
@@ -26,7 +30,8 @@ contract FlashloanAggregator is
     IFlashloanAggregator,
     BalancerV2FlashloanRecipient,
     IMorphoFlashLoanCallback,
-    IERC3156FlashBorrower
+    IERC3156FlashBorrower,
+    IFlashLoanSimpleReceiver
 {
     using SafeERC20 for IERC20;
     using TransientSlot for *;
@@ -53,6 +58,9 @@ contract FlashloanAggregator is
     /// @notice The address of the Maker DSS Flash.
     address public immutable dssFlash;
 
+    /// @notice The address of the Aave V3 pool.
+    address public immutable aaveV3AddressProvider;
+
     /// @notice Modifier to check if the caller is a Caliber.
     modifier onlyCaliber() {
         if (!ICaliberFactory(caliberFactory).isCaliber(msg.sender)) {
@@ -74,6 +82,7 @@ contract FlashloanAggregator is
         address _balancerV3Pool,
         address _morphoPool,
         address _dssFlash,
+        address _aaveV3AddressProvider,
         address _dai
     ) {
         caliberFactory = _caliberFactory;
@@ -81,6 +90,7 @@ contract FlashloanAggregator is
         balancerV3Pool = _balancerV3Pool;
         morphoPool = _morphoPool;
         dssFlash = _dssFlash;
+        aaveV3AddressProvider = _aaveV3AddressProvider;
         dai = _dai;
     }
 
@@ -104,6 +114,8 @@ contract FlashloanAggregator is
             _requestMorphoFlashloan(request);
         } else if (request.provider == FlashloanProvider.DSS_FLASH) {
             _requestDssFlashloan(request);
+        } else if (request.provider == FlashloanProvider.AAVE_V3) {
+            _requestAaveV3Flashloan(request);
         }
     }
 
@@ -228,6 +240,36 @@ contract FlashloanAggregator is
         );
     }
 
+    /// @notice Function to request a flashloan from Aave V3.
+    /// @param request The request for the flashloan.
+    function _requestAaveV3Flashloan(
+        FlashloanRequest calldata request
+    ) internal {
+        // Check that the Aave V3 address provider is not address(0).
+        if (aaveV3AddressProvider == address(0)) {
+            revert AaveV3PoolNotSet();
+        }
+
+        // Get the Aave V3 pool address
+        IPool aaveV3Pool = IPool(
+            IPoolAddressesProvider(aaveV3AddressProvider).getPool()
+        );
+
+        // Encode the callback data
+        bytes memory data = abi.encode(msg.sender, request.instruction);
+
+        // Request the flashloan
+        // No need to set the expected data hash as the flashloan passes the initiator over
+        // and we can check it in `executeOperation`
+        aaveV3Pool.flashLoanSimple(
+            address(this),
+            request.token,
+            request.amount,
+            data,
+            0
+        );
+    }
+
     /// @notice Catch-all function to handle the flashloan callback.
     /// @param caliber The address of the Caliber.
     /// @param instruction The instruction to execute.
@@ -346,6 +388,10 @@ contract FlashloanAggregator is
         uint256 fee,
         bytes calldata data
     ) external returns (bytes32) {
+        // Check if the caller of this is the DSS Flash
+        if (msg.sender != dssFlash) {
+            revert NotDssFlash();
+        }
         // Check that the initiator is this contract.
         if (initiator != address(this)) {
             revert NotRequested();
@@ -368,5 +414,55 @@ contract FlashloanAggregator is
         IERC20(token).safeTransfer(msg.sender, amount);
 
         return keccak256("ERC3156FlashBorrower.onFlashLoan");
+    }
+
+    /// @inheritdoc IFlashLoanSimpleReceiver
+    function executeOperation(
+        address asset,
+        uint256 amount,
+        uint256 premium,
+        address initiator,
+        bytes calldata params
+    ) external returns (bool) {
+        // Get the Aave V3 pool address
+        IPool aaveV3Pool = IPool(
+            IPoolAddressesProvider(aaveV3AddressProvider).getPool()
+        );
+
+        // Check if the caller of this is the Aave V3 pool
+        if (msg.sender != address(aaveV3Pool)) {
+            revert NotAaveV3Pool();
+        }
+        // Check that the initiator is this contract
+        if (initiator != address(this)) {
+            revert NotRequested();
+        }
+
+        // Decode the data
+        (address caliber, ICaliber.Instruction memory instruction) = abi.decode(
+            params,
+            (address, ICaliber.Instruction)
+        );
+
+        // Handle the flashloan callback
+        _handleFlashloanCallback(caliber, instruction, asset, amount);
+
+        // Repay the flashloan
+        IERC20(asset).safeIncreaseAllowance(msg.sender, amount + premium);
+
+        return true;
+    }
+
+    /// @inheritdoc IFlashLoanSimpleReceiver
+    function ADDRESSES_PROVIDER()
+        external
+        view
+        returns (IPoolAddressesProvider)
+    {
+        return IPoolAddressesProvider(aaveV3AddressProvider);
+    }
+
+    function POOL() external view returns (IPool) {
+        return IPool(IPoolAddressesProvider(aaveV3AddressProvider).getPool());
     }
 }

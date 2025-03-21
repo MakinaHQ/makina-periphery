@@ -33,6 +33,9 @@ interface IFlashloanAggregator {
     /// @notice Error thrown when the caller is not the Maker DSS Flash.
     error NotDssFlash();
 
+    /// @notice Error thrown when the caller is not the Aave V3 pool.
+    error NotAaveV3Pool();
+
     /// @notice Error thrown when the Balancer V2 pool is not set.
     error BalancerV2PoolNotSet();
 
@@ -45,11 +48,16 @@ interface IFlashloanAggregator {
     /// @notice Error thrown when the Maker DSS Flash is not set.
     error DssFlashNotSet();
 
+    /// @notice Error thrown when the Aave V3 pool is not set.
+    error AaveV3PoolNotSet();
+
     /// @notice Error thrown when the user data hash is invalid.
     error InvalidUserDataHash();
 
     /// @notice The enum for the flashloan providers.
     enum FlashloanProvider {
+        /// Aave V3
+        AAVE_V3,
         /// Balancer V2
         BALANCER_V2,
         /// Balancer V3

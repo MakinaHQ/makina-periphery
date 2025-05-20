@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Unlicensed
-pragma solidity ^0.8.0;
+pragma solidity 0.8.28;
 
 import {ICaliber} from "@makina-core/interfaces/ICaliber.sol";
 

@@ -1,7 +1,8 @@
 /// SPDX-License-Identifier: Unlicensed
-pragma solidity ^0.8.0;
+pragma solidity 0.8.28;
 
-import {IFlashLoanRecipient as BalancerV2FlashloanRecipient} from "@balancer-v2-interfaces/vault/IFlashLoanRecipient.sol";
+import {IFlashLoanRecipient as BalancerV2FlashloanRecipient} from
+    "@balancer-v2-interfaces/vault/IFlashLoanRecipient.sol";
 import {IERC20 as BalancerIERC20} from "@balancer-v2-interfaces/solidity-utils/openzeppelin/IERC20.sol";
 import {IVault as IVaultV2} from "@balancer-v2-interfaces/vault/IVault.sol";
 import {IVault as IVaultV3} from "@balancer-v3-interfaces/vault/IVault.sol";
@@ -95,17 +96,13 @@ contract FlashloanAggregator is
     }
 
     /// @inheritdoc IFlashloanAggregator
-    function requestFlashloan(
-        FlashloanRequest calldata request
-    ) external override onlyCaliber {
+    function requestFlashloan(FlashloanRequest calldata request) external override onlyCaliber {
         _dispatchFlashloanRequest(request);
     }
 
     /// @notice Function to dispatch the flashloan request to the correct provider.
     /// @param request The request for the flashloan.
-    function _dispatchFlashloanRequest(
-        FlashloanRequest calldata request
-    ) internal {
+    function _dispatchFlashloanRequest(FlashloanRequest calldata request) internal {
         if (request.provider == FlashloanProvider.BALANCER_V2) {
             _requestBalancerV2Flashloan(request);
         } else if (request.provider == FlashloanProvider.BALANCER_V3) {
@@ -140,9 +137,7 @@ contract FlashloanAggregator is
 
     /// @notice Function to request a flashloan from Balancer V2.
     /// @param request The request for the flashloan.
-    function _requestBalancerV2Flashloan(
-        FlashloanRequest calldata request
-    ) internal {
+    function _requestBalancerV2Flashloan(FlashloanRequest calldata request) internal {
         // Check that the Balancer V2 pool is not address(0).
         if (balancerV2Pool == address(0)) {
             revert BalancerV2PoolNotSet();
@@ -167,9 +162,7 @@ contract FlashloanAggregator is
 
     /// @notice Function to request a flashloan from Balancer V3.
     /// @param request The request for the flashloan.
-    function _requestBalancerV3Flashloan(
-        FlashloanRequest calldata request
-    ) internal {
+    function _requestBalancerV3Flashloan(FlashloanRequest calldata request) internal {
         // Check that the Balancer V3 pool is not address(0).
         if (balancerV3Pool == address(0)) {
             revert BalancerV3PoolNotSet();
@@ -194,20 +187,14 @@ contract FlashloanAggregator is
 
     /// @notice Function to request a flashloan from Morpho.
     /// @param request The request for the flashloan.
-    function _requestMorphoFlashloan(
-        FlashloanRequest calldata request
-    ) internal {
+    function _requestMorphoFlashloan(FlashloanRequest calldata request) internal {
         // Check that the Morpho pool is not address(0).
         if (morphoPool == address(0)) {
             revert MorphoPoolNotSet();
         }
 
         // Encode the callback data
-        bytes memory data = abi.encode(
-            request.token,
-            msg.sender,
-            request.instruction
-        );
+        bytes memory data = abi.encode(request.token, msg.sender, request.instruction);
 
         // Set the expected data hash
         _setExpectedDataHash(data);
@@ -233,27 +220,20 @@ contract FlashloanAggregator is
         // No need to set the expected data hash as the flashloan passes the initiator over
         // and we can check it in `onFlashLoan`
         IERC3156FlashLender(dssFlash).flashLoan(
-            this,
-            request.token,
-            request.amount,
-            abi.encode(msg.sender, request.instruction)
+            this, request.token, request.amount, abi.encode(msg.sender, request.instruction)
         );
     }
 
     /// @notice Function to request a flashloan from Aave V3.
     /// @param request The request for the flashloan.
-    function _requestAaveV3Flashloan(
-        FlashloanRequest calldata request
-    ) internal {
+    function _requestAaveV3Flashloan(FlashloanRequest calldata request) internal {
         // Check that the Aave V3 address provider is not address(0).
         if (aaveV3AddressProvider == address(0)) {
             revert AaveV3PoolNotSet();
         }
 
         // Get the Aave V3 pool address
-        IPool aaveV3Pool = IPool(
-            IPoolAddressesProvider(aaveV3AddressProvider).getPool()
-        );
+        IPool aaveV3Pool = IPool(IPoolAddressesProvider(aaveV3AddressProvider).getPool());
 
         // Encode the callback data
         bytes memory data = abi.encode(msg.sender, request.instruction);
@@ -261,13 +241,7 @@ contract FlashloanAggregator is
         // Request the flashloan
         // No need to set the expected data hash as the flashloan passes the initiator over
         // and we can check it in `executeOperation`
-        aaveV3Pool.flashLoanSimple(
-            address(this),
-            request.token,
-            request.amount,
-            data,
-            0
-        );
+        aaveV3Pool.flashLoanSimple(address(this), request.token, request.amount, data, 0);
     }
 
     /// @notice Catch-all function to handle the flashloan callback.
@@ -311,18 +285,11 @@ contract FlashloanAggregator is
         }
 
         // Decode the user data
-        (address caliber, ICaliber.Instruction memory instruction) = abi.decode(
-            userData,
-            (address, ICaliber.Instruction)
-        );
+        (address caliber, ICaliber.Instruction memory instruction) =
+            abi.decode(userData, (address, ICaliber.Instruction));
 
         // Handle the flashloan callback
-        _handleFlashloanCallback(
-            caliber,
-            instruction,
-            address(tokens[0]),
-            amounts[0]
-        );
+        _handleFlashloanCallback(caliber, instruction, address(tokens[0]), amounts[0]);
 
         // Repay the flashloan
         IERC20(address(tokens[0])).safeTransfer(msg.sender, amounts[0]);
@@ -367,11 +334,8 @@ contract FlashloanAggregator is
         }
 
         // Decode the data
-        (
-            address token,
-            address caliber,
-            ICaliber.Instruction memory instruction
-        ) = abi.decode(data, (address, address, ICaliber.Instruction));
+        (address token, address caliber, ICaliber.Instruction memory instruction) =
+            abi.decode(data, (address, address, ICaliber.Instruction));
 
         // Handle the flashloan callback
         _handleFlashloanCallback(caliber, instruction, token, assets);
@@ -381,13 +345,10 @@ contract FlashloanAggregator is
     }
 
     /// @inheritdoc IERC3156FlashBorrower
-    function onFlashLoan(
-        address initiator,
-        address token,
-        uint256 amount,
-        uint256 fee,
-        bytes calldata data
-    ) external returns (bytes32) {
+    function onFlashLoan(address initiator, address token, uint256 amount, uint256 fee, bytes calldata data)
+        external
+        returns (bytes32)
+    {
         // Check if the caller of this is the DSS Flash
         if (msg.sender != dssFlash) {
             revert NotDssFlash();
@@ -402,10 +363,7 @@ contract FlashloanAggregator is
         }
 
         // Decode the data
-        (address caliber, ICaliber.Instruction memory instruction) = abi.decode(
-            data,
-            (address, ICaliber.Instruction)
-        );
+        (address caliber, ICaliber.Instruction memory instruction) = abi.decode(data, (address, ICaliber.Instruction));
 
         // Handle the flashloan callback
         _handleFlashloanCallback(caliber, instruction, token, amount);
@@ -417,17 +375,12 @@ contract FlashloanAggregator is
     }
 
     /// @inheritdoc IFlashLoanSimpleReceiver
-    function executeOperation(
-        address asset,
-        uint256 amount,
-        uint256 premium,
-        address initiator,
-        bytes calldata params
-    ) external returns (bool) {
+    function executeOperation(address asset, uint256 amount, uint256 premium, address initiator, bytes calldata params)
+        external
+        returns (bool)
+    {
         // Get the Aave V3 pool address
-        IPool aaveV3Pool = IPool(
-            IPoolAddressesProvider(aaveV3AddressProvider).getPool()
-        );
+        IPool aaveV3Pool = IPool(IPoolAddressesProvider(aaveV3AddressProvider).getPool());
 
         // Check if the caller of this is the Aave V3 pool
         if (msg.sender != address(aaveV3Pool)) {
@@ -439,10 +392,7 @@ contract FlashloanAggregator is
         }
 
         // Decode the data
-        (address caliber, ICaliber.Instruction memory instruction) = abi.decode(
-            params,
-            (address, ICaliber.Instruction)
-        );
+        (address caliber, ICaliber.Instruction memory instruction) = abi.decode(params, (address, ICaliber.Instruction));
 
         // Handle the flashloan callback
         _handleFlashloanCallback(caliber, instruction, asset, amount);
@@ -454,11 +404,7 @@ contract FlashloanAggregator is
     }
 
     /// @inheritdoc IFlashLoanSimpleReceiver
-    function ADDRESSES_PROVIDER()
-        external
-        view
-        returns (IPoolAddressesProvider)
-    {
+    function ADDRESSES_PROVIDER() external view returns (IPoolAddressesProvider) {
         return IPoolAddressesProvider(aaveV3AddressProvider);
     }
 

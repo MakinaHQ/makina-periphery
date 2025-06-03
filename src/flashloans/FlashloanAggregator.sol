@@ -25,7 +25,7 @@ import {TransientSlot} from "@openzeppelin/contracts/utils/TransientSlot.sol";
 import {ICaliber} from "@makina-core/interfaces/ICaliber.sol";
 import {ICaliberFactory} from "@makina-core/interfaces/ICaliberFactory.sol";
 
-import {IFlashloanAggregator} from "./interfaces/IFlashloanAggregator.sol";
+import {IFlashloanAggregator} from "../interfaces/IFlashloanAggregator.sol";
 
 contract FlashloanAggregator is
     IFlashloanAggregator,

@@ -1,66 +1,63 @@
-## Foundry
+# Makina Periphery Smart Contracts
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+This repository contains the periphery smart contracts of the Makina Protocol.
 
-Foundry consists of:
+## Contracts Overview
 
-- **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
-- **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
-- **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
-- **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+| Filename                   | Deployment chain | Description                                                                                      |
+| -------------------------- | ---------------- | ------------------------------------------------------------------------------------------------ |
+| `HubPeripheryRegistry.sol` | Hub              | Stores addresses of factory and beacons for core periphery components of the protocol.           |
+| `HubPeripheryFactory.sol`  | Hub              | Hub factory for creation of machine managers.                                                    |
+| `FlashloanAggregator.sol`  | Hub + Spoke      | Standalone module used by calibers to execute flashLoan transactions through external protocols. |
 
-## Documentation
+## Installation
 
-https://book.getfoundry.sh/
+Follow [this link](https://book.getfoundry.sh/getting-started/installation) to install the Foundry toolchain.
 
-## Usage
+## Submodules
+
+Run below command to include/update all git submodules like forge-std, openzeppelin contracts etc (`lib/`)
+
+```shell
+git submodule update --init --recursive
+```
+
+## Dependencies
+
+Run below command to include project dependencies like prettier and solhint (`node_modules/`)
+
+```shell
+yarn
+```
 
 ### Build
 
+Run below command to compile all other contracts
+
 ```shell
-$ forge build
+forge build
 ```
 
 ### Test
 
 ```shell
-$ forge test
+forge test
+```
+
+### Coverage
+
+```shell
+yarn coverage
 ```
 
 ### Format
 
 ```shell
-$ forge fmt
+forge fmt
 ```
 
-### Gas Snapshots
+### Lint
 
 ```shell
-$ forge snapshot
-```
-
-### Anvil
-
-```shell
-$ anvil
-```
-
-### Deploy
-
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
-```
-
-### Cast
-
-```shell
-$ cast <subcommand>
-```
-
-### Help
-
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
+yarn lint
 ```

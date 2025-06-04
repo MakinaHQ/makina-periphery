@@ -22,6 +22,8 @@ import {TokenRegistry} from "@makina-core/registries/TokenRegistry.sol";
 
 import {Constants} from "../utils/Constants.sol";
 import {FlashloanAggregator} from "../../src/flashloans/FlashloanAggregator.sol";
+import {HubPeripheryRegistry} from "../../src/registries/HubPeripheryRegistry.sol";
+import {HubPeripheryFactory} from "../../src/factories/HubPeripheryFactory.sol";
 
 import {Base} from "./Base.sol";
 
@@ -37,6 +39,8 @@ abstract contract Base_Test is Base, Test, Constants {
     address public riskManagerTimelock;
 
     FlashloanAggregator public flashloanAggregator;
+    HubPeripheryRegistry public hubPeripheryRegistry;
+    HubPeripheryFactory public hubPeripheryFactory;
 
     function setUp() public virtual {
         deployer = address(this);
@@ -90,9 +94,11 @@ abstract contract Base_Hub_Test is Base_Test {
         chainRegistry = hubCore.chainRegistry;
         hubCoreFactory = hubCore.hubCoreFactory;
 
-        // Periphery
-        Periphery memory periphery = deployPeriphery(
+        // Hub Periphery
+        HubPeriphery memory hubPeriphery = deployPeriphery(
+            address(accessManager),
             address(hubCore.hubCoreFactory),
+            dao,
             FlashloanProviders({
                 _balancerV2Pool: balancerV2Pool,
                 _balancerV3Pool: balancerV3Pool,
@@ -102,9 +108,12 @@ abstract contract Base_Hub_Test is Base_Test {
                 _dai: dai
             })
         );
-        flashloanAggregator = periphery.flashloanAggregator;
+        flashloanAggregator = hubPeriphery.flashloanAggregator;
+        hubPeripheryRegistry = hubPeriphery.hubPeripheryRegistry;
+        hubPeripheryFactory = hubPeriphery.hubPeripheryFactory;
 
-        setupCoreRegistry(address(hubCore.hubCoreRegistry), periphery);
+        registerFlashloanAggregator(address(hubCore.hubCoreRegistry), address(flashloanAggregator));
+        registerHubPeripheryFactory(address(hubPeripheryRegistry), address(hubPeripheryFactory));
         _setupAccessManager();
     }
 

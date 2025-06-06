@@ -3,13 +3,13 @@ pragma solidity 0.8.28;
 
 import {Unit_Concrete_Test} from "../UnitConcrete.t.sol";
 
-abstract contract Caliber_Unit_Concrete_Test is Unit_Concrete_Test {
+abstract contract FlashloanAggregator_Unit_Concrete_Test is Unit_Concrete_Test {
     function setUp() public virtual override {
         Unit_Concrete_Test.setUp();
     }
 }
 
-contract Getters_Setters_Caliber_Unit_Concrete_Test is Caliber_Unit_Concrete_Test {
+contract Getters_Setters_FlashloanAggregator_Unit_Concrete_Test is FlashloanAggregator_Unit_Concrete_Test {
     function test_Getters() public view {
         assertEq(flashloanAggregator.caliberFactory(), address(hubCoreFactory));
         assertEq(flashloanAggregator.balancerV2Pool(), address(balancerV2Pool));

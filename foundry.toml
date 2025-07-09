@@ -5,13 +5,11 @@ libs = ["lib"]
 evm_version = "cancun"
 solc_version = "0.8.28"
 optimizer = true
+ffi = true
+fs_permissions = [{ access = "read-write", path = "./"}]
 
 [rpc_endpoints]
 mainnet = "${MAINNET_RPC_URL}"
-base = "${BASE_RPC_URL}"
 
 [fuzz]
 runs = 1024
-
-
-# See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options

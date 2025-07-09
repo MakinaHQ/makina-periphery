@@ -18,5 +18,6 @@ contract Getters_Setters_FlashloanAggregator_Unit_Concrete_Test is FlashloanAggr
         assertEq(flashloanAggregator.dssFlash(), address(dssFlash));
         assertEq(flashloanAggregator.aaveV3AddressProvider(), address(aaveV3AddressProvider));
         assertEq(flashloanAggregator.dai(), address(dai));
+        assertEq(address(flashloanAggregator.ADDRESSES_PROVIDER()), address(aaveV3AddressProvider));
     }
 }

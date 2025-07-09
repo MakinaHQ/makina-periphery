@@ -17,13 +17,13 @@ abstract contract Base {
         HubPeripheryFactory hubPeripheryFactory;
     }
 
-    struct FlashloanProviders {
-        address _balancerV2Pool;
-        address _balancerV3Pool;
-        address _morphoPool;
-        address _dssFlash;
-        address _aaveV3AddressProvider;
-        address _dai;
+    struct FlashLoanAggregatorInitParams {
+        address balancerV2Pool;
+        address balancerV3Pool;
+        address morphoPool;
+        address dssFlash;
+        address aaveV3AddressProvider;
+        address dai;
     }
 
     ///
@@ -34,16 +34,16 @@ abstract contract Base {
         address accessManager,
         address coreFactory,
         address dao,
-        FlashloanProviders memory flProviders
+        FlashLoanAggregatorInitParams memory flProviders
     ) public returns (HubPeriphery memory deployment) {
         deployment.flashloanAggregator = new FlashloanAggregator(
             coreFactory,
-            flProviders._balancerV2Pool,
-            flProviders._balancerV3Pool,
-            flProviders._morphoPool,
-            flProviders._dssFlash,
-            flProviders._aaveV3AddressProvider,
-            flProviders._dai
+            flProviders.balancerV2Pool,
+            flProviders.balancerV3Pool,
+            flProviders.morphoPool,
+            flProviders.dssFlash,
+            flProviders.aaveV3AddressProvider,
+            flProviders.dai
         );
 
         address hubPeripheryRegistryImplemAddr = address(new HubPeripheryRegistry());

@@ -156,8 +156,6 @@ contract FlashloanAggregator is
         _setExpectedDataHash(data);
         // Request the flashloan
         IVaultV2(balancerV2Pool).flashLoan(this, tokens, amounts, data);
-        // Clear the expected data hash
-        _clearExpectedDataHash();
     }
 
     /// @notice Function to request a flashloan from Balancer V3.
@@ -181,8 +179,6 @@ contract FlashloanAggregator is
         _setExpectedDataHash(data);
         // Unlock the vault
         IVaultV3(balancerV3Pool).unlock(data);
-        // Clear the expected data hash
-        _clearExpectedDataHash();
     }
 
     /// @notice Function to request a flashloan from Morpho.
@@ -200,8 +196,6 @@ contract FlashloanAggregator is
         _setExpectedDataHash(data);
         // Request the flashloan
         IMorpho(morphoPool).flashLoan(request.token, request.amount, data);
-        // Clear the expected data hash
-        _clearExpectedDataHash();
     }
 
     /// @notice Function to request a flashloan from Maker DSS Flash.
@@ -270,6 +264,7 @@ contract FlashloanAggregator is
     ) external {
         // Check if the expected data hash is valid
         _isValidExpectedDataHash(userData);
+        _clearExpectedDataHash();
 
         // Check if the caller is the Balancer V2 pool
         if (msg.sender != balancerV2Pool) {
@@ -304,6 +299,7 @@ contract FlashloanAggregator is
     ) external {
         // Check if the expected data hash is valid
         _isValidExpectedDataHash(msg.data);
+        _clearExpectedDataHash();
 
         // Check if the caller is the Balancer V3 pool
         if (msg.sender != balancerV3Pool) {
@@ -327,6 +323,7 @@ contract FlashloanAggregator is
     function onMorphoFlashLoan(uint256 assets, bytes calldata data) external {
         // Check if the expected data hash is valid
         _isValidExpectedDataHash(data);
+        _clearExpectedDataHash();
 
         // Check if the caller is the Morpho pool
         if (msg.sender != morphoPool) {
@@ -369,7 +366,7 @@ contract FlashloanAggregator is
         _handleFlashloanCallback(caliber, instruction, token, amount);
 
         // Repay the flashloan
-        IERC20(token).safeTransfer(msg.sender, amount);
+        IERC20(token).forceApprove(msg.sender, amount);
 
         return keccak256("ERC3156FlashBorrower.onFlashLoan");
     }

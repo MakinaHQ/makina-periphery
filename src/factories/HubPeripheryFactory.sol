@@ -6,18 +6,18 @@ import {BeaconProxy} from "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol"
 
 import {IHubPeripheryFactory} from "../interfaces/IHubPeripheryFactory.sol";
 import {IHubPeripheryRegistry} from "../interfaces/IHubPeripheryRegistry.sol";
-import {IMachineManager} from "../interfaces/IMachineManager.sol";
+import {IMachinePeriphery} from "../interfaces/IMachinePeriphery.sol";
 import {Errors} from "../libraries/Errors.sol";
 import {MakinaPeripheryContext} from "../utils/MakinaPeripheryContext.sol";
 
 contract HubPeripheryFactory is AccessManagedUpgradeable, MakinaPeripheryContext, IHubPeripheryFactory {
     /// @custom:storage-location erc7201:makina.storage.HubPeripheryFactory
     struct HubPeripheryFactoryStorage {
-        mapping(address depositManager => bool isDepositManager) _isDepositManager;
-        mapping(address redeemManager => bool isRedeemManager) _isRedeemManager;
+        mapping(address machineDepositor => bool isMachineDepositor) _isMachineDepositor;
+        mapping(address machineRedeemer => bool isMachineRedeemer) _isMachineRedeemer;
         mapping(address feeManager => bool isFeeManager) _isFeeManager;
-        mapping(address depositManager => uint16 implemId) _depositManagerImplemId;
-        mapping(address redeemManager => uint16 implemId) _redeemManagerImplemId;
+        mapping(address machineDepositor => uint16 implemId) _machineDepositorImplemId;
+        mapping(address machineRedeemer => uint16 implemId) _machineRedeemerImplemId;
         mapping(address feeManager => uint16 implemId) _feeManagerImplemId;
     }
 
@@ -40,13 +40,13 @@ contract HubPeripheryFactory is AccessManagedUpgradeable, MakinaPeripheryContext
     }
 
     /// @inheritdoc IHubPeripheryFactory
-    function isDepositManager(address _depositManager) external view override returns (bool) {
-        return _getHubPeripheryFactoryStorage()._isDepositManager[_depositManager];
+    function isMachineDepositor(address _machineDepositor) external view override returns (bool) {
+        return _getHubPeripheryFactoryStorage()._isMachineDepositor[_machineDepositor];
     }
 
     /// @inheritdoc IHubPeripheryFactory
-    function isRedeemManager(address _redeemManager) external view override returns (bool) {
-        return _getHubPeripheryFactoryStorage()._isRedeemManager[_redeemManager];
+    function isMachineRedeemer(address _machineRedeemer) external view override returns (bool) {
+        return _getHubPeripheryFactoryStorage()._isMachineRedeemer[_machineRedeemer];
     }
 
     /// @inheritdoc IHubPeripheryFactory
@@ -55,21 +55,21 @@ contract HubPeripheryFactory is AccessManagedUpgradeable, MakinaPeripheryContext
     }
 
     /// @inheritdoc IHubPeripheryFactory
-    function depositManagerImplemId(address _depositManager) external view override returns (uint16) {
+    function machineDepositorImplemId(address _machineDepositor) external view override returns (uint16) {
         HubPeripheryFactoryStorage storage $ = _getHubPeripheryFactoryStorage();
-        if (!$._isDepositManager[_depositManager]) {
-            revert Errors.NotDepositManager();
+        if (!$._isMachineDepositor[_machineDepositor]) {
+            revert Errors.NotMachineDepositor();
         }
-        return $._depositManagerImplemId[_depositManager];
+        return $._machineDepositorImplemId[_machineDepositor];
     }
 
     /// @inheritdoc IHubPeripheryFactory
-    function redeemManagerImplemId(address _redeemManager) external view override returns (uint16) {
+    function machineRedeemerImplemId(address _machineRedeemer) external view override returns (uint16) {
         HubPeripheryFactoryStorage storage $ = _getHubPeripheryFactoryStorage();
-        if (!$._isRedeemManager[_redeemManager]) {
-            revert Errors.NotRedeemManager();
+        if (!$._isMachineRedeemer[_machineRedeemer]) {
+            revert Errors.NotMachineRedeemer();
         }
-        return $._redeemManagerImplemId[_redeemManager];
+        return $._machineRedeemerImplemId[_machineRedeemer];
     }
 
     /// @inheritdoc IHubPeripheryFactory
@@ -82,7 +82,7 @@ contract HubPeripheryFactory is AccessManagedUpgradeable, MakinaPeripheryContext
     }
 
     /// @inheritdoc IHubPeripheryFactory
-    function createDepositManager(uint16 _implemId, address _initialAuthority, bytes calldata _initializationData)
+    function createMachineDepositor(uint16 _implemId, bytes calldata _initializationData)
         external
         override
         restricted
@@ -90,27 +90,24 @@ contract HubPeripheryFactory is AccessManagedUpgradeable, MakinaPeripheryContext
     {
         HubPeripheryFactoryStorage storage $ = _getHubPeripheryFactoryStorage();
 
-        address beacon = IHubPeripheryRegistry(peripheryRegistry).depositManagerBeacon(_implemId);
+        address beacon = IHubPeripheryRegistry(peripheryRegistry).machineDepositorBeacon(_implemId);
         if (beacon == address(0)) {
-            revert Errors.InvalidDepositManagerImplemId();
+            revert Errors.InvalidMachineDepositorImplemId();
         }
 
-        address depositManager = address(
-            new BeaconProxy(
-                beacon, abi.encodeCall(IMachineManager.initialize, (_initialAuthority, _initializationData))
-            )
-        );
+        address machineDepositor =
+            address(new BeaconProxy(beacon, abi.encodeCall(IMachinePeriphery.initialize, (_initializationData))));
 
-        $._isDepositManager[depositManager] = true;
-        $._depositManagerImplemId[depositManager] = _implemId;
+        $._isMachineDepositor[machineDepositor] = true;
+        $._machineDepositorImplemId[machineDepositor] = _implemId;
 
-        emit DepositManagerCreated(depositManager, _implemId);
+        emit MachineDepositorCreated(machineDepositor, _implemId);
 
-        return depositManager;
+        return machineDepositor;
     }
 
     /// @inheritdoc IHubPeripheryFactory
-    function createRedeemManager(uint16 _implemId, address _initialAuthority, bytes calldata _initializationData)
+    function createMachineRedeemer(uint16 _implemId, bytes calldata _initializationData)
         external
         override
         restricted
@@ -118,27 +115,24 @@ contract HubPeripheryFactory is AccessManagedUpgradeable, MakinaPeripheryContext
     {
         HubPeripheryFactoryStorage storage $ = _getHubPeripheryFactoryStorage();
 
-        address beacon = IHubPeripheryRegistry(peripheryRegistry).redeemManagerBeacon(_implemId);
+        address beacon = IHubPeripheryRegistry(peripheryRegistry).machineRedeemerBeacon(_implemId);
         if (beacon == address(0)) {
-            revert Errors.InvalidRedeemManagerImplemId();
+            revert Errors.InvalidMachineRedeemerImplemId();
         }
 
-        address redeemManager = address(
-            new BeaconProxy(
-                beacon, abi.encodeCall(IMachineManager.initialize, (_initialAuthority, _initializationData))
-            )
-        );
+        address machineRedeemer =
+            address(new BeaconProxy(beacon, abi.encodeCall(IMachinePeriphery.initialize, (_initializationData))));
 
-        $._isRedeemManager[redeemManager] = true;
-        $._redeemManagerImplemId[redeemManager] = _implemId;
+        $._isMachineRedeemer[machineRedeemer] = true;
+        $._machineRedeemerImplemId[machineRedeemer] = _implemId;
 
-        emit RedeemManagerCreated(redeemManager, _implemId);
+        emit MachineRedeemerCreated(machineRedeemer, _implemId);
 
-        return redeemManager;
+        return machineRedeemer;
     }
 
     /// @inheritdoc IHubPeripheryFactory
-    function createFeeManager(uint16 _implemId, address _initialAuthority, bytes calldata _initializationData)
+    function createFeeManager(uint16 _implemId, bytes calldata _initializationData)
         external
         override
         restricted
@@ -151,11 +145,8 @@ contract HubPeripheryFactory is AccessManagedUpgradeable, MakinaPeripheryContext
             revert Errors.InvalidFeeManagerImplemId();
         }
 
-        address feeManager = address(
-            new BeaconProxy(
-                beacon, abi.encodeCall(IMachineManager.initialize, (_initialAuthority, _initializationData))
-            )
-        );
+        address feeManager =
+            address(new BeaconProxy(beacon, abi.encodeCall(IMachinePeriphery.initialize, (_initializationData))));
 
         $._isFeeManager[feeManager] = true;
         $._feeManagerImplemId[feeManager] = _implemId;

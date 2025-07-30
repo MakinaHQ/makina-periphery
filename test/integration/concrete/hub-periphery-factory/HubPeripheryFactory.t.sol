@@ -3,7 +3,7 @@ pragma solidity 0.8.28;
 
 import {UpgradeableBeacon} from "@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol";
 
-import {MockMachineManager} from "test/mocks/MockMachineManager.sol";
+import {MockMachinePeriphery} from "test/mocks/MockMachinePeriphery.sol";
 
 import {Integration_Concrete_Test} from "../IntegrationConcrete.t.sol";
 
@@ -12,12 +12,12 @@ abstract contract HubPeripheryFactory_Integration_Concrete_Test is Integration_C
         Integration_Concrete_Test.setUp();
 
         // Deploy and set up dummy machine manager implementation
-        address mockMachineManagerImplem = address(new MockMachineManager());
-        address mockMachineManagerBeacon = address(new UpgradeableBeacon(mockMachineManagerImplem, dao));
+        address mockMachinePeripheryImplem = address(new MockMachinePeriphery());
+        address mockMachinePeripheryBeacon = address(new UpgradeableBeacon(mockMachinePeripheryImplem, dao));
         vm.startPrank(dao);
-        hubPeripheryRegistry.setDepositManagerBeacon(DUMMY_MANAGER_IMPLEM_ID, mockMachineManagerBeacon);
-        hubPeripheryRegistry.setRedeemManagerBeacon(DUMMY_MANAGER_IMPLEM_ID, mockMachineManagerBeacon);
-        hubPeripheryRegistry.setFeeManagerBeacon(DUMMY_MANAGER_IMPLEM_ID, mockMachineManagerBeacon);
+        hubPeripheryRegistry.setMachineDepositorBeacon(DUMMY_MANAGER_IMPLEM_ID, mockMachinePeripheryBeacon);
+        hubPeripheryRegistry.setMachineRedeemerBeacon(DUMMY_MANAGER_IMPLEM_ID, mockMachinePeripheryBeacon);
+        hubPeripheryRegistry.setFeeManagerBeacon(DUMMY_MANAGER_IMPLEM_ID, mockMachinePeripheryBeacon);
         vm.stopPrank();
     }
 }

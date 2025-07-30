@@ -18,8 +18,8 @@ contract Getters_Setters_HubPeripheryRegistry_Unit_Concrete_Test is Unit_Concret
 
     function test_Getters() public view {
         assertEq(hubPeripheryRegistry.peripheryFactory(), address(hubPeripheryFactory));
-        assertEq(hubPeripheryRegistry.depositManagerBeacon(implemId), address(0));
-        assertEq(hubPeripheryRegistry.redeemManagerBeacon(implemId), address(0));
+        assertEq(hubPeripheryRegistry.machineDepositorBeacon(implemId), address(0));
+        assertEq(hubPeripheryRegistry.machineRedeemerBeacon(implemId), address(0));
     }
 
     function test_SetPeripheryFactory_RevertWhen_CallerWithoutRole() public {
@@ -36,35 +36,37 @@ contract Getters_Setters_HubPeripheryRegistry_Unit_Concrete_Test is Unit_Concret
         assertEq(hubPeripheryRegistry.peripheryFactory(), newPeripheryFactory);
     }
 
-    function test_SetDepositManagerBeacon_RevertWhen_CallerWithoutRole() public {
+    function test_SetMachineDepositorBeacon_RevertWhen_CallerWithoutRole() public {
         vm.expectRevert(abi.encodeWithSelector(IAccessManaged.AccessManagedUnauthorized.selector, address(this)));
-        hubPeripheryRegistry.setDepositManagerBeacon(implemId, address(0));
+        hubPeripheryRegistry.setMachineDepositorBeacon(implemId, address(0));
     }
 
-    function test_SetDepositManagerBeacon() public {
-        address newDepositManagerBeacon = makeAddr("newDepositManagerBeacon");
+    function test_SetMachineDepositorBeacon() public {
+        address newMachineDepositorBeacon = makeAddr("newMachineDepositorBeacon");
         vm.expectEmit(true, true, false, false, address(hubPeripheryRegistry));
-        emit IHubPeripheryRegistry.DepositManagerBeaconChanged(implemId, address(0), newDepositManagerBeacon);
+        emit IHubPeripheryRegistry.MachineDepositorBeaconChanged(implemId, address(0), newMachineDepositorBeacon);
         vm.prank(dao);
-        hubPeripheryRegistry.setDepositManagerBeacon(implemId, newDepositManagerBeacon);
-        assertEq(hubPeripheryRegistry.depositManagerBeacon(implemId), newDepositManagerBeacon);
+        hubPeripheryRegistry.setMachineDepositorBeacon(implemId, newMachineDepositorBeacon);
+        assertEq(hubPeripheryRegistry.machineDepositorBeacon(implemId), newMachineDepositorBeacon);
     }
 
-    function test_SetRedeemManagerBeacon_RevertWhen_CallerWithoutRole() public {
+    function test_SetMachineRedeemerBeacon_RevertWhen_CallerWithoutRole() public {
         vm.expectRevert(abi.encodeWithSelector(IAccessManaged.AccessManagedUnauthorized.selector, address(this)));
-        hubPeripheryRegistry.setRedeemManagerBeacon(implemId, address(0));
+        hubPeripheryRegistry.setMachineRedeemerBeacon(implemId, address(0));
     }
 
-    function test_SetRedeemManagerBeacon() public {
-        address newRedeemManagerBeacon = makeAddr("newRedeemManagerBeacon");
+    function test_SetMachineRedeemerBeacon() public {
+        address newMachineRedeemerBeacon = makeAddr("newMachineRedeemerBeacon");
         vm.expectEmit(true, true, false, false, address(hubPeripheryRegistry));
-        emit IHubPeripheryRegistry.RedeemManagerBeaconChanged(implemId, address(0), newRedeemManagerBeacon);
+        emit IHubPeripheryRegistry.MachineRedeemerBeaconChanged(
+            implemId, address(0), newMachineRedeemerBeacon
+        );
         vm.prank(dao);
-        hubPeripheryRegistry.setRedeemManagerBeacon(implemId, newRedeemManagerBeacon);
-        assertEq(hubPeripheryRegistry.redeemManagerBeacon(implemId), newRedeemManagerBeacon);
+        hubPeripheryRegistry.setMachineRedeemerBeacon(implemId, newMachineRedeemerBeacon);
+        assertEq(hubPeripheryRegistry.machineRedeemerBeacon(implemId), newMachineRedeemerBeacon);
     }
 
-    function test_SetFeeanagerBeacon_RevertWhen_CallerWithoutRole() public {
+    function test_SetFeeManagerBeacon_RevertWhen_CallerWithoutRole() public {
         vm.expectRevert(abi.encodeWithSelector(IAccessManaged.AccessManagedUnauthorized.selector, address(this)));
         hubPeripheryRegistry.setFeeManagerBeacon(implemId, address(0));
     }

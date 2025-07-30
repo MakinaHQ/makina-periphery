@@ -90,7 +90,7 @@ abstract contract Base {
         require(implemIds.length == depositManagerBeacons.length, "Mismatched lengths");
 
         for (uint256 i; i < implemIds.length; ++i) {
-            IHubPeripheryRegistry(hubPeripheryRegistry).setDepositManagerBeacon(implemIds[i], depositManagerBeacons[i]);
+            IHubPeripheryRegistry(hubPeripheryRegistry).setMachineDepositorBeacon(implemIds[i], depositManagerBeacons[i]);
         }
     }
 
@@ -102,7 +102,7 @@ abstract contract Base {
         require(implemIds.length == redeemManagerBeacons.length, "Mismatched lengths");
 
         for (uint256 i; i < implemIds.length; ++i) {
-            IHubPeripheryRegistry(hubPeripheryRegistry).setRedeemManagerBeacon(implemIds[i], redeemManagerBeacons[i]);
+            IHubPeripheryRegistry(hubPeripheryRegistry).setMachineRedeemerBeacon(implemIds[i], redeemManagerBeacons[i]);
         }
     }
 

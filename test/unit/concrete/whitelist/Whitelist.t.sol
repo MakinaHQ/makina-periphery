@@ -1,0 +1,59 @@
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity 0.8.28;
+
+import {IAccessManaged} from "@openzeppelin/contracts/access/manager/IAccessManaged.sol";
+
+import {IWhitelist} from "src/interfaces/IWhitelist.sol";
+
+import {Unit_Concrete_Test} from "../UnitConcrete.t.sol";
+
+abstract contract Whitelist_Unit_Concrete_Test is Unit_Concrete_Test {
+    IWhitelist public whitelist;
+
+    function setUp() public virtual override {}
+
+    function test_Getters() public view {
+        assertFalse(whitelist.isWhitelistedUser(address(0)));
+    }
+
+    function test_SetWhitelistedUsers_RevertGiven_CallerWithoutRole() public {
+        vm.expectRevert(abi.encodeWithSelector(IAccessManaged.AccessManagedUnauthorized.selector, address(this)));
+        whitelist.setWhitelistedUsers(new address[](0), true);
+    }
+
+    function test_SetWhitelistedUsers() public {
+        address user1 = makeAddr("user1");
+        address user2 = makeAddr("user2");
+
+        assertFalse(whitelist.isWhitelistedUser(user1));
+        assertFalse(whitelist.isWhitelistedUser(user2));
+
+        address[] memory users = new address[](2);
+        users[0] = user1;
+        users[1] = user2;
+
+        vm.expectEmit(true, true, false, false, address(whitelist));
+        emit IWhitelist.UserWhitelistingChanged(user1, true);
+
+        vm.expectEmit(true, true, false, false, address(whitelist));
+        emit IWhitelist.UserWhitelistingChanged(user2, true);
+
+        vm.prank(dao);
+        whitelist.setWhitelistedUsers(users, true);
+
+        assertTrue(whitelist.isWhitelistedUser(user1));
+        assertTrue(whitelist.isWhitelistedUser(user2));
+
+        vm.expectEmit(true, true, false, false, address(whitelist));
+        emit IWhitelist.UserWhitelistingChanged(user1, false);
+
+        vm.expectEmit(true, true, false, false, address(whitelist));
+        emit IWhitelist.UserWhitelistingChanged(user2, false);
+
+        vm.prank(dao);
+        whitelist.setWhitelistedUsers(users, false);
+
+        assertFalse(whitelist.isWhitelistedUser(user1));
+        assertFalse(whitelist.isWhitelistedUser(user2));
+    }
+}

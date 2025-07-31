@@ -1,0 +1,34 @@
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity 0.8.28;
+
+import {AsyncMachineRedeemer} from "src/redeemers/AsyncMachineRedeemer.sol";
+import {MachineShare} from "@makina-core/machine/MachineShare.sol";
+
+import {MachinePeriphery_Integration_Concrete_Test} from "../../machine-periphery/MachinePeriphery.t.sol";
+
+contract AsyncMachineRedeemer_Integration_Concrete_Test is MachinePeriphery_Integration_Concrete_Test {
+    AsyncMachineRedeemer public asyncMachineRedeemer;
+
+    address public machineDepositorAddr;
+
+    function setUp() public override {
+        MachinePeriphery_Integration_Concrete_Test.setUp();
+
+        vm.prank(dao);
+        asyncMachineRedeemer =
+            AsyncMachineRedeemer(hubPeripheryFactory.createMachineRedeemer(ASYNC_REDEEM_MANAGER_IMPLEM_ID, ""));
+
+        machineDepositorAddr = makeAddr("machineDepositor");
+
+        (machine,) =
+            _deployMachine(address(accountingToken), machineDepositorAddr, address(asyncMachineRedeemer), address(0));
+        machineShare = MachineShare(machine.shareToken());
+    }
+
+    modifier withMachine(address _machine) {
+        vm.prank(address(hubPeripheryFactory));
+        asyncMachineRedeemer.setMachine(_machine);
+
+        _;
+    }
+}

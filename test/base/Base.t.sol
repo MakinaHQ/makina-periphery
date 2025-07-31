@@ -6,11 +6,17 @@ import {Test} from "forge-std/Test.sol";
 import "@makina-core-test/base/Base.sol" as Core_base;
 
 import {AccessManagerUpgradeable} from "@openzeppelin/contracts-upgradeable/access/manager/AccessManagerUpgradeable.sol";
+import {UpgradeableBeacon} from "@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol";
 
+import {ICaliber} from "@makina-core/interfaces/ICaliber.sol";
+import {IMachine} from "@makina-core/interfaces/IMachine.sol";
+import {IMakinaGovernable} from "@makina-core/interfaces/IMakinaGovernable.sol";
 import {MockWormhole} from "@makina-core-test/mocks/MockWormhole.sol";
+import {Caliber} from "@makina-core/caliber/Caliber.sol";
 import {ChainRegistry} from "@makina-core/registries/ChainRegistry.sol";
 import {HubCoreRegistry} from "@makina-core/registries/HubCoreRegistry.sol";
 import {HubCoreFactory} from "@makina-core/factories/HubCoreFactory.sol";
+import {Machine} from "@makina-core/machine/Machine.sol";
 import {OracleRegistry} from "@makina-core/registries/OracleRegistry.sol";
 import {SwapModule} from "@makina-core/swap/SwapModule.sol";
 import {TokenRegistry} from "@makina-core/registries/TokenRegistry.sol";
@@ -34,9 +40,20 @@ abstract contract Base_Test is Base, Test, Constants, CoreHelpers {
     address public riskManager;
     address public riskManagerTimelock;
 
+    // Flashloan Aggregator
     FlashloanAggregator public flashloanAggregator;
+
+    // Registry and Factory
     HubPeripheryRegistry public hubPeripheryRegistry;
     HubPeripheryFactory public hubPeripheryFactory;
+
+    // Machine Depositors
+    UpgradeableBeacon public openMachineDepositorBeacon;
+    UpgradeableBeacon public whitelistMachineDepositorBeacon;
+
+    // Machine Redeemers
+    UpgradeableBeacon public asyncMachineRedeemerBeacon;
+    UpgradeableBeacon public whitelistAsyncMachineRedeemerBeacon;
 
     function setUp() public virtual {
         deployer = address(this);
@@ -107,9 +124,73 @@ abstract contract Base_Hub_Test is Base_Test {
         flashloanAggregator = hubPeriphery.flashloanAggregator;
         hubPeripheryRegistry = hubPeriphery.hubPeripheryRegistry;
         hubPeripheryFactory = hubPeriphery.hubPeripheryFactory;
+        openMachineDepositorBeacon = hubPeriphery.openMachineDepositorBeacon;
+        whitelistMachineDepositorBeacon = hubPeriphery.whitelistMachineDepositorBeacon;
+        asyncMachineRedeemerBeacon = hubPeriphery.asyncMachineRedeemerBeacon;
+        whitelistAsyncMachineRedeemerBeacon = hubPeriphery.whitelistAsyncMachineRedeemerBeacon;
 
         registerFlashloanAggregator(address(hubCore.hubCoreRegistry), address(flashloanAggregator));
         registerHubPeripheryFactory(address(hubPeripheryRegistry), address(hubPeripheryFactory));
+
+        uint16[] memory mdImplemIds = new uint16[](2);
+        mdImplemIds[0] = OPEN_DEPOSIT_MANAGER_IMPLEM_ID;
+        mdImplemIds[1] = WHITELISTED_DEPOSIT_MANAGER_IMPLEM_ID;
+        address[] memory mdBeacons = new address[](2);
+        mdBeacons[0] = address(hubPeriphery.openMachineDepositorBeacon);
+        mdBeacons[1] = address(hubPeriphery.whitelistMachineDepositorBeacon);
+        registerMachineDepositorBeacons(address(hubPeripheryRegistry), mdImplemIds, mdBeacons);
+
+        uint16[] memory mrImplemIds = new uint16[](2);
+        mrImplemIds[0] = ASYNC_REDEEM_MANAGER_IMPLEM_ID;
+        mrImplemIds[1] = WHITELISTED_ASYNC_REDEEM_MANAGER_IMPLEM_ID;
+        address[] memory mrBeacons = new address[](2);
+        mrBeacons[0] = address(hubPeriphery.asyncMachineRedeemerBeacon);
+        mrBeacons[1] = address(hubPeriphery.whitelistAsyncMachineRedeemerBeacon);
+        registerMachineRedeemerBeacons(address(hubPeripheryRegistry), mrImplemIds, mrBeacons);
+
         _setupAccessManager(accessManager, dao);
+    }
+
+    function _deployMachine(
+        address _accountingToken,
+        address _machineDepositor,
+        address _machineRedeemer,
+        address _machineFeeManager
+    ) public returns (Machine, Caliber) {
+        vm.prank(dao);
+        Machine _machine = Machine(
+            hubCoreFactory.createMachine(
+                IMachine.MachineInitParams({
+                    initialDepositor: _machineDepositor,
+                    initialRedeemer: _machineRedeemer,
+                    initialFeeManager: _machineFeeManager,
+                    initialCaliberStaleThreshold: DEFAULT_MACHINE_CALIBER_STALE_THRESHOLD,
+                    initialMaxFeeAccrualRate: DEFAULT_MACHINE_MAX_FEE_ACCRUAL_RATE,
+                    initialFeeMintCooldown: DEFAULT_MACHINE_FEE_MINT_COOLDOWN,
+                    initialShareLimit: DEFAULT_MACHINE_SHARE_LIMIT
+                }),
+                ICaliber.CaliberInitParams({
+                    initialPositionStaleThreshold: DEFAULT_CALIBER_POS_STALE_THRESHOLD,
+                    initialAllowedInstrRoot: bytes32(0),
+                    initialTimelockDuration: DEFAULT_CALIBER_ROOT_UPDATE_TIMELOCK,
+                    initialMaxPositionIncreaseLossBps: DEFAULT_CALIBER_MAX_POS_INCREASE_LOSS_BPS,
+                    initialMaxPositionDecreaseLossBps: DEFAULT_CALIBER_MAX_POS_DECREASE_LOSS_BPS,
+                    initialMaxSwapLossBps: DEFAULT_CALIBER_MAX_SWAP_LOSS_BPS,
+                    initialCooldownDuration: DEFAULT_CALIBER_COOLDOWN_DURATION
+                }),
+                IMakinaGovernable.MakinaGovernableInitParams({
+                    initialMechanic: mechanic,
+                    initialSecurityCouncil: securityCouncil,
+                    initialRiskManager: riskManager,
+                    initialRiskManagerTimelock: riskManagerTimelock,
+                    initialAuthority: address(accessManager)
+                }),
+                _accountingToken,
+                DEFAULT_MACHINE_SHARE_TOKEN_NAME,
+                DEFAULT_MACHINE_SHARE_TOKEN_SYMBOL
+            )
+        );
+        Caliber _caliber = Caliber(_machine.hubCaliber());
+        return (_machine, _caliber);
     }
 }

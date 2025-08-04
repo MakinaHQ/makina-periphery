@@ -26,6 +26,8 @@ abstract contract WhitelistMachineDepositor_Util_Concrete_Test is MachinePeriphe
             hubPeripheryFactory.createMachineDepositor(WHITELISTED_DEPOSIT_MANAGER_IMPLEM_ID, "")
         );
 
+        machinePeriphery = IMachinePeriphery(address(whitelistMachineDepositor));
+
         (Machine machine,) =
             _deployMachine(address(accountingToken), address(whitelistMachineDepositor), address(0), address(0));
         _machineAddr = address(machine);
@@ -54,7 +56,6 @@ contract Getters_Setters_WhitelistMachineDepositor_Util_Concrete_Test is
         override(WhitelistMachineDepositor_Util_Concrete_Test, MachinePeriphery_Util_Concrete_Test)
     {
         WhitelistMachineDepositor_Util_Concrete_Test.setUp();
-        machinePeriphery = IMachinePeriphery(address(whitelistMachineDepositor));
     }
 
     function test_authority_RevertWhen_MachineNotSet() public {

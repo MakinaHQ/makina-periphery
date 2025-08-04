@@ -37,16 +37,8 @@ abstract contract MachinePeriphery is Initializable, MakinaPeripheryContext, IMa
         _;
     }
 
-    modifier onlyOperator() {
-        IMakinaGovernable _machine = IMakinaGovernable(machine());
-        if (msg.sender != (_machine.recoveryMode() ? _machine.securityCouncil() : _machine.mechanic())) {
-            revert CoreErrors.UnauthorizedCaller();
-        }
-        _;
-    }
-
-    modifier onlySecurityCouncil() {
-        if (msg.sender != IMakinaGovernable(machine()).securityCouncil()) {
+    modifier onlyMechanic() {
+        if (msg.sender != IMakinaGovernable(machine()).mechanic()) {
             revert CoreErrors.UnauthorizedCaller();
         }
         _;

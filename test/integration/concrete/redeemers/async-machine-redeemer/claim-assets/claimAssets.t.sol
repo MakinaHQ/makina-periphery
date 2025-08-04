@@ -6,18 +6,26 @@ import {IERC721Errors} from "@openzeppelin/contracts/interfaces/draft-IERC6093.s
 
 import {Errors} from "src/libraries/Errors.sol";
 import {IAsyncMachineRedeemer} from "src/interfaces/IAsyncMachineRedeemer.sol";
+import {IMachinePeriphery} from "src/interfaces/IMachinePeriphery.sol";
 
 import {AsyncMachineRedeemer_Integration_Concrete_Test} from "../AsyncMachineRedeemer.t.sol";
 
 contract ClaimAssets_Integration_Concrete_Test is AsyncMachineRedeemer_Integration_Concrete_Test {
-    function test_RevertWhen_NonExistentRequest() public withMachine(address(machine)) {
+    function setUp() public virtual override(AsyncMachineRedeemer_Integration_Concrete_Test) {
+        AsyncMachineRedeemer_Integration_Concrete_Test.setUp();
+
+        vm.prank(address(hubPeripheryFactory));
+        asyncMachineRedeemer.setMachine(address(machine));
+    }
+
+    function test_RevertWhen_NonExistentRequest() public {
         uint256 requestId = 1;
         vm.expectRevert(abi.encodeWithSelector(IERC721Errors.ERC721NonexistentToken.selector, requestId));
         vm.prank(mechanic);
         asyncMachineRedeemer.claimAssets(requestId);
     }
 
-    function test_RevertWhen_IncorrectOwner() public withMachine(address(machine)) {
+    function test_RevertWhen_IncorrectOwner() public {
         uint256 assets = 1e18;
 
         // Deposit assets to the machine
@@ -37,7 +45,7 @@ contract ClaimAssets_Integration_Concrete_Test is AsyncMachineRedeemer_Integrati
         asyncMachineRedeemer.claimAssets(requestId);
     }
 
-    function test_RevertGiven_RequestNotFinalized() public withMachine(address(machine)) {
+    function test_RevertGiven_RequestNotFinalized() public {
         uint256 assets = 1e18;
 
         // Deposit assets to the machine
@@ -58,7 +66,7 @@ contract ClaimAssets_Integration_Concrete_Test is AsyncMachineRedeemer_Integrati
         asyncMachineRedeemer.claimAssets(requestId);
     }
 
-    function test_ClaimAssets_OneUser_OneSimultaneousSlot() public withMachine(address(machine)) {
+    function test_ClaimAssets_OneUser_OneSimultaneousSlot() public {
         uint256 inputAssets1 = 3e18;
 
         // Deposit assets to the machine
@@ -75,6 +83,8 @@ contract ClaimAssets_Integration_Concrete_Test is AsyncMachineRedeemer_Integrati
         machineShare.approve(address(asyncMachineRedeemer), sharesToRedeem1);
         uint256 requestId1 = asyncMachineRedeemer.requestRedeem(sharesToRedeem1, user3);
         vm.stopPrank();
+
+        skip(asyncMachineRedeemer.finalizationDelay());
 
         // Generate some positive yield in machine
         deal(address(accountingToken), address(machine), accountingToken.balanceOf(address(machine)) + 1e17);
@@ -100,6 +110,8 @@ contract ClaimAssets_Integration_Concrete_Test is AsyncMachineRedeemer_Integrati
         uint256 requestId2 = asyncMachineRedeemer.requestRedeem(sharesToRedeem2, user4);
         vm.stopPrank();
 
+        skip(asyncMachineRedeemer.finalizationDelay());
+
         // Generate some negative yield in machine
         deal(address(accountingToken), address(machine), accountingToken.balanceOf(address(machine)) - 1e18);
         machine.updateTotalAum();
@@ -122,7 +134,7 @@ contract ClaimAssets_Integration_Concrete_Test is AsyncMachineRedeemer_Integrati
         assertEq(accountingToken.balanceOf(address(asyncMachineRedeemer)), 0);
     }
 
-    function test_ClaimAssets_OneUser_TwoSimultaneousSlots() public withMachine(address(machine)) {
+    function test_ClaimAssets_OneUser_TwoSimultaneousSlots() public {
         uint256 inputAssets1 = 3e18;
 
         // Deposit assets to the machine
@@ -151,6 +163,8 @@ contract ClaimAssets_Integration_Concrete_Test is AsyncMachineRedeemer_Integrati
         uint256 requestId2 = asyncMachineRedeemer.requestRedeem(sharesToRedeem2, user4);
         vm.stopPrank();
 
+        skip(asyncMachineRedeemer.finalizationDelay());
+
         // Finalize 1st request
         vm.prank(mechanic);
         asyncMachineRedeemer.finalizeRequests(requestId1, assetsToWithdraw1);
@@ -184,7 +198,7 @@ contract ClaimAssets_Integration_Concrete_Test is AsyncMachineRedeemer_Integrati
         assertEq(accountingToken.balanceOf(user4), claimedAssets);
     }
 
-    function test_FinalizeRequests_TwoUsers() public withMachine(address(machine)) {
+    function test_FinalizeRequests_TwoUsers() public {
         // Deposit assets to the machine
         deal(address(accountingToken), machineDepositorAddr, 1e18 + 2e18);
         vm.startPrank(machineDepositorAddr);
@@ -212,6 +226,8 @@ contract ClaimAssets_Integration_Concrete_Test is AsyncMachineRedeemer_Integrati
         uint256 requestId2 = asyncMachineRedeemer.requestRedeem(sharesToRedeem2, user4);
         vm.stopPrank();
 
+        skip(asyncMachineRedeemer.finalizationDelay());
+
         // Finalize 1st request
         vm.prank(mechanic);
         asyncMachineRedeemer.finalizeRequests(requestId1, assetsToWithdraw1);
@@ -222,6 +238,8 @@ contract ClaimAssets_Integration_Concrete_Test is AsyncMachineRedeemer_Integrati
         machineShare.approve(address(asyncMachineRedeemer), sharesToRedeem3);
         uint256 requestId3 = asyncMachineRedeemer.requestRedeem(sharesToRedeem3, user3);
         vm.stopPrank();
+
+        skip(asyncMachineRedeemer.finalizationDelay());
 
         // Generate some negative yield in machine
         deal(address(accountingToken), address(machine), accountingToken.balanceOf(address(machine)) - 1e18);

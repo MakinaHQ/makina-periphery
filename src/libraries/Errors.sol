@@ -7,6 +7,7 @@ library Errors {
     error AlreadyClaimed();
     error AlreadyFinalized();
     error CooldownOngoing();
+    error FinalizationDelayPending();
     error FutureRequest();
     error InvalidMachineDepositorImplemId();
     error InvalidFeeManagerImplemId();

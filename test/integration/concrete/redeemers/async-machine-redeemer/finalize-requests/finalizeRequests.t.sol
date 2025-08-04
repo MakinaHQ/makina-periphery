@@ -4,20 +4,33 @@ pragma solidity 0.8.28;
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IERC721Errors} from "@openzeppelin/contracts/interfaces/draft-IERC6093.sol";
 
-import {Errors} from "src/libraries/Errors.sol";
+import {Errors, CoreErrors} from "src/libraries/Errors.sol";
 import {IAsyncMachineRedeemer} from "src/interfaces/IAsyncMachineRedeemer.sol";
+import {IMachinePeriphery} from "src/interfaces/IMachinePeriphery.sol";
 
 import {AsyncMachineRedeemer_Integration_Concrete_Test} from "../AsyncMachineRedeemer.t.sol";
 
 contract FinalizeRequests_Integration_Concrete_Test is AsyncMachineRedeemer_Integration_Concrete_Test {
-    function test_RevertWhen_NonExistentRequest() public withMachine(address(machine)) {
+    function setUp() public virtual override(AsyncMachineRedeemer_Integration_Concrete_Test) {
+        AsyncMachineRedeemer_Integration_Concrete_Test.setUp();
+
+        vm.prank(address(hubPeripheryFactory));
+        asyncMachineRedeemer.setMachine(address(machine));
+    }
+
+    function test_RevertWhen_CallerNotMechanic() public {
+        vm.expectRevert(CoreErrors.UnauthorizedCaller.selector);
+        asyncMachineRedeemer.finalizeRequests(0, 0);
+    }
+
+    function test_RevertWhen_NonExistentRequest() public {
         uint256 requestId = 1;
         vm.expectRevert(abi.encodeWithSelector(IERC721Errors.ERC721NonexistentToken.selector, requestId));
         vm.prank(mechanic);
         asyncMachineRedeemer.finalizeRequests(requestId, 0);
     }
 
-    function test_RevertWhen_RequestAlreadyFinalized() public withMachine(address(machine)) {
+    function test_RevertWhen_FinalizationDelayPending() public {
         uint256 assets = 1e18;
 
         // Deposit assets to the machine
@@ -33,6 +46,30 @@ contract FinalizeRequests_Integration_Concrete_Test is AsyncMachineRedeemer_Inte
         uint256 requestId = asyncMachineRedeemer.requestRedeem(shares, user3);
         vm.stopPrank();
 
+        // Revert if trying to finalize before finalization delay
+        vm.expectRevert(Errors.FinalizationDelayPending.selector);
+        vm.prank(mechanic);
+        asyncMachineRedeemer.finalizeRequests(requestId, 0);
+    }
+
+    function test_RevertWhen_RequestAlreadyFinalized() public {
+        uint256 assets = 1e18;
+
+        // Deposit assets to the machine
+        deal(address(accountingToken), machineDepositorAddr, assets);
+        vm.startPrank(machineDepositorAddr);
+        IERC20(accountingToken).approve(address(machine), assets);
+        uint256 shares = machine.deposit(assets, user1, 0);
+        vm.stopPrank();
+
+        // User1 enters queue
+        vm.startPrank(user1);
+        machineShare.approve(address(asyncMachineRedeemer), shares);
+        uint256 requestId = asyncMachineRedeemer.requestRedeem(shares, user3);
+        vm.stopPrank();
+
+        skip(asyncMachineRedeemer.finalizationDelay());
+
         // Finalize requests
         vm.prank(mechanic);
         asyncMachineRedeemer.finalizeRequests(requestId, 0);
@@ -43,7 +80,7 @@ contract FinalizeRequests_Integration_Concrete_Test is AsyncMachineRedeemer_Inte
         asyncMachineRedeemer.finalizeRequests(requestId, 0);
     }
 
-    function test_FinalizeRequests_OneUser_OneSimultaneousSlot() public withMachine(address(machine)) {
+    function test_FinalizeRequests_OneUser_OneSimultaneousSlot() public {
         uint256 inputAssets1 = 3e18;
 
         // Deposit assets to the machine
@@ -60,6 +97,8 @@ contract FinalizeRequests_Integration_Concrete_Test is AsyncMachineRedeemer_Inte
         machineShare.approve(address(asyncMachineRedeemer), sharesToRedeem1);
         uint256 requestId1 = asyncMachineRedeemer.requestRedeem(sharesToRedeem1, user3);
         vm.stopPrank();
+
+        skip(asyncMachineRedeemer.finalizationDelay());
 
         // Generate some positive yield in machine
         deal(address(accountingToken), address(machine), accountingToken.balanceOf(address(machine)) + 1e17);
@@ -94,6 +133,8 @@ contract FinalizeRequests_Integration_Concrete_Test is AsyncMachineRedeemer_Inte
         uint256 requestId2 = asyncMachineRedeemer.requestRedeem(sharesToRedeem2, user3);
         vm.stopPrank();
 
+        skip(asyncMachineRedeemer.finalizationDelay());
+
         assertEq(machineShare.balanceOf(address(asyncMachineRedeemer)), sharesToRedeem2);
 
         // Generate some negative yield in machine
@@ -125,7 +166,7 @@ contract FinalizeRequests_Integration_Concrete_Test is AsyncMachineRedeemer_Inte
         assertEq(accountingToken.balanceOf(user3), 0);
     }
 
-    function test_FinalizeRequests_OneUser_TwoSimultaneousSlots() public withMachine(address(machine)) {
+    function test_FinalizeRequests_OneUser_TwoSimultaneousSlots() public {
         uint256 inputAssets1 = 3e18;
 
         // Deposit assets to the machine
@@ -153,6 +194,8 @@ contract FinalizeRequests_Integration_Concrete_Test is AsyncMachineRedeemer_Inte
         machineShare.approve(address(asyncMachineRedeemer), sharesToRedeem2);
         uint256 requestId2 = asyncMachineRedeemer.requestRedeem(sharesToRedeem2, user3);
         vm.stopPrank();
+
+        skip(asyncMachineRedeemer.finalizationDelay());
 
         (uint256 previewTotalShares, uint256 previewTotalAssets) =
             asyncMachineRedeemer.previewFinalizeRequests(requestId1);
@@ -205,7 +248,7 @@ contract FinalizeRequests_Integration_Concrete_Test is AsyncMachineRedeemer_Inte
         assertEq(accountingToken.balanceOf(user3), 0);
     }
 
-    function test_FinalizeRequests_TwoUsers() public withMachine(address(machine)) {
+    function test_FinalizeRequests_TwoUsers() public {
         // Deposit assets to the machine
         deal(address(accountingToken), machineDepositorAddr, 1e18 + 2e18);
         vm.startPrank(machineDepositorAddr);
@@ -232,6 +275,8 @@ contract FinalizeRequests_Integration_Concrete_Test is AsyncMachineRedeemer_Inte
         machineShare.approve(address(asyncMachineRedeemer), sharesToRedeem2);
         uint256 requestId2 = asyncMachineRedeemer.requestRedeem(sharesToRedeem2, user4);
         vm.stopPrank();
+
+        skip(asyncMachineRedeemer.finalizationDelay());
 
         (uint256 previewTotalShares, uint256 previewTotalAssets) =
             asyncMachineRedeemer.previewFinalizeRequests(requestId1);
@@ -262,6 +307,8 @@ contract FinalizeRequests_Integration_Concrete_Test is AsyncMachineRedeemer_Inte
         machineShare.approve(address(asyncMachineRedeemer), sharesToRedeem3);
         uint256 requestId3 = asyncMachineRedeemer.requestRedeem(sharesToRedeem3, user3);
         vm.stopPrank();
+
+        skip(asyncMachineRedeemer.finalizationDelay());
 
         assertEq(machineShare.balanceOf(address(asyncMachineRedeemer)), sharesToRedeem2 + sharesToRedeem3);
 

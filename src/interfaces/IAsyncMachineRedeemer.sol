@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.28;
 
-interface IAsyncMachineRedeemer {
+import {IMachinePeriphery} from "./IMachinePeriphery.sol";
+
+interface IAsyncMachineRedeemer is IMachinePeriphery {
+    event FinalizationDelayChanged(uint256 indexed oldDelay, uint256 indexed newDelay);
     event RedeemRequestCreated(uint256 indexed requestId, uint256 shares, address indexed recipient);
     event RedeemRequestClaimed(uint256 indexed requestId, uint256 shares, uint256 assets, address indexed recipient);
     event RedeemRequestsFinalized(
@@ -11,7 +14,7 @@ interface IAsyncMachineRedeemer {
     struct RedeemRequest {
         uint256 shares;
         uint256 assets;
-        bool isValid;
+        uint256 requestTime;
     }
 
     /// @notice ID of the next redeem request to be created.
@@ -19,6 +22,9 @@ interface IAsyncMachineRedeemer {
 
     /// @notice ID of the last finalized redeem request.
     function lastFinalizedRequestId() external view returns (uint256);
+
+    /// @notice Minimum time (in seconds) to be elapsed between request submission and finalization.
+    function finalizationDelay() external view returns (uint256);
 
     /// @notice Request ID => Shares
     function getShares(uint256 requestId) external view returns (uint256);
@@ -48,4 +54,8 @@ interface IAsyncMachineRedeemer {
     /// @notice Claims the assets associated with a finalized redeem request and burns the associated NFT.
     /// @param requestId the ID of the redeem request and associated NFT.
     function claimAssets(uint256 requestId) external returns (uint256);
+
+    /// @notice Sets the finalization delay for redeem requests.
+    /// @param newDelay The new finalization delay in seconds.
+    function setFinalizationDelay(uint256 newDelay) external;
 }

@@ -35,6 +35,14 @@ abstract contract Getter_Setter_MachinePeriphery_Util_Concrete_Test is MachinePe
         machinePeriphery.setMachine(newMachine);
     }
 
+    function test_SetMachine_RevertWhen_ZeroMachineAddress() public {
+        address newMachine = address(0);
+
+        vm.prank(address(hubPeripheryFactory));
+        vm.expectRevert(Errors.ZeroMachineAddress.selector);
+        machinePeriphery.setMachine(newMachine);
+    }
+
     function test_SetMachine() public {
         address newMachine = makeAddr("newMachine");
 

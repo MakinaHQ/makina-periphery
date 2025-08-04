@@ -1,33 +1,39 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.28;
 
+import {IAccessManaged} from "@openzeppelin/contracts/access/manager/IAccessManaged.sol";
+
 import {Machine} from "@makina-core/machine/Machine.sol";
 
 import {Errors} from "src/libraries/Errors.sol";
+import {IAsyncMachineRedeemer} from "src/interfaces/IAsyncMachineRedeemer.sol";
 import {IMachinePeriphery} from "src/interfaces/IMachinePeriphery.sol";
 import {IWhitelist} from "src/interfaces/IWhitelist.sol";
-import {WhitelistAsyncMachineRedeemer} from "src/redeemers/WhitelistAsyncMachineRedeemer.sol";
+
+import {Constants} from "../../../utils/Constants.sol";
 
 import {
-    MachinePeriphery_Util_Concrete_Test,
-    Getter_Setter_MachinePeriphery_Util_Concrete_Test
-} from "../machine-periphery/MachinePeriphery.t.sol";
+    AsyncMachineRedeemer_Util_Concrete_Test,
+    Getters_Setters_AsyncMachineRedeemer_Util_Concrete_Test
+} from "./AsyncMachineRedeemer.t.sol";
 import {Whitelist_Unit_Concrete_Test} from "../whitelist/Whitelist.t.sol";
 import {Unit_Concrete_Test} from "../UnitConcrete.t.sol";
 
-abstract contract WhitelistAsyncMachineRedeemer_Util_Concrete_Test is MachinePeriphery_Util_Concrete_Test {
-    WhitelistAsyncMachineRedeemer public whitelistAsyncMachineRedeemer;
-
+abstract contract WhitelistAsyncMachineRedeemer_Util_Concrete_Test is AsyncMachineRedeemer_Util_Concrete_Test {
     function setUp() public virtual override {
         Unit_Concrete_Test.setUp();
 
         vm.prank(dao);
-        whitelistAsyncMachineRedeemer = WhitelistAsyncMachineRedeemer(
-            hubPeripheryFactory.createMachineRedeemer(WHITELISTED_ASYNC_REDEEM_MANAGER_IMPLEM_ID, "")
+        asyncMachineRedeemer = IAsyncMachineRedeemer(
+            hubPeripheryFactory.createMachineRedeemer(
+                WHITELISTED_ASYNC_REDEEM_MANAGER_IMPLEM_ID, abi.encode(Constants.DEFAULT_FINALIZATION_DELAY)
+            )
         );
 
+        machinePeriphery = IMachinePeriphery(address(asyncMachineRedeemer));
+
         (Machine machine,) =
-            _deployMachine(address(accountingToken), address(0), address(whitelistAsyncMachineRedeemer), address(0));
+            _deployMachine(address(accountingToken), address(0), address(asyncMachineRedeemer), address(0));
         _machineAddr = address(machine);
     }
 }
@@ -38,39 +44,30 @@ contract Whitelist_WhitelistAsyncMachineRedeemer_Util_Concrete_Test is
 {
     function setUp() public override(Whitelist_Unit_Concrete_Test, WhitelistAsyncMachineRedeemer_Util_Concrete_Test) {
         WhitelistAsyncMachineRedeemer_Util_Concrete_Test.setUp();
-        whitelist = IWhitelist(address(whitelistAsyncMachineRedeemer));
+        whitelist = IWhitelist(address(asyncMachineRedeemer));
 
         vm.prank(address(hubPeripheryFactory));
-        whitelistAsyncMachineRedeemer.setMachine(_machineAddr);
+        asyncMachineRedeemer.setMachine(_machineAddr);
     }
 }
 
 contract Getters_Setters_WhitelistAsyncMachineRedeemer_Util_Concrete_Test is
-    Getter_Setter_MachinePeriphery_Util_Concrete_Test,
+    Getters_Setters_AsyncMachineRedeemer_Util_Concrete_Test,
     WhitelistAsyncMachineRedeemer_Util_Concrete_Test
 {
     function setUp()
         public
-        override(WhitelistAsyncMachineRedeemer_Util_Concrete_Test, MachinePeriphery_Util_Concrete_Test)
+        override(WhitelistAsyncMachineRedeemer_Util_Concrete_Test, Getters_Setters_AsyncMachineRedeemer_Util_Concrete_Test)
     {
         WhitelistAsyncMachineRedeemer_Util_Concrete_Test.setUp();
-        machinePeriphery = IMachinePeriphery(address(whitelistAsyncMachineRedeemer));
-    }
-
-    function test_Getters() public view {
-        assertEq(whitelistAsyncMachineRedeemer.nextRequestId(), 1);
-        assertEq(whitelistAsyncMachineRedeemer.lastFinalizedRequestId(), 0);
     }
 
     function test_authority_RevertWhen_MachineNotSet() public {
         vm.expectRevert(Errors.MachineNotSet.selector);
-        whitelistAsyncMachineRedeemer.authority();
+        IAccessManaged(address(asyncMachineRedeemer)).authority();
     }
 
-    function test_authority() public {
-        vm.prank(address(hubPeripheryFactory));
-        whitelistAsyncMachineRedeemer.setMachine(_machineAddr);
-
-        assertEq(whitelistAsyncMachineRedeemer.authority(), address(accessManager));
+    function test_authority() public withMachine(_machineAddr) {
+        assertEq(IAccessManaged(address(asyncMachineRedeemer)).authority(), address(accessManager));
     }
 }

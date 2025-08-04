@@ -28,6 +28,7 @@ contract AsyncMachineRedeemer is
     struct AsyncMachineRedeemerStorage {
         uint256 _nextRequestId;
         uint256 _lastFinalizedRequestId;
+        uint256 _finalizationDelay;
         mapping(uint256 requestId => IAsyncMachineRedeemer.RedeemRequest request) _requests;
     }
 
@@ -46,9 +47,15 @@ contract AsyncMachineRedeemer is
     }
 
     /// @inheritdoc IMachinePeriphery
-    function initialize(bytes calldata) external virtual override initializer {
+    function initialize(bytes calldata data) external virtual override initializer {
+        (uint256 _finalizationDelay) = abi.decode(data, (uint256));
+
+        AsyncMachineRedeemerStorage storage $ = _getAsyncMachineRedeemerStorage();
+
+        $._finalizationDelay = _finalizationDelay;
+        $._nextRequestId = 1;
+
         __ERC721_init("Makina Redeem Queue NFT", "MakinaRedeemQueueNFT");
-        _getAsyncMachineRedeemerStorage()._nextRequestId = 1;
     }
 
     /// @inheritdoc IAsyncMachineRedeemer
@@ -59,6 +66,10 @@ contract AsyncMachineRedeemer is
     /// @inheritdoc IAsyncMachineRedeemer
     function lastFinalizedRequestId() external view override returns (uint256) {
         return _getAsyncMachineRedeemerStorage()._lastFinalizedRequestId;
+    }
+
+    function finalizationDelay() external view override returns (uint256) {
+        return _getAsyncMachineRedeemerStorage()._finalizationDelay;
     }
 
     /// @inheritdoc IAsyncMachineRedeemer
@@ -77,7 +88,7 @@ contract AsyncMachineRedeemer is
     function previewFinalizeRequests(uint256 upToRequestId) public view override returns (uint256, uint256) {
         AsyncMachineRedeemerStorage storage $ = _getAsyncMachineRedeemerStorage();
 
-        _validateUnfinalizedRequest(upToRequestId);
+        _validateFinalizableRequest(upToRequestId);
 
         uint256 totalShares;
         uint256 totalAssets;
@@ -104,7 +115,7 @@ contract AsyncMachineRedeemer is
         address _machine = machine();
 
         $._requests[requestId] =
-            IAsyncMachineRedeemer.RedeemRequest(shares, IMachine(_machine).convertToAssets(shares), true);
+            IAsyncMachineRedeemer.RedeemRequest(shares, IMachine(_machine).convertToAssets(shares), block.timestamp);
 
         IERC20(IMachine(_machine).shareToken()).safeTransferFrom(msg.sender, address(this), shares);
         _safeMint(recipient, requestId);
@@ -118,13 +129,13 @@ contract AsyncMachineRedeemer is
     function finalizeRequests(uint256 upToRequestId, uint256 minAssets)
         external
         override
-        onlyOperator
+        onlyMechanic
         nonReentrant
         returns (uint256, uint256)
     {
         AsyncMachineRedeemerStorage storage $ = _getAsyncMachineRedeemerStorage();
 
-        _validateUnfinalizedRequest(upToRequestId);
+        _validateFinalizableRequest(upToRequestId);
 
         address _machine = machine();
 
@@ -180,6 +191,13 @@ contract AsyncMachineRedeemer is
         return assets;
     }
 
+    /// @inheritdoc IAsyncMachineRedeemer
+    function setFinalizationDelay(uint256 newDelay) external override onlyRiskManager {
+        AsyncMachineRedeemerStorage storage $ = _getAsyncMachineRedeemerStorage();
+        emit FinalizationDelayChanged($._finalizationDelay, newDelay);
+        $._finalizationDelay = newDelay;
+    }
+
     /// @dev Checks that the request exists, is finalized, and has not yet been claimed.
     function _validateFinalizedRequest(uint256 requestId) internal view {
         _requireOwned(requestId);
@@ -188,11 +206,17 @@ contract AsyncMachineRedeemer is
         }
     }
 
-    /// @dev Checks that the request exists and is not finalized.
-    function _validateUnfinalizedRequest(uint256 requestId) internal view {
+    /// @dev Checks that the request exists and is eligible for finalization.
+    function _validateFinalizableRequest(uint256 requestId) internal view {
+        AsyncMachineRedeemerStorage storage $ = _getAsyncMachineRedeemerStorage();
+
         _requireOwned(requestId);
-        if (requestId <= _getAsyncMachineRedeemerStorage()._lastFinalizedRequestId) {
+
+        if (requestId <= $._lastFinalizedRequestId) {
             revert Errors.AlreadyFinalized();
+        }
+        if (block.timestamp < $._requests[requestId].requestTime + $._finalizationDelay) {
+            revert Errors.FinalizationDelayPending();
         }
     }
 }

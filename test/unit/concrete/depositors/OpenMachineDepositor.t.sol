@@ -36,6 +36,5 @@ contract Getters_Setters_MachineDepositor_Util_Concrete_Test is
 {
     function setUp() public override(OpenMachineDepositor_Util_Concrete_Test, MachinePeriphery_Util_Concrete_Test) {
         OpenMachineDepositor_Util_Concrete_Test.setUp();
-        machinePeriphery = IMachinePeriphery(address(openMachineDepositor));
     }
 }

@@ -81,6 +81,19 @@ contract HubPeripheryFactory is AccessManagedUpgradeable, MakinaPeripheryContext
         return $._feeManagerImplemId[_feeManager];
     }
 
+    function setMachine(address _machinePeriphery, address _machine) external restricted {
+        HubPeripheryFactoryStorage storage $ = _getHubPeripheryFactoryStorage();
+
+        if (
+            !$._isMachineDepositor[_machinePeriphery] && !$._isMachineRedeemer[_machinePeriphery]
+                && !$._isFeeManager[_machinePeriphery]
+        ) {
+            revert Errors.NotMachinePeriphery();
+        }
+
+        IMachinePeriphery(_machinePeriphery).setMachine(_machine);
+    }
+
     /// @inheritdoc IHubPeripheryFactory
     function createMachineDepositor(uint16 _implemId, bytes calldata _initializationData)
         external

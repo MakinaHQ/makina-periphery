@@ -5,7 +5,6 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IERC721Errors} from "@openzeppelin/contracts/interfaces/draft-IERC6093.sol";
 
 import {Errors} from "src/libraries/Errors.sol";
-import {IMachinePeriphery} from "src/interfaces/IMachinePeriphery.sol";
 
 import {AsyncMachineRedeemer_Integration_Concrete_Test} from "../AsyncMachineRedeemer.t.sol";
 
@@ -13,8 +12,8 @@ contract PreviewFinalizeRequests_Integration_Concrete_Test is AsyncMachineRedeem
     function setUp() public virtual override(AsyncMachineRedeemer_Integration_Concrete_Test) {
         AsyncMachineRedeemer_Integration_Concrete_Test.setUp();
 
-        vm.prank(address(hubPeripheryFactory));
-        asyncMachineRedeemer.setMachine(address(machine));
+        vm.prank(dao);
+        hubPeripheryFactory.setMachine(address(asyncMachineRedeemer), address(machine));
     }
 
     function test_RevertWhen_NonExistentRequest() public virtual {

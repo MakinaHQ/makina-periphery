@@ -6,7 +6,6 @@ import {IERC721Errors} from "@openzeppelin/contracts/interfaces/draft-IERC6093.s
 
 import {Errors} from "src/libraries/Errors.sol";
 import {IAsyncMachineRedeemer} from "src/interfaces/IAsyncMachineRedeemer.sol";
-import {IMachinePeriphery} from "src/interfaces/IMachinePeriphery.sol";
 
 import {AsyncMachineRedeemer_Integration_Concrete_Test} from "../AsyncMachineRedeemer.t.sol";
 
@@ -14,8 +13,8 @@ contract ClaimAssets_Integration_Concrete_Test is AsyncMachineRedeemer_Integrati
     function setUp() public virtual override(AsyncMachineRedeemer_Integration_Concrete_Test) {
         AsyncMachineRedeemer_Integration_Concrete_Test.setUp();
 
-        vm.prank(address(hubPeripheryFactory));
-        asyncMachineRedeemer.setMachine(address(machine));
+        vm.prank(dao);
+        hubPeripheryFactory.setMachine(address(asyncMachineRedeemer), address(machine));
     }
 
     function test_RevertWhen_NonExistentRequest() public {

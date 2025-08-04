@@ -50,8 +50,8 @@ contract Getters_Setters_AsyncMachineRedeemer_Util_Concrete_Test is
     }
 
     modifier withMachine(address _machine) {
-        vm.prank(address(hubPeripheryFactory));
-        IMachinePeriphery(address(asyncMachineRedeemer)).setMachine(_machine);
+        vm.prank(dao);
+        hubPeripheryFactory.setMachine(address(asyncMachineRedeemer), _machine);
 
         _;
     }

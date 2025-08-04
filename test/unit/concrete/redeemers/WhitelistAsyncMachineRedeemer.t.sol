@@ -46,8 +46,8 @@ contract Whitelist_WhitelistAsyncMachineRedeemer_Util_Concrete_Test is
         WhitelistAsyncMachineRedeemer_Util_Concrete_Test.setUp();
         whitelist = IWhitelist(address(asyncMachineRedeemer));
 
-        vm.prank(address(hubPeripheryFactory));
-        asyncMachineRedeemer.setMachine(_machineAddr);
+        vm.prank(dao);
+        hubPeripheryFactory.setMachine(address(asyncMachineRedeemer), _machineAddr);
     }
 }
 

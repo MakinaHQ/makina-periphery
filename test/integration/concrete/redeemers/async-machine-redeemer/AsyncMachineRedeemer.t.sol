@@ -1,11 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.28;
 
-import {IMakinaGovernable} from "@makina-core/interfaces/IMakinaGovernable.sol";
 import {MachineShare} from "@makina-core/machine/MachineShare.sol";
 
 import {IAsyncMachineRedeemer} from "src/interfaces/IAsyncMachineRedeemer.sol";
-import {IMachinePeriphery} from "src/interfaces/IMachinePeriphery.sol";
 
 import {Constants} from "../../../../utils/Constants.sol";
 
@@ -34,8 +32,8 @@ contract AsyncMachineRedeemer_Integration_Concrete_Test is MachinePeriphery_Inte
     }
 
     modifier withMachine(address _machine) {
-        vm.prank(address(hubPeripheryFactory));
-        asyncMachineRedeemer.setMachine(_machine);
+        vm.prank(dao);
+        hubPeripheryFactory.setMachine(address(asyncMachineRedeemer), _machine);
 
         _;
     }

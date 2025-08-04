@@ -16,11 +16,12 @@ library Errors {
     error MachineNotSet();
     error MaxBpsValueExceeded();
     error MaxSlashableExceeded();
-    error NotMachineDepositor();
     error NotEnoughAssets();
     error NotFeeManager();
     error NotFinalized();
     error NotImplemented();
+    error NotMachineDepositor();
+    error NotMachinePeriphery();
     error NotMachineRedeemer();
     error SlashingSettlementOngoing();
     error ZeroMachineAddress();

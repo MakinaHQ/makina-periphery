@@ -4,7 +4,6 @@ pragma solidity 0.8.28;
 import {MachineShare} from "@makina-core/machine/MachineShare.sol";
 
 import {IAsyncMachineRedeemer} from "src/interfaces/IAsyncMachineRedeemer.sol";
-import {IMachinePeriphery} from "src/interfaces/IMachinePeriphery.sol";
 import {IWhitelist} from "src/interfaces/IWhitelist.sol";
 
 import {Constants} from "../../../../utils/Constants.sol";
@@ -59,8 +58,8 @@ contract PreviewFinalizeRequests_WhitelistAsyncMachineRedeemer_Integration_Concr
     {
         WhitelistAsyncMachineRedeemer_Integration_Concrete_Test.setUp();
 
-        vm.prank(address(hubPeripheryFactory));
-        asyncMachineRedeemer.setMachine(address(machine));
+        vm.prank(dao);
+        hubPeripheryFactory.setMachine(address(asyncMachineRedeemer), address(machine));
 
         address[] memory users = new address[](2);
         users[0] = user1;
@@ -82,8 +81,8 @@ contract FinalizeRequests_WhitelistAsyncMachineRedeemer_Integration_Concrete_Tes
     {
         WhitelistAsyncMachineRedeemer_Integration_Concrete_Test.setUp();
 
-        vm.prank(address(hubPeripheryFactory));
-        asyncMachineRedeemer.setMachine(address(machine));
+        vm.prank(dao);
+        hubPeripheryFactory.setMachine(address(asyncMachineRedeemer), address(machine));
 
         address[] memory users = new address[](2);
         users[0] = user1;
@@ -105,8 +104,8 @@ contract ClaimAssets_WhitelistAsyncMachineRedeemer_Integration_Concrete_Test is
     {
         WhitelistAsyncMachineRedeemer_Integration_Concrete_Test.setUp();
 
-        vm.prank(address(hubPeripheryFactory));
-        asyncMachineRedeemer.setMachine(address(machine));
+        vm.prank(dao);
+        hubPeripheryFactory.setMachine(address(asyncMachineRedeemer), address(machine));
 
         address[] memory users = new address[](2);
         users[0] = user1;

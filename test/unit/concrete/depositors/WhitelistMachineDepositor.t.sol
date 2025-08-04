@@ -42,8 +42,8 @@ contract Whitelist_WhitelistMachineDepositor_Util_Concrete_Test is
         WhitelistMachineDepositor_Util_Concrete_Test.setUp();
         whitelist = IWhitelist(address(whitelistMachineDepositor));
 
-        vm.prank(address(hubPeripheryFactory));
-        whitelistMachineDepositor.setMachine(_machineAddr);
+        vm.prank(dao);
+        hubPeripheryFactory.setMachine(address(whitelistMachineDepositor), _machineAddr);
     }
 }
 
@@ -64,8 +64,8 @@ contract Getters_Setters_WhitelistMachineDepositor_Util_Concrete_Test is
     }
 
     function test_authority() public {
-        vm.prank(address(hubPeripheryFactory));
-        whitelistMachineDepositor.setMachine(_machineAddr);
+        vm.prank(dao);
+        hubPeripheryFactory.setMachine(address(whitelistMachineDepositor), _machineAddr);
 
         assertEq(whitelistMachineDepositor.authority(), address(accessManager));
     }

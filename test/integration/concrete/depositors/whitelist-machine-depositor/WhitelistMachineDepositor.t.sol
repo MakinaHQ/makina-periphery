@@ -24,8 +24,8 @@ contract WhitelistMachineDepositor_Integration_Concrete_Test is MachinePeriphery
     }
 
     modifier withMachine(address _machine) {
-        vm.prank(address(hubPeripheryFactory));
-        whitelistMachineDepositor.setMachine(_machine);
+        vm.prank(dao);
+        hubPeripheryFactory.setMachine(address(whitelistMachineDepositor), _machine);
 
         _;
     }

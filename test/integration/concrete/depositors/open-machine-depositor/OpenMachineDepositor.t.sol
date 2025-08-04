@@ -22,8 +22,8 @@ contract OpenMachineDepositor_Integration_Concrete_Test is MachinePeriphery_Inte
     }
 
     modifier withMachine(address _machine) {
-        vm.prank(address(hubPeripheryFactory));
-        openMachineDepositor.setMachine(_machine);
+        vm.prank(dao);
+        hubPeripheryFactory.setMachine(address(openMachineDepositor), _machine);
 
         _;
     }

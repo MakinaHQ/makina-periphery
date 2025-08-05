@@ -55,6 +55,9 @@ abstract contract Base_Test is Base, Test, Constants, CoreHelpers {
     UpgradeableBeacon public asyncMachineRedeemerBeacon;
     UpgradeableBeacon public whitelistAsyncMachineRedeemerBeacon;
 
+    // Staking Module
+    UpgradeableBeacon public stakingModuleBeacon;
+
     function setUp() public virtual {
         deployer = address(this);
         dao = makeAddr("MakinaDAO");
@@ -128,9 +131,11 @@ abstract contract Base_Hub_Test is Base_Test {
         whitelistMachineDepositorBeacon = hubPeriphery.whitelistMachineDepositorBeacon;
         asyncMachineRedeemerBeacon = hubPeriphery.asyncMachineRedeemerBeacon;
         whitelistAsyncMachineRedeemerBeacon = hubPeriphery.whitelistAsyncMachineRedeemerBeacon;
+        stakingModuleBeacon = hubPeriphery.stakingModuleBeacon;
 
         registerFlashloanAggregator(address(hubCore.hubCoreRegistry), address(flashloanAggregator));
         registerHubPeripheryFactory(address(hubPeripheryRegistry), address(hubPeripheryFactory));
+        registerStakingModuleBeacon(address(hubPeripheryRegistry), address(stakingModuleBeacon));
 
         uint16[] memory mdImplemIds = new uint16[](2);
         mdImplemIds[0] = OPEN_DEPOSIT_MANAGER_IMPLEM_ID;

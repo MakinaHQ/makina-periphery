@@ -12,4 +12,9 @@ abstract contract Constants {
     uint16 public constant ASYNC_REDEEM_MANAGER_IMPLEM_ID = 1;
     uint16 public constant WHITELISTED_ASYNC_REDEEM_MANAGER_IMPLEM_ID = 2;
     uint256 public constant DEFAULT_FINALIZATION_DELAY = 1 hours;
+
+    // Staking Module
+    uint256 public constant DEFAULT_COOLDOWN_DURATION = 7 days;
+    uint256 public constant DEFAULT_MAX_SLASHABLE_BPS = 5000; // 50%
+    uint256 public constant DEFAULT_MIN_BALANCE_AFTER_SLASH = 1e17; // 0.1 token
 }

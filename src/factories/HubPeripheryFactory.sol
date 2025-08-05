@@ -7,6 +7,7 @@ import {BeaconProxy} from "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol"
 import {IHubPeripheryFactory} from "../interfaces/IHubPeripheryFactory.sol";
 import {IHubPeripheryRegistry} from "../interfaces/IHubPeripheryRegistry.sol";
 import {IMachinePeriphery} from "../interfaces/IMachinePeriphery.sol";
+import {IStakingModule} from "../interfaces/IStakingModule.sol";
 import {Errors} from "../libraries/Errors.sol";
 import {MakinaPeripheryContext} from "../utils/MakinaPeripheryContext.sol";
 
@@ -16,6 +17,7 @@ contract HubPeripheryFactory is AccessManagedUpgradeable, MakinaPeripheryContext
         mapping(address machineDepositor => bool isMachineDepositor) _isMachineDepositor;
         mapping(address machineRedeemer => bool isMachineRedeemer) _isMachineRedeemer;
         mapping(address feeManager => bool isFeeManager) _isFeeManager;
+        mapping(address stakingModule => bool isStakingModule) _isStakingModule;
         mapping(address machineDepositor => uint16 implemId) _machineDepositorImplemId;
         mapping(address machineRedeemer => uint16 implemId) _machineRedeemerImplemId;
         mapping(address feeManager => uint16 implemId) _feeManagerImplemId;
@@ -55,6 +57,11 @@ contract HubPeripheryFactory is AccessManagedUpgradeable, MakinaPeripheryContext
     }
 
     /// @inheritdoc IHubPeripheryFactory
+    function isStakingModule(address _stakingModule) external view override returns (bool) {
+        return _getHubPeripheryFactoryStorage()._isStakingModule[_stakingModule];
+    }
+
+    /// @inheritdoc IHubPeripheryFactory
     function machineDepositorImplemId(address _machineDepositor) external view override returns (uint16) {
         HubPeripheryFactoryStorage storage $ = _getHubPeripheryFactoryStorage();
         if (!$._isMachineDepositor[_machineDepositor]) {
@@ -86,7 +93,7 @@ contract HubPeripheryFactory is AccessManagedUpgradeable, MakinaPeripheryContext
 
         if (
             !$._isMachineDepositor[_machinePeriphery] && !$._isMachineRedeemer[_machinePeriphery]
-                && !$._isFeeManager[_machinePeriphery]
+                && !$._isFeeManager[_machinePeriphery] && !$._isStakingModule[_machinePeriphery]
         ) {
             revert Errors.NotMachinePeriphery();
         }
@@ -167,5 +174,27 @@ contract HubPeripheryFactory is AccessManagedUpgradeable, MakinaPeripheryContext
         emit FeeManagerCreated(feeManager, _implemId);
 
         return feeManager;
+    }
+
+    function createStakingModule(IStakingModule.StakingModuleInitParams calldata smParams)
+        external
+        override
+        restricted
+        returns (address)
+    {
+        HubPeripheryFactoryStorage storage $ = _getHubPeripheryFactoryStorage();
+
+        address stakingModule = address(
+            new BeaconProxy(
+                IHubPeripheryRegistry(peripheryRegistry).stakingModuleBeacon(),
+                abi.encodeCall(IMachinePeriphery.initialize, (abi.encode(smParams)))
+            )
+        );
+
+        $._isStakingModule[stakingModule] = true;
+
+        emit StakingModuleCreated(stakingModule);
+
+        return stakingModule;
     }
 }

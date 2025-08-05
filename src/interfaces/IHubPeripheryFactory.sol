@@ -1,10 +1,13 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.28;
 
+import {IStakingModule} from "../interfaces/IStakingModule.sol";
+
 interface IHubPeripheryFactory {
     event MachineDepositorCreated(address indexed machineDepositor, uint16 indexed implemId);
     event MachineRedeemerCreated(address indexed machineRedeemer, uint16 indexed implemId);
     event FeeManagerCreated(address indexed feeManager, uint16 indexed implemId);
+    event StakingModuleCreated(address indexed stakingModule);
 
     /// @notice Address => Whether this is a deposit manager deployed by this factory
     function isMachineDepositor(address machineDepositor) external view returns (bool);
@@ -14,6 +17,9 @@ interface IHubPeripheryFactory {
 
     /// @notice Address => Whether this is a fee manager deployed by this factory
     function isFeeManager(address feeManager) external view returns (bool);
+
+    /// @notice Address => Whether this is a staking module deployed by this factory
+    function isStakingModule(address stakingModule) external view returns (bool);
 
     /// @notice Deposit manager => Implementation ID
     function machineDepositorImplemId(address machineDepositor) external view returns (uint16);
@@ -47,4 +53,11 @@ interface IHubPeripheryFactory {
     function createFeeManager(uint16 implemId, bytes calldata initializationData)
         external
         returns (address feeManager);
+
+    /// @notice Creates a new staking module.
+    /// @param smParams The staking module initialization parameters.
+    /// @return stakingModule The address of the newly created staking module.
+    function createStakingModule(IStakingModule.StakingModuleInitParams calldata smParams)
+        external
+        returns (address stakingModule);
 }

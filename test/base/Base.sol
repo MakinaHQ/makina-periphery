@@ -2,6 +2,7 @@
 pragma solidity 0.8.28;
 
 import {TransparentUpgradeableProxy} from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
+import {UpgradeableBeacon} from "@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol";
 
 import {ICoreRegistry} from "@makina-core/interfaces/ICoreRegistry.sol";
 import {IHubPeripheryRegistry} from "../../src/interfaces/IHubPeripheryRegistry.sol";
@@ -9,12 +10,20 @@ import {IHubPeripheryRegistry} from "../../src/interfaces/IHubPeripheryRegistry.
 import {FlashloanAggregator} from "../../src/flashloans/FlashloanAggregator.sol";
 import {HubPeripheryRegistry} from "../../src/registries/HubPeripheryRegistry.sol";
 import {HubPeripheryFactory} from "../../src/factories/HubPeripheryFactory.sol";
+import {OpenMachineDepositor} from "../../src/depositors/OpenMachineDepositor.sol";
+import {WhitelistMachineDepositor} from "../../src/depositors/WhitelistMachineDepositor.sol";
+import {AsyncMachineRedeemer} from "../../src/redeemers/AsyncMachineRedeemer.sol";
+import {WhitelistAsyncMachineRedeemer} from "../../src/redeemers/WhitelistAsyncMachineRedeemer.sol";
 
 abstract contract Base {
     struct HubPeriphery {
         FlashloanAggregator flashloanAggregator;
         HubPeripheryRegistry hubPeripheryRegistry;
         HubPeripheryFactory hubPeripheryFactory;
+        UpgradeableBeacon openMachineDepositorBeacon;
+        UpgradeableBeacon whitelistMachineDepositorBeacon;
+        UpgradeableBeacon asyncMachineRedeemerBeacon;
+        UpgradeableBeacon whitelistAsyncMachineRedeemerBeacon;
     }
 
     struct FlashLoanAggregatorInitParams {
@@ -68,6 +77,22 @@ abstract contract Base {
                 )
             )
         );
+        address openMachineDepositorImplemAddr =
+            address(new OpenMachineDepositor(address(deployment.hubPeripheryRegistry)));
+        deployment.openMachineDepositorBeacon = new UpgradeableBeacon(openMachineDepositorImplemAddr, dao);
+
+        address whitelistMachineDepositorImplemAddr =
+            address(new WhitelistMachineDepositor(address(deployment.hubPeripheryRegistry)));
+        deployment.whitelistMachineDepositorBeacon = new UpgradeableBeacon(whitelistMachineDepositorImplemAddr, dao);
+
+        address asyncMachineRedeemerImplemAddr =
+            address(new AsyncMachineRedeemer(address(deployment.hubPeripheryRegistry)));
+        deployment.asyncMachineRedeemerBeacon = new UpgradeableBeacon(asyncMachineRedeemerImplemAddr, dao);
+
+        address whitelistAsyncMachineRedeemerImplemAddr =
+            address(new WhitelistAsyncMachineRedeemer(address(deployment.hubPeripheryRegistry)));
+        deployment.whitelistAsyncMachineRedeemerBeacon =
+            new UpgradeableBeacon(whitelistAsyncMachineRedeemerImplemAddr, dao);
     }
 
     ///
@@ -82,27 +107,31 @@ abstract contract Base {
         IHubPeripheryRegistry(hubPeripheryRegistry).setPeripheryFactory(hubPeripheryFactory);
     }
 
-    function registerDepositManagerBeacons(
+    function registerMachineDepositorBeacons(
         address hubPeripheryRegistry,
         uint16[] memory implemIds,
-        address[] memory depositManagerBeacons
+        address[] memory machineDepositorBeacons
     ) public {
-        require(implemIds.length == depositManagerBeacons.length, "Mismatched lengths");
+        require(implemIds.length == machineDepositorBeacons.length, "Mismatched lengths");
 
         for (uint256 i; i < implemIds.length; ++i) {
-            IHubPeripheryRegistry(hubPeripheryRegistry).setDepositManagerBeacon(implemIds[i], depositManagerBeacons[i]);
+            IHubPeripheryRegistry(hubPeripheryRegistry).setMachineDepositorBeacon(
+                implemIds[i], machineDepositorBeacons[i]
+            );
         }
     }
 
-    function registerRedeemManagerBeacons(
+    function registerMachineRedeemerBeacons(
         address hubPeripheryRegistry,
         uint16[] memory implemIds,
-        address[] memory redeemManagerBeacons
+        address[] memory machineRedeemerBeacons
     ) public {
-        require(implemIds.length == redeemManagerBeacons.length, "Mismatched lengths");
+        require(implemIds.length == machineRedeemerBeacons.length, "Mismatched lengths");
 
         for (uint256 i; i < implemIds.length; ++i) {
-            IHubPeripheryRegistry(hubPeripheryRegistry).setRedeemManagerBeacon(implemIds[i], redeemManagerBeacons[i]);
+            IHubPeripheryRegistry(hubPeripheryRegistry).setMachineRedeemerBeacon(
+                implemIds[i], machineRedeemerBeacons[i]
+            );
         }
     }
 

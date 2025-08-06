@@ -8,18 +8,35 @@ import {IHubPeripheryRegistry} from "src/interfaces/IHubPeripheryRegistry.sol";
 import {Unit_Concrete_Test} from "../UnitConcrete.t.sol";
 
 contract Getters_Setters_HubPeripheryRegistry_Unit_Concrete_Test is Unit_Concrete_Test {
-    uint16 private implemId;
+    uint16 private fmImplemId;
 
     function setUp() public override {
         Unit_Concrete_Test.setUp();
 
-        implemId = 1;
+        fmImplemId = 1;
     }
 
     function test_Getters() public view {
         assertEq(hubPeripheryRegistry.peripheryFactory(), address(hubPeripheryFactory));
-        assertEq(hubPeripheryRegistry.depositManagerBeacon(implemId), address(0));
-        assertEq(hubPeripheryRegistry.redeemManagerBeacon(implemId), address(0));
+        assertEq(
+            hubPeripheryRegistry.machineDepositorBeacon(OPEN_DEPOSIT_MANAGER_IMPLEM_ID),
+            address(openMachineDepositorBeacon)
+        );
+        assertEq(
+            hubPeripheryRegistry.machineDepositorBeacon(WHITELISTED_DEPOSIT_MANAGER_IMPLEM_ID),
+            address(whitelistMachineDepositorBeacon)
+        );
+
+        assertEq(
+            hubPeripheryRegistry.machineRedeemerBeacon(ASYNC_REDEEM_MANAGER_IMPLEM_ID),
+            address(asyncMachineRedeemerBeacon)
+        );
+        assertEq(
+            hubPeripheryRegistry.machineRedeemerBeacon(WHITELISTED_ASYNC_REDEEM_MANAGER_IMPLEM_ID),
+            address(whitelistAsyncMachineRedeemerBeacon)
+        );
+
+        assertEq(hubPeripheryRegistry.feeManagerBeacon(fmImplemId), address(0));
     }
 
     function test_SetPeripheryFactory_RevertWhen_CallerWithoutRole() public {
@@ -36,45 +53,49 @@ contract Getters_Setters_HubPeripheryRegistry_Unit_Concrete_Test is Unit_Concret
         assertEq(hubPeripheryRegistry.peripheryFactory(), newPeripheryFactory);
     }
 
-    function test_SetDepositManagerBeacon_RevertWhen_CallerWithoutRole() public {
+    function test_SetMachineDepositorBeacon_RevertWhen_CallerWithoutRole() public {
         vm.expectRevert(abi.encodeWithSelector(IAccessManaged.AccessManagedUnauthorized.selector, address(this)));
-        hubPeripheryRegistry.setDepositManagerBeacon(implemId, address(0));
+        hubPeripheryRegistry.setMachineDepositorBeacon(OPEN_DEPOSIT_MANAGER_IMPLEM_ID, address(0));
     }
 
-    function test_SetDepositManagerBeacon() public {
-        address newDepositManagerBeacon = makeAddr("newDepositManagerBeacon");
+    function test_SetMachineDepositorBeacon() public {
+        address newMachineDepositorBeacon = makeAddr("newMachineDepositorBeacon");
         vm.expectEmit(true, true, false, false, address(hubPeripheryRegistry));
-        emit IHubPeripheryRegistry.DepositManagerBeaconChanged(implemId, address(0), newDepositManagerBeacon);
+        emit IHubPeripheryRegistry.MachineDepositorBeaconChanged(
+            OPEN_DEPOSIT_MANAGER_IMPLEM_ID, address(openMachineDepositorBeacon), newMachineDepositorBeacon
+        );
         vm.prank(dao);
-        hubPeripheryRegistry.setDepositManagerBeacon(implemId, newDepositManagerBeacon);
-        assertEq(hubPeripheryRegistry.depositManagerBeacon(implemId), newDepositManagerBeacon);
+        hubPeripheryRegistry.setMachineDepositorBeacon(OPEN_DEPOSIT_MANAGER_IMPLEM_ID, newMachineDepositorBeacon);
+        assertEq(hubPeripheryRegistry.machineDepositorBeacon(OPEN_DEPOSIT_MANAGER_IMPLEM_ID), newMachineDepositorBeacon);
     }
 
-    function test_SetRedeemManagerBeacon_RevertWhen_CallerWithoutRole() public {
+    function test_SetMachineRedeemerBeacon_RevertWhen_CallerWithoutRole() public {
         vm.expectRevert(abi.encodeWithSelector(IAccessManaged.AccessManagedUnauthorized.selector, address(this)));
-        hubPeripheryRegistry.setRedeemManagerBeacon(implemId, address(0));
+        hubPeripheryRegistry.setMachineRedeemerBeacon(ASYNC_REDEEM_MANAGER_IMPLEM_ID, address(0));
     }
 
-    function test_SetRedeemManagerBeacon() public {
-        address newRedeemManagerBeacon = makeAddr("newRedeemManagerBeacon");
+    function test_SetMachineRedeemerBeacon() public {
+        address newMachineRedeemerBeacon = makeAddr("newMachineRedeemerBeacon");
         vm.expectEmit(true, true, false, false, address(hubPeripheryRegistry));
-        emit IHubPeripheryRegistry.RedeemManagerBeaconChanged(implemId, address(0), newRedeemManagerBeacon);
+        emit IHubPeripheryRegistry.MachineRedeemerBeaconChanged(
+            ASYNC_REDEEM_MANAGER_IMPLEM_ID, address(asyncMachineRedeemerBeacon), newMachineRedeemerBeacon
+        );
         vm.prank(dao);
-        hubPeripheryRegistry.setRedeemManagerBeacon(implemId, newRedeemManagerBeacon);
-        assertEq(hubPeripheryRegistry.redeemManagerBeacon(implemId), newRedeemManagerBeacon);
+        hubPeripheryRegistry.setMachineRedeemerBeacon(ASYNC_REDEEM_MANAGER_IMPLEM_ID, newMachineRedeemerBeacon);
+        assertEq(hubPeripheryRegistry.machineRedeemerBeacon(ASYNC_REDEEM_MANAGER_IMPLEM_ID), newMachineRedeemerBeacon);
     }
 
-    function test_SetFeeanagerBeacon_RevertWhen_CallerWithoutRole() public {
+    function test_SetFeeManagerBeacon_RevertWhen_CallerWithoutRole() public {
         vm.expectRevert(abi.encodeWithSelector(IAccessManaged.AccessManagedUnauthorized.selector, address(this)));
-        hubPeripheryRegistry.setFeeManagerBeacon(implemId, address(0));
+        hubPeripheryRegistry.setFeeManagerBeacon(fmImplemId, address(0));
     }
 
     function test_SetFeeManagerBeacon() public {
         address newFeeManagerBeacon = makeAddr("newFeeManagerBeacon");
         vm.expectEmit(true, true, false, false, address(hubPeripheryRegistry));
-        emit IHubPeripheryRegistry.FeeManagerBeaconChanged(implemId, address(0), newFeeManagerBeacon);
+        emit IHubPeripheryRegistry.FeeManagerBeaconChanged(fmImplemId, address(0), newFeeManagerBeacon);
         vm.prank(dao);
-        hubPeripheryRegistry.setFeeManagerBeacon(implemId, newFeeManagerBeacon);
-        assertEq(hubPeripheryRegistry.feeManagerBeacon(implemId), newFeeManagerBeacon);
+        hubPeripheryRegistry.setFeeManagerBeacon(fmImplemId, newFeeManagerBeacon);
+        assertEq(hubPeripheryRegistry.feeManagerBeacon(fmImplemId), newFeeManagerBeacon);
     }
 }

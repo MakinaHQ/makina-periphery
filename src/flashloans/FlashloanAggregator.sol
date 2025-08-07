@@ -366,7 +366,7 @@ contract FlashloanAggregator is
         _handleFlashloanCallback(caliber, instruction, token, amount);
 
         // Repay the flashloan
-        IERC20(token).forceApprove(msg.sender, amount);
+        IERC20(token).safeIncreaseAllowance(msg.sender, amount);
 
         return keccak256("ERC3156FlashBorrower.onFlashLoan");
     }

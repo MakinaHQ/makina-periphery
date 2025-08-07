@@ -270,13 +270,9 @@ contract FlashloanAggregator is
         if (msg.sender != balancerV2Pool) {
             revert NotBalancerV2Pool();
         }
-        // Check if we borrowed more than one token
-        if (tokens.length != 1) {
-            revert InvalidNumberOfTokens();
-        }
-        // Check that the fee amount is zero
-        if (feeAmounts[0] != 0) {
-            revert InvalidFeeAmount();
+        // Check that exactly one token, amount, and fee amount is specified
+        if (tokens.length != 1 || amounts.length != 1 || feeAmounts.length != 1) {
+            revert InvalidParamsLength();
         }
 
         // Decode the user data
@@ -287,7 +283,7 @@ contract FlashloanAggregator is
         _handleFlashloanCallback(caliber, instruction, address(tokens[0]), amounts[0]);
 
         // Repay the flashloan
-        IERC20(address(tokens[0])).safeTransfer(msg.sender, amounts[0]);
+        IERC20(address(tokens[0])).safeTransfer(msg.sender, amounts[0] + feeAmounts[0]);
     }
 
     /// @notice Callback handler for Balancer V3 flashloan.
@@ -366,7 +362,7 @@ contract FlashloanAggregator is
         _handleFlashloanCallback(caliber, instruction, token, amount);
 
         // Repay the flashloan
-        IERC20(token).forceApprove(msg.sender, amount);
+        IERC20(token).safeIncreaseAllowance(msg.sender, amount);
 
         return keccak256("ERC3156FlashBorrower.onFlashLoan");
     }

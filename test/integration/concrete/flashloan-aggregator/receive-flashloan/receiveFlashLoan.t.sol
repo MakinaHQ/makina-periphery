@@ -14,8 +14,9 @@ import {FlashloanAggregator_Integration_Concrete_Test} from "../FlashloanAggrega
 
 contract ReceiveFlashloan_Integration_Concrete_Test is FlashloanAggregator_Integration_Concrete_Test {
     uint8 private constant FAULTY_MODE_NOT_BALANCER_V2_POOL = 1;
-    uint8 private constant FAULTY_MODE_INVALID_NUMBER_OF_TOKEN = 2;
-    uint8 private constant FAULTY_MODE_INVALID_FEE_AMOUNT = 3;
+    uint8 private constant FAULTY_MODE_INVALID_TOKENS_LENGTH = 2;
+    uint8 private constant FAULTY_MODE_INVALID_AMOUNTS_LENGTH = 3;
+    uint8 private constant FAULTY_MODE_INVALID_FEEAMOUNTS_LENGTH = 4;
 
     uint8 private faultyMode;
 
@@ -50,7 +51,7 @@ contract ReceiveFlashloan_Integration_Concrete_Test is FlashloanAggregator_Integ
         flashloanAggregator.requestFlashloan(request);
     }
 
-    function test_RevertWhen_InvalidNumberOfTokens() public {
+    function test_RevertWhen_InvalidParamsLength() public {
         flashloanAggregator = new FlashloanAggregator(
             address(hubCoreFactory), address(this), address(0), address(0), address(0), address(0), address(0)
         );
@@ -64,30 +65,21 @@ contract ReceiveFlashloan_Integration_Concrete_Test is FlashloanAggregator_Integ
             amount: 10e18
         });
 
-        faultyMode = FAULTY_MODE_INVALID_NUMBER_OF_TOKEN;
+        faultyMode = FAULTY_MODE_INVALID_TOKENS_LENGTH;
 
-        vm.expectRevert(IFlashloanAggregator.InvalidNumberOfTokens.selector);
+        vm.expectRevert(IFlashloanAggregator.InvalidParamsLength.selector);
         vm.prank(caliberAddr);
         flashloanAggregator.requestFlashloan(request);
-    }
 
-    function test_RevertWhen_InvalidFeeAmount() public {
-        flashloanAggregator = new FlashloanAggregator(
-            address(hubCoreFactory), address(this), address(0), address(0), address(0), address(0), address(0)
-        );
+        faultyMode = FAULTY_MODE_INVALID_AMOUNTS_LENGTH;
 
-        ICaliber.Instruction memory instruction;
+        vm.expectRevert(IFlashloanAggregator.InvalidParamsLength.selector);
+        vm.prank(caliberAddr);
+        flashloanAggregator.requestFlashloan(request);
 
-        IFlashloanAggregator.FlashloanRequest memory request = IFlashloanAggregator.FlashloanRequest({
-            provider: IFlashloanAggregator.FlashloanProvider.BALANCER_V2,
-            instruction: instruction,
-            token: address(0),
-            amount: 10e18
-        });
+        faultyMode = FAULTY_MODE_INVALID_FEEAMOUNTS_LENGTH;
 
-        faultyMode = FAULTY_MODE_INVALID_FEE_AMOUNT;
-
-        vm.expectRevert(IFlashloanAggregator.InvalidFeeAmount.selector);
+        vm.expectRevert(IFlashloanAggregator.InvalidParamsLength.selector);
         vm.prank(caliberAddr);
         flashloanAggregator.requestFlashloan(request);
     }
@@ -99,14 +91,18 @@ contract ReceiveFlashloan_Integration_Concrete_Test is FlashloanAggregator_Integ
         uint256[] memory amounts,
         bytes memory userData
     ) external {
-        uint256[] memory fees = new uint256[](tokens.length);
+        uint256 len = tokens.length;
+
+        uint256[] memory fees = new uint256[](len);
 
         if (faultyMode == FAULTY_MODE_NOT_BALANCER_V2_POOL) {
             vm.prank(address(0));
-        } else if (faultyMode == FAULTY_MODE_INVALID_NUMBER_OF_TOKEN) {
-            tokens = new BalancerIERC20[](0);
-        } else if (faultyMode == FAULTY_MODE_INVALID_FEE_AMOUNT) {
-            fees[0] = 1;
+        } else if (faultyMode == FAULTY_MODE_INVALID_TOKENS_LENGTH) {
+            tokens = new BalancerIERC20[](len + 1);
+        } else if (faultyMode == FAULTY_MODE_INVALID_AMOUNTS_LENGTH) {
+            amounts = new uint256[](len + 1);
+        } else if (faultyMode == FAULTY_MODE_INVALID_FEEAMOUNTS_LENGTH) {
+            fees = new uint256[](len + 1);
         }
 
         recipient.receiveFlashLoan(tokens, amounts, fees, userData);

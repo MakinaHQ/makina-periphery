@@ -10,8 +10,6 @@ import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
 import {IFeeManager} from "@makina-core/interfaces/IFeeManager.sol";
 import {IMachine} from "@makina-core/interfaces/IMachine.sol";
 
-import {IHubPeripheryFactory} from "../interfaces/IHubPeripheryFactory.sol";
-import {IHubPeripheryRegistry} from "../interfaces/IHubPeripheryRegistry.sol";
 import {IWatermarkFeeManager} from "../interfaces/IWatermarkFeeManager.sol";
 import {IMachinePeriphery} from "../interfaces/IMachinePeriphery.sol";
 import {Errors, CoreErrors} from "../libraries/Errors.sol";

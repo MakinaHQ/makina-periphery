@@ -2,11 +2,8 @@
 pragma solidity 0.8.28;
 
 import {IAccessManaged} from "@openzeppelin/contracts/access/manager/IAccessManaged.sol";
-import {BeaconProxy} from "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
 
 import {Errors} from "src/libraries/Errors.sol";
-import {IMachinePeriphery} from "src/interfaces/IMachinePeriphery.sol";
-import {IWatermarkFeeManager} from "src/interfaces/IWatermarkFeeManager.sol";
 
 import {WatermarkFeeManager_Integration_Concrete_Test} from "../WatermarkFeeManager.t.sol";
 

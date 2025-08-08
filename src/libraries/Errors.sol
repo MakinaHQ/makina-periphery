@@ -9,12 +9,16 @@ library Errors {
     error CooldownOngoing();
     error FinalizationDelayPending();
     error FutureRequest();
+    error GreaterThanCurrentWatermark();
+    error InvalidFeeSplit();
     error InvalidMachineDepositorImplemId();
     error InvalidFeeManagerImplemId();
     error InvalidMachineRedeemerImplemId();
+    error InvalidStakingModule();
     error MachineAlreadySet();
     error MachineNotSet();
     error MaxBpsValueExceeded();
+    error MaxFeeRateValueExceeded();
     error MaxSlashableExceeded();
     error NotEnoughAssets();
     error NotFeeManager();
@@ -24,6 +28,7 @@ library Errors {
     error NotMachinePeriphery();
     error NotMachineRedeemer();
     error SlashingSettlementOngoing();
+    error StakingModuleAlreadySet();
     error ZeroMachineAddress();
     error ZeroRequestId();
 }

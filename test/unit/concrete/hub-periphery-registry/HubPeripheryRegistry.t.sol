@@ -8,14 +8,6 @@ import {IHubPeripheryRegistry} from "src/interfaces/IHubPeripheryRegistry.sol";
 import {Unit_Concrete_Test} from "../UnitConcrete.t.sol";
 
 contract Getters_Setters_HubPeripheryRegistry_Unit_Concrete_Test is Unit_Concrete_Test {
-    uint16 private fmImplemId;
-
-    function setUp() public override {
-        Unit_Concrete_Test.setUp();
-
-        fmImplemId = 1;
-    }
-
     function test_Getters() public view {
         assertEq(hubPeripheryRegistry.peripheryFactory(), address(hubPeripheryFactory));
         assertEq(
@@ -36,7 +28,9 @@ contract Getters_Setters_HubPeripheryRegistry_Unit_Concrete_Test is Unit_Concret
             address(whitelistAsyncMachineRedeemerBeacon)
         );
 
-        assertEq(hubPeripheryRegistry.feeManagerBeacon(fmImplemId), address(0));
+        assertEq(
+            hubPeripheryRegistry.feeManagerBeacon(WATERMARK_FEE_MANAGER_IMPLEM_ID), address(watermarkFeeManagerBeacon)
+        );
     }
 
     function test_SetPeripheryFactory_RevertWhen_CallerWithoutRole() public {
@@ -87,15 +81,17 @@ contract Getters_Setters_HubPeripheryRegistry_Unit_Concrete_Test is Unit_Concret
 
     function test_SetFeeManagerBeacon_RevertWhen_CallerWithoutRole() public {
         vm.expectRevert(abi.encodeWithSelector(IAccessManaged.AccessManagedUnauthorized.selector, address(this)));
-        hubPeripheryRegistry.setFeeManagerBeacon(fmImplemId, address(0));
+        hubPeripheryRegistry.setFeeManagerBeacon(WATERMARK_FEE_MANAGER_IMPLEM_ID, address(0));
     }
 
     function test_SetFeeManagerBeacon() public {
         address newFeeManagerBeacon = makeAddr("newFeeManagerBeacon");
         vm.expectEmit(true, true, false, false, address(hubPeripheryRegistry));
-        emit IHubPeripheryRegistry.FeeManagerBeaconChanged(fmImplemId, address(0), newFeeManagerBeacon);
+        emit IHubPeripheryRegistry.FeeManagerBeaconChanged(
+            WATERMARK_FEE_MANAGER_IMPLEM_ID, address(watermarkFeeManagerBeacon), newFeeManagerBeacon
+        );
         vm.prank(dao);
-        hubPeripheryRegistry.setFeeManagerBeacon(fmImplemId, newFeeManagerBeacon);
-        assertEq(hubPeripheryRegistry.feeManagerBeacon(fmImplemId), newFeeManagerBeacon);
+        hubPeripheryRegistry.setFeeManagerBeacon(WATERMARK_FEE_MANAGER_IMPLEM_ID, newFeeManagerBeacon);
+        assertEq(hubPeripheryRegistry.feeManagerBeacon(WATERMARK_FEE_MANAGER_IMPLEM_ID), newFeeManagerBeacon);
     }
 }

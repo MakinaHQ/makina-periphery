@@ -13,6 +13,12 @@ abstract contract Constants {
     uint16 public constant WHITELISTED_ASYNC_REDEEM_MANAGER_IMPLEM_ID = 2;
     uint256 public constant DEFAULT_FINALIZATION_DELAY = 1 hours;
 
+    // Fee managers
+    uint16 public constant WATERMARK_FEE_MANAGER_IMPLEM_ID = 1;
+    uint256 public constant DEFAULT_WATERMARK_FEE_MANAGER_MGMT_FEE_RATE_PER_SECOND = 1e4; // 0.0000000000000001% of supply per second
+    uint256 public constant DEFAULT_WATERMARK_FEE_MANAGER_SM_FEE_RATE_PER_SECOND = 1e4; // 0.0000000000000001% of supply per second
+    uint256 public constant DEFAULT_WATERMARK_FEE_MANAGER_PERF_FEE_RATE = 1e14; // 0.01% of profit
+
     // Staking Module
     uint256 public constant DEFAULT_COOLDOWN_DURATION = 7 days;
     uint256 public constant DEFAULT_MAX_SLASHABLE_BPS = 5000; // 50%

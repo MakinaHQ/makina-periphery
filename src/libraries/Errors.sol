@@ -27,6 +27,7 @@ library Errors {
     error NotMachineDepositor();
     error NotMachinePeriphery();
     error NotMachineRedeemer();
+    error NotStakingModule();
     error SlashingSettlementOngoing();
     error StakingModuleAlreadySet();
     error ZeroMachineAddress();

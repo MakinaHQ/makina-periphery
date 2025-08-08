@@ -4,8 +4,9 @@ pragma solidity 0.8.28;
 import {IFeeManager} from "@makina-core/interfaces/IFeeManager.sol";
 
 import {IMachinePeriphery} from "./IMachinePeriphery.sol";
+import {IStakingModuleReference} from "./IStakingModuleReference.sol";
 
-interface IWatermarkFeeManager is IFeeManager, IMachinePeriphery {
+interface IWatermarkFeeManager is IFeeManager, IStakingModuleReference, IMachinePeriphery {
     event MgmtFeeSplitChanged();
     event MgmtFeeRatePerSecondChanged(uint256 oldRate, uint256 newRate);
     event PerfFeeRateChanged(uint256 oldRate, uint256 newRate);
@@ -53,9 +54,6 @@ interface IWatermarkFeeManager is IFeeManager, IMachinePeriphery {
     /// @notice Performance fee split between receivers in basis points. Values must sum to 10_000.
     function perfFeeSplitBps() external view returns (uint256[] memory);
 
-    /// @notice Staking module address.
-    function stakingModule() external view returns (address);
-
     /// @notice Current share price high watermark.
     function sharePriceWatermark() external view returns (uint256);
 
@@ -83,8 +81,4 @@ interface IWatermarkFeeManager is IFeeManager, IMachinePeriphery {
     /// @param newPerfFeeReceivers The new performance fee receivers.
     /// @param newPerfFeeSplitBps The new performance fee split between receivers in basis points. Values must sum to 10_000.
     function setPerfFeeSplit(address[] calldata newPerfFeeReceivers, uint256[] calldata newPerfFeeSplitBps) external;
-
-    /// @notice Sets the staking module address.
-    /// @param stakingModule The address of the staking module.
-    function setStakingModule(address stakingModule) external;
 }

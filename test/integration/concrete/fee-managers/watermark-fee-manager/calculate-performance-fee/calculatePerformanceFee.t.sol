@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.28;
 
+import {CoreErrors} from "src/libraries/Errors.sol";
+
 import {WatermarkFeeManager_Integration_Concrete_Test} from "../WatermarkFeeManager.t.sol";
 
 contract CalculatePerformanceFee_Integration_Concrete_Test is WatermarkFeeManager_Integration_Concrete_Test {

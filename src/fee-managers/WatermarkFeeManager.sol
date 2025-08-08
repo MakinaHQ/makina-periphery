@@ -12,6 +12,7 @@ import {IMachine} from "@makina-core/interfaces/IMachine.sol";
 
 import {IWatermarkFeeManager} from "../interfaces/IWatermarkFeeManager.sol";
 import {IMachinePeriphery} from "../interfaces/IMachinePeriphery.sol";
+import {IStakingModuleReference} from "../interfaces/IStakingModuleReference.sol";
 import {Errors, CoreErrors} from "../libraries/Errors.sol";
 import {MachinePeriphery} from "../utils/MachinePeriphery.sol";
 
@@ -123,7 +124,7 @@ contract WatermarkFeeManager is MachinePeriphery, AccessManagedUpgradeable, IWat
         return _getWatermarkFeeManagerStorage()._perfFeeSplitBps;
     }
 
-    /// @inheritdoc IWatermarkFeeManager
+    /// @inheritdoc IStakingModuleReference
     function stakingModule() external view returns (address) {
         return _getWatermarkFeeManagerStorage()._stakingModule;
     }
@@ -273,7 +274,7 @@ contract WatermarkFeeManager is MachinePeriphery, AccessManagedUpgradeable, IWat
         emit PerfFeeSplitChanged();
     }
 
-    /// @inheritdoc IWatermarkFeeManager
+    /// @inheritdoc IStakingModuleReference
     function setStakingModule(address _stakingModule) external onlyFactory {
         WatermarkFeeManagerStorage storage $ = _getWatermarkFeeManagerStorage();
 

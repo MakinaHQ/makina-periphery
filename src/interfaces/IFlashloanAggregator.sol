@@ -15,8 +15,8 @@ interface IFlashloanAggregator {
     /// @notice Error thrown when the token is invalid.
     error InvalidToken();
 
-    /// @notice Error thrown when the number of tokens is invalid.
-    error InvalidNumberOfTokens();
+    /// @notice Error thrown when params length is invalid.
+    error InvalidParamsLength();
 
     /// @notice Error thrown when the fee amount is invalid.
     error InvalidFeeAmount();

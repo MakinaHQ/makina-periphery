@@ -14,6 +14,7 @@ import {OpenMachineDepositor} from "../../src/depositors/OpenMachineDepositor.so
 import {WhitelistMachineDepositor} from "../../src/depositors/WhitelistMachineDepositor.sol";
 import {AsyncMachineRedeemer} from "../../src/redeemers/AsyncMachineRedeemer.sol";
 import {WhitelistAsyncMachineRedeemer} from "../../src/redeemers/WhitelistAsyncMachineRedeemer.sol";
+import {StakingModule} from "../../src/staking-module/StakingModule.sol";
 
 abstract contract Base {
     struct HubPeriphery {
@@ -24,6 +25,7 @@ abstract contract Base {
         UpgradeableBeacon whitelistMachineDepositorBeacon;
         UpgradeableBeacon asyncMachineRedeemerBeacon;
         UpgradeableBeacon whitelistAsyncMachineRedeemerBeacon;
+        UpgradeableBeacon stakingModuleBeacon;
     }
 
     struct FlashLoanAggregatorInitParams {
@@ -93,6 +95,9 @@ abstract contract Base {
             address(new WhitelistAsyncMachineRedeemer(address(deployment.hubPeripheryRegistry)));
         deployment.whitelistAsyncMachineRedeemerBeacon =
             new UpgradeableBeacon(whitelistAsyncMachineRedeemerImplemAddr, dao);
+
+        address stakingModuleImplemAddr = address(new StakingModule(address(deployment.hubPeripheryRegistry)));
+        deployment.stakingModuleBeacon = new UpgradeableBeacon(stakingModuleImplemAddr, dao);
     }
 
     ///
@@ -105,6 +110,10 @@ abstract contract Base {
 
     function registerHubPeripheryFactory(address hubPeripheryRegistry, address hubPeripheryFactory) public {
         IHubPeripheryRegistry(hubPeripheryRegistry).setPeripheryFactory(hubPeripheryFactory);
+    }
+
+    function registerStakingModuleBeacon(address hubPeripheryRegistry, address stakingModuleBeacon) public {
+        IHubPeripheryRegistry(hubPeripheryRegistry).setStakingModuleBeacon(stakingModuleBeacon);
     }
 
     function registerMachineDepositorBeacons(

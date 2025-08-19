@@ -5,7 +5,6 @@ import {IAccessManaged} from "@openzeppelin/contracts/access/manager/IAccessMana
 
 import {Machine} from "@makina-core/machine/Machine.sol";
 
-import {IMachinePeriphery} from "src/interfaces/IMachinePeriphery.sol";
 import {IStakingModule} from "src/interfaces/IStakingModule.sol";
 import {IStakingModuleReference} from "src/interfaces/IStakingModuleReference.sol";
 import {IWatermarkFeeManager} from "src/interfaces/IWatermarkFeeManager.sol";

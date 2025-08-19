@@ -142,6 +142,7 @@ contract WatermarkFeeManager is MachinePeriphery, AccessManagedUpgradeable, IWat
         returns (uint256)
     {
         WatermarkFeeManagerStorage storage $ = _getWatermarkFeeManagerStorage();
+
         uint256 twSupply = currentShareSupply * elapsedTime;
 
         return twSupply.mulDiv($._mgmtFeeRatePerSecond + $._smFeeRatePerSecond, MAX_FEE_RATE);
@@ -181,29 +182,37 @@ contract WatermarkFeeManager is MachinePeriphery, AccessManagedUpgradeable, IWat
         address _machine = machine();
         address _machineShare = IMachine(_machine).shareToken();
 
-        if (fixedFee > 0) {
+        if (fixedFee != 0) {
             uint256 mgmtFee;
+            uint256 smRate = $._smFeeRatePerSecond;
+            uint256 mgmtRate = $._mgmtFeeRatePerSecond;
 
-            if ($._stakingModule != address(0)) {
-                uint256 smFee = fixedFee.mulDiv($._smFeeRatePerSecond, $._smFeeRatePerSecond + $._mgmtFeeRatePerSecond);
+            if ($._stakingModule != address(0) && smRate != 0) {
+                uint256 smFee = fixedFee.mulDiv(smRate, smRate + mgmtRate);
                 mgmtFee = fixedFee - smFee;
-                IERC20(_machineShare).transferFrom(_machine, $._stakingModule, smFee);
+                if (smFee != 0) {
+                    IERC20(_machineShare).safeTransferFrom(_machine, $._stakingModule, smFee);
+                }
             } else {
                 mgmtFee = fixedFee;
             }
 
-            for (uint256 i; i < $._mgmtFeeReceivers.length; ++i) {
-                IERC20(_machineShare).transferFrom(
-                    _machine, $._mgmtFeeReceivers[i], mgmtFee.mulDiv($._mgmtFeeSplitBps[i], MAX_BPS)
-                );
+            uint256 len = $._mgmtFeeReceivers.length;
+            for (uint256 i; i < len; ++i) {
+                uint256 fee = mgmtFee.mulDiv($._mgmtFeeSplitBps[i], MAX_BPS);
+                if (fee != 0) {
+                    IERC20(_machineShare).safeTransferFrom(_machine, $._mgmtFeeReceivers[i], fee);
+                }
             }
         }
 
-        if (perfFee > 0) {
-            for (uint256 i; i < $._perfFeeReceivers.length; ++i) {
-                IERC20(_machineShare).transferFrom(
-                    _machine, $._perfFeeReceivers[i], perfFee.mulDiv($._perfFeeSplitBps[i], MAX_BPS)
-                );
+        if (perfFee != 0) {
+            uint256 len = $._perfFeeReceivers.length;
+            for (uint256 i; i < len; ++i) {
+                uint256 fee = perfFee.mulDiv($._perfFeeSplitBps[i], MAX_BPS);
+                if (fee != 0) {
+                    IERC20(_machineShare).safeTransferFrom(_machine, $._perfFeeReceivers[i], fee);
+                }
             }
         }
     }
@@ -211,9 +220,11 @@ contract WatermarkFeeManager is MachinePeriphery, AccessManagedUpgradeable, IWat
     /// @inheritdoc IWatermarkFeeManager
     function resetSharePriceWatermark(uint256 sharePrice) external override restricted {
         WatermarkFeeManagerStorage storage $ = _getWatermarkFeeManagerStorage();
+
         if (sharePrice > $._sharePriceWatermark) {
             revert Errors.GreaterThanCurrentWatermark();
         }
+
         $._sharePriceWatermark = sharePrice;
         emit WatermarkReset(sharePrice);
     }
@@ -221,9 +232,11 @@ contract WatermarkFeeManager is MachinePeriphery, AccessManagedUpgradeable, IWat
     /// @inheritdoc IWatermarkFeeManager
     function setMgmtFeeRatePerSecond(uint256 newMgmtFeeRatePerSecond) external restricted {
         WatermarkFeeManagerStorage storage $ = _getWatermarkFeeManagerStorage();
+
         if (newMgmtFeeRatePerSecond > MAX_FEE_RATE) {
             revert Errors.MaxFeeRateValueExceeded();
         }
+
         emit MgmtFeeRatePerSecondChanged($._mgmtFeeRatePerSecond, newMgmtFeeRatePerSecond);
         $._mgmtFeeRatePerSecond = newMgmtFeeRatePerSecond;
     }
@@ -231,9 +244,11 @@ contract WatermarkFeeManager is MachinePeriphery, AccessManagedUpgradeable, IWat
     /// @inheritdoc IWatermarkFeeManager
     function setSmFeeRatePerSecond(uint256 newSmFeeRatePerSecond) external restricted {
         WatermarkFeeManagerStorage storage $ = _getWatermarkFeeManagerStorage();
+
         if (newSmFeeRatePerSecond > MAX_FEE_RATE) {
             revert Errors.MaxFeeRateValueExceeded();
         }
+
         emit SmFeeRatePerSecondChanged($._smFeeRatePerSecond, newSmFeeRatePerSecond);
         $._smFeeRatePerSecond = newSmFeeRatePerSecond;
     }
@@ -241,9 +256,11 @@ contract WatermarkFeeManager is MachinePeriphery, AccessManagedUpgradeable, IWat
     /// @inheritdoc IWatermarkFeeManager
     function setPerfFeeRate(uint256 newPerfFeeRate) external restricted {
         WatermarkFeeManagerStorage storage $ = _getWatermarkFeeManagerStorage();
+
         if (newPerfFeeRate > MAX_FEE_RATE) {
             revert Errors.MaxFeeRateValueExceeded();
         }
+
         emit PerfFeeRateChanged($._perfFeeRate, newPerfFeeRate);
         $._perfFeeRate = newPerfFeeRate;
     }
@@ -254,10 +271,11 @@ contract WatermarkFeeManager is MachinePeriphery, AccessManagedUpgradeable, IWat
         restricted
     {
         WatermarkFeeManagerStorage storage $ = _getWatermarkFeeManagerStorage();
+
         _checkFeeSplit(newMgmtFeeReceivers, newMgmtFeeSplitBps);
+
         $._mgmtFeeReceivers = newMgmtFeeReceivers;
         $._mgmtFeeSplitBps = newMgmtFeeSplitBps;
-
         emit MgmtFeeSplitChanged();
     }
 
@@ -267,10 +285,11 @@ contract WatermarkFeeManager is MachinePeriphery, AccessManagedUpgradeable, IWat
         restricted
     {
         WatermarkFeeManagerStorage storage $ = _getWatermarkFeeManagerStorage();
+
         _checkFeeSplit(newPerfFeeReceivers, newPerfFeeSplitBps);
+
         $._perfFeeReceivers = newPerfFeeReceivers;
         $._perfFeeSplitBps = newPerfFeeSplitBps;
-
         emit PerfFeeSplitChanged();
     }
 
@@ -286,7 +305,6 @@ contract WatermarkFeeManager is MachinePeriphery, AccessManagedUpgradeable, IWat
         }
 
         emit StakingModuleSet(_stakingModule);
-
         $._stakingModule = _stakingModule;
     }
 

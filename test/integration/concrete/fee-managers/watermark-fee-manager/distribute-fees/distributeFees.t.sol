@@ -69,9 +69,71 @@ contract DistributeFees_Integration_Concrete_Test is WatermarkFeeManager_Integra
         watermarkFeeManager.distributeFees(0, 0);
     }
 
+    function test_DistributeFees_NoFees() public {
+        // Set all fee rates to zero
+        vm.startPrank(dao);
+        watermarkFeeManager.setSmFeeRatePerSecond(0);
+        watermarkFeeManager.setMgmtFeeRatePerSecond(0);
+        watermarkFeeManager.setPerfFeeRate(0);
+        vm.stopPrank();
+
+        vm.prank(address(machine));
+        watermarkFeeManager.distributeFees(0, 0);
+
+        assertEq(machineShare.balanceOf(mgmtReceiver1), 0);
+        assertEq(machineShare.balanceOf(mgmtReceiver2), 0);
+        assertEq(machineShare.balanceOf(mgmtReceiver3), 0);
+        assertEq(machineShare.balanceOf(perfReceiver1), 0);
+        assertEq(machineShare.balanceOf(perfReceiver2), 0);
+        assertEq(machineShare.balanceOf(address(watermarkFeeManager)), 0);
+    }
+
+    function test_DistributeFees_ZeroFixedFee() public {
+        uint256 perfFee = 1e18;
+
+        deal(address(machineShare), address(machine), perfFee, true);
+
+        vm.startPrank(address(machine));
+        machineShare.approve(address(watermarkFeeManager), perfFee);
+        watermarkFeeManager.distributeFees(0, perfFee);
+
+        assertEq(machineShare.balanceOf(mgmtReceiver1), 0);
+        assertEq(machineShare.balanceOf(mgmtReceiver2), 0);
+        assertEq(machineShare.balanceOf(mgmtReceiver3), 0);
+        assertEq(machineShare.balanceOf(perfReceiver1), perfFee * perfSplitBps1 / 10_000);
+        assertEq(machineShare.balanceOf(perfReceiver2), perfFee * perfSplitBps2 / 10_000);
+        assertEq(machineShare.balanceOf(address(watermarkFeeManager)), 0);
+    }
+
     function test_DistributeFees_WithoutStakingModule() public {
         uint256 fixedFee = 1e18;
         uint256 perfFee = 2e18;
+
+        deal(address(machineShare), address(machine), fixedFee + perfFee, true);
+
+        vm.startPrank(address(machine));
+        machineShare.approve(address(watermarkFeeManager), fixedFee + perfFee);
+        watermarkFeeManager.distributeFees(fixedFee, perfFee);
+
+        assertEq(machineShare.balanceOf(mgmtReceiver1), fixedFee * mgmtSplitBps1 / 10_000);
+        assertEq(machineShare.balanceOf(mgmtReceiver2), fixedFee * mgmtSplitBps2 / 10_000);
+        assertEq(machineShare.balanceOf(mgmtReceiver3), fixedFee * mgmtSplitBps3 / 10_000);
+        assertEq(machineShare.balanceOf(perfReceiver1), perfFee * perfSplitBps1 / 10_000);
+        assertEq(machineShare.balanceOf(perfReceiver2), perfFee * perfSplitBps2 / 10_000);
+        assertEq(machineShare.balanceOf(address(watermarkFeeManager)), 0);
+    }
+
+    function test_DistributeFees_WithStakingModule_ZeroSmFeeRate() public {
+        uint256 fixedFee = 1e18;
+        uint256 perfFee = 2e18;
+
+        // Set the staking module
+        vm.prank(address(hubPeripheryFactory));
+        watermarkFeeManager.setStakingModule(stakingModuleAddr);
+
+        // Set the SM fee rate to zero
+        vm.prank(dao);
+        watermarkFeeManager.setSmFeeRatePerSecond(0);
 
         deal(address(machineShare), address(machine), fixedFee + perfFee, true);
 
@@ -111,6 +173,32 @@ contract DistributeFees_Integration_Concrete_Test is WatermarkFeeManager_Integra
         assertEq(machineShare.balanceOf(mgmtReceiver3), mgmtFee * mgmtSplitBps3 / 10_000);
         assertEq(machineShare.balanceOf(perfReceiver1), perfFee * perfSplitBps1 / 10_000);
         assertEq(machineShare.balanceOf(perfReceiver2), perfFee * perfSplitBps2 / 10_000);
+        assertEq(machineShare.balanceOf(address(watermarkFeeManager)), 0);
+    }
+
+    function test_DistributeFees_WithStakingModule_ZeroPerfFee() public {
+        uint256 fixedFee = 1e18;
+
+        // Set the staking module
+        vm.prank(address(hubPeripheryFactory));
+        watermarkFeeManager.setStakingModule(stakingModuleAddr);
+
+        deal(address(machineShare), address(machine), fixedFee, true);
+
+        vm.startPrank(address(machine));
+        machineShare.approve(address(watermarkFeeManager), fixedFee);
+        watermarkFeeManager.distributeFees(fixedFee, 0);
+
+        uint256 smFee = fixedFee * watermarkFeeManager.smFeeRatePerSecond()
+            / (watermarkFeeManager.smFeeRatePerSecond() + watermarkFeeManager.mgmtFeeRatePerSecond());
+        uint256 mgmtFee = fixedFee - smFee;
+
+        assertEq(machineShare.balanceOf(stakingModuleAddr), smFee);
+        assertEq(machineShare.balanceOf(mgmtReceiver1), mgmtFee * mgmtSplitBps1 / 10_000);
+        assertEq(machineShare.balanceOf(mgmtReceiver2), mgmtFee * mgmtSplitBps2 / 10_000);
+        assertEq(machineShare.balanceOf(mgmtReceiver3), mgmtFee * mgmtSplitBps3 / 10_000);
+        assertEq(machineShare.balanceOf(perfReceiver1), 0);
+        assertEq(machineShare.balanceOf(perfReceiver2), 0);
         assertEq(machineShare.balanceOf(address(watermarkFeeManager)), 0);
     }
 }

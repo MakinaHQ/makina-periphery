@@ -54,7 +54,7 @@ interface IWatermarkFeeManager is IFeeManager, IStakingModuleReference, IMachine
     /// @notice Performance fee split between receivers in basis points. Values must sum to 10_000.
     function perfFeeSplitBps() external view returns (uint256[] memory);
 
-    /// @notice Current share price high watermark.
+    /// @notice Current share price high watermark for the associated Machine.
     function sharePriceWatermark() external view returns (uint256);
 
     /// @notice Resets the share price high watermark.

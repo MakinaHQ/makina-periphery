@@ -32,9 +32,6 @@ contract WatermarkFeeManager is MachinePeriphery, AccessManagedUpgradeable, IWat
         uint256 _smFeeRatePerSecond;
         uint256 _perfFeeRate;
         uint256 _sharePriceWatermark;
-        // assume annualized mgmtFee is 2%, smFee is 1%
-        // assume mgmtFee is split 60/40 between dao and operator
-        // distribution split is (2%*0.6)/3%, (2%*0.4)/3%, 1%/3%
         address[] _mgmtFeeReceivers;
         uint256[] _mgmtFeeSplitBps;
         address[] _perfFeeReceivers;

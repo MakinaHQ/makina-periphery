@@ -10,6 +10,7 @@ import {IHubPeripheryRegistry} from "../../src/interfaces/IHubPeripheryRegistry.
 import {FlashloanAggregator} from "../../src/flashloans/FlashloanAggregator.sol";
 import {HubPeripheryRegistry} from "../../src/registries/HubPeripheryRegistry.sol";
 import {HubPeripheryFactory} from "../../src/factories/HubPeripheryFactory.sol";
+import {WatermarkFeeManager} from "../../src/fee-managers/WatermarkFeeManager.sol";
 import {OpenMachineDepositor} from "../../src/depositors/OpenMachineDepositor.sol";
 import {WhitelistMachineDepositor} from "../../src/depositors/WhitelistMachineDepositor.sol";
 import {AsyncMachineRedeemer} from "../../src/redeemers/AsyncMachineRedeemer.sol";
@@ -25,6 +26,7 @@ abstract contract Base {
         UpgradeableBeacon whitelistMachineDepositorBeacon;
         UpgradeableBeacon asyncMachineRedeemerBeacon;
         UpgradeableBeacon whitelistAsyncMachineRedeemerBeacon;
+        UpgradeableBeacon watermarkFeeManagerBeacon;
         UpgradeableBeacon stakingModuleBeacon;
     }
 
@@ -95,6 +97,10 @@ abstract contract Base {
             address(new WhitelistAsyncMachineRedeemer(address(deployment.hubPeripheryRegistry)));
         deployment.whitelistAsyncMachineRedeemerBeacon =
             new UpgradeableBeacon(whitelistAsyncMachineRedeemerImplemAddr, dao);
+
+        address watermarkFeeManagerImplemAddr =
+            address(new WatermarkFeeManager(address(deployment.hubPeripheryRegistry)));
+        deployment.watermarkFeeManagerBeacon = new UpgradeableBeacon(watermarkFeeManagerImplemAddr, dao);
 
         address stakingModuleImplemAddr = address(new StakingModule(address(deployment.hubPeripheryRegistry)));
         deployment.stakingModuleBeacon = new UpgradeableBeacon(stakingModuleImplemAddr, dao);

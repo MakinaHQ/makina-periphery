@@ -30,6 +30,16 @@ interface IHubPeripheryFactory {
     /// @notice Fee manager => Implementation ID
     function feeManagerImplemId(address feeManager) external view returns (uint16);
 
+    /// @notice Sets the machine address in the machine periphery contract.
+    /// @param machinePeriphery The address of the machine periphery contract.
+    /// @param machine The address of the machine to be set.
+    function setMachine(address machinePeriphery, address machine) external;
+
+    /// @notice Sets the staking module address in the fee manager contract.
+    /// @param feeManager The address of the fee manager contract.
+    /// @param stakingModule The address of the staking module to be set.
+    function setStakingModule(address feeManager, address stakingModule) external;
+
     /// @notice Creates a new deposit manager using the specified implementation ID.
     /// @param implemId The ID of the deposit manager implementation to be used.
     /// @param initializationData Additional initialization data.

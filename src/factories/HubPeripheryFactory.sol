@@ -6,6 +6,7 @@ import {BeaconProxy} from "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol"
 
 import {IHubPeripheryFactory} from "../interfaces/IHubPeripheryFactory.sol";
 import {IHubPeripheryRegistry} from "../interfaces/IHubPeripheryRegistry.sol";
+import {IStakingModuleReference} from "../interfaces/IStakingModuleReference.sol";
 import {IMachinePeriphery} from "../interfaces/IMachinePeriphery.sol";
 import {IStakingModule} from "../interfaces/IStakingModule.sol";
 import {Errors} from "../libraries/Errors.sol";
@@ -88,17 +89,33 @@ contract HubPeripheryFactory is AccessManagedUpgradeable, MakinaPeripheryContext
         return $._feeManagerImplemId[_feeManager];
     }
 
-    function setMachine(address _machinePeriphery, address _machine) external restricted {
+    /// @inheritdoc IHubPeripheryFactory
+    function setMachine(address machinePeriphery, address machine) external override restricted {
         HubPeripheryFactoryStorage storage $ = _getHubPeripheryFactoryStorage();
 
         if (
-            !$._isMachineDepositor[_machinePeriphery] && !$._isMachineRedeemer[_machinePeriphery]
-                && !$._isFeeManager[_machinePeriphery] && !$._isStakingModule[_machinePeriphery]
+            !$._isMachineDepositor[machinePeriphery] && !$._isMachineRedeemer[machinePeriphery]
+                && !$._isFeeManager[machinePeriphery] && !$._isStakingModule[machinePeriphery]
         ) {
             revert Errors.NotMachinePeriphery();
         }
 
-        IMachinePeriphery(_machinePeriphery).setMachine(_machine);
+        IMachinePeriphery(machinePeriphery).setMachine(machine);
+    }
+
+    /// @inheritdoc IHubPeripheryFactory
+    function setStakingModule(address feeManager, address stakingModule) external override restricted {
+        HubPeripheryFactoryStorage storage $ = _getHubPeripheryFactoryStorage();
+
+        if (!$._isFeeManager[feeManager]) {
+            revert Errors.NotFeeManager();
+        }
+
+        if (!$._isStakingModule[stakingModule]) {
+            revert Errors.NotStakingModule();
+        }
+
+        IStakingModuleReference(feeManager).setStakingModule(stakingModule);
     }
 
     /// @inheritdoc IHubPeripheryFactory

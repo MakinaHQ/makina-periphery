@@ -55,6 +55,9 @@ abstract contract Base_Test is Base, Test, Constants, CoreHelpers {
     UpgradeableBeacon public asyncMachineRedeemerBeacon;
     UpgradeableBeacon public whitelistAsyncMachineRedeemerBeacon;
 
+    // Machine Fee Managers
+    UpgradeableBeacon public watermarkFeeManagerBeacon;
+
     // Staking Module
     UpgradeableBeacon public stakingModuleBeacon;
 
@@ -131,6 +134,7 @@ abstract contract Base_Hub_Test is Base_Test {
         whitelistMachineDepositorBeacon = hubPeriphery.whitelistMachineDepositorBeacon;
         asyncMachineRedeemerBeacon = hubPeriphery.asyncMachineRedeemerBeacon;
         whitelistAsyncMachineRedeemerBeacon = hubPeriphery.whitelistAsyncMachineRedeemerBeacon;
+        watermarkFeeManagerBeacon = hubPeriphery.watermarkFeeManagerBeacon;
         stakingModuleBeacon = hubPeriphery.stakingModuleBeacon;
 
         registerFlashloanAggregator(address(hubCore.hubCoreRegistry), address(flashloanAggregator));
@@ -152,6 +156,12 @@ abstract contract Base_Hub_Test is Base_Test {
         mrBeacons[0] = address(hubPeriphery.asyncMachineRedeemerBeacon);
         mrBeacons[1] = address(hubPeriphery.whitelistAsyncMachineRedeemerBeacon);
         registerMachineRedeemerBeacons(address(hubPeripheryRegistry), mrImplemIds, mrBeacons);
+
+        uint16[] memory fmImplemIds = new uint16[](1);
+        fmImplemIds[0] = WATERMARK_FEE_MANAGER_IMPLEM_ID;
+        address[] memory fmBeacons = new address[](1);
+        fmBeacons[0] = address(hubPeriphery.watermarkFeeManagerBeacon);
+        registerFeeManagerBeacons(address(hubPeripheryRegistry), fmImplemIds, fmBeacons);
 
         _setupAccessManager(accessManager, dao);
     }

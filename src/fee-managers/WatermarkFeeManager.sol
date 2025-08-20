@@ -53,7 +53,8 @@ contract WatermarkFeeManager is MachinePeriphery, AccessManagedUpgradeable, IWat
         _disableInitializers();
     }
 
-    function initialize(bytes calldata _data) external virtual initializer {
+    /// @inheritdoc IMachinePeriphery
+    function initialize(bytes calldata _data) external override initializer {
         WatermarkFeeManagerStorage storage $ = _getWatermarkFeeManagerStorage();
 
         WatermarkFeeManagerInitParams memory params = abi.decode(_data, (WatermarkFeeManagerInitParams));
@@ -87,47 +88,47 @@ contract WatermarkFeeManager is MachinePeriphery, AccessManagedUpgradeable, IWat
     }
 
     /// @inheritdoc IWatermarkFeeManager
-    function mgmtFeeRatePerSecond() external view returns (uint256) {
+    function mgmtFeeRatePerSecond() external view override returns (uint256) {
         return _getWatermarkFeeManagerStorage()._mgmtFeeRatePerSecond;
     }
 
     /// @inheritdoc IWatermarkFeeManager
-    function smFeeRatePerSecond() external view returns (uint256) {
+    function smFeeRatePerSecond() external view override returns (uint256) {
         return _getWatermarkFeeManagerStorage()._smFeeRatePerSecond;
     }
 
     /// @inheritdoc IWatermarkFeeManager
-    function perfFeeRate() external view returns (uint256) {
+    function perfFeeRate() external view override returns (uint256) {
         return _getWatermarkFeeManagerStorage()._perfFeeRate;
     }
 
     /// @inheritdoc IWatermarkFeeManager
-    function mgmtFeeReceivers() external view returns (address[] memory) {
+    function mgmtFeeReceivers() external view override returns (address[] memory) {
         return _getWatermarkFeeManagerStorage()._mgmtFeeReceivers;
     }
 
     /// @inheritdoc IWatermarkFeeManager
-    function mgmtFeeSplitBps() external view returns (uint256[] memory) {
+    function mgmtFeeSplitBps() external view override returns (uint256[] memory) {
         return _getWatermarkFeeManagerStorage()._mgmtFeeSplitBps;
     }
 
     /// @inheritdoc IWatermarkFeeManager
-    function perfFeeReceivers() external view returns (address[] memory) {
+    function perfFeeReceivers() external view override returns (address[] memory) {
         return _getWatermarkFeeManagerStorage()._perfFeeReceivers;
     }
 
     /// @inheritdoc IWatermarkFeeManager
-    function perfFeeSplitBps() external view returns (uint256[] memory) {
+    function perfFeeSplitBps() external view override returns (uint256[] memory) {
         return _getWatermarkFeeManagerStorage()._perfFeeSplitBps;
     }
 
     /// @inheritdoc IStakingModuleReference
-    function stakingModule() external view returns (address) {
+    function stakingModule() external view override returns (address) {
         return _getWatermarkFeeManagerStorage()._stakingModule;
     }
 
     /// @inheritdoc IWatermarkFeeManager
-    function sharePriceWatermark() external view returns (uint256) {
+    function sharePriceWatermark() external view override returns (uint256) {
         return _getWatermarkFeeManagerStorage()._sharePriceWatermark;
     }
 
@@ -227,7 +228,7 @@ contract WatermarkFeeManager is MachinePeriphery, AccessManagedUpgradeable, IWat
     }
 
     /// @inheritdoc IWatermarkFeeManager
-    function setMgmtFeeRatePerSecond(uint256 newMgmtFeeRatePerSecond) external restricted {
+    function setMgmtFeeRatePerSecond(uint256 newMgmtFeeRatePerSecond) external override restricted {
         WatermarkFeeManagerStorage storage $ = _getWatermarkFeeManagerStorage();
 
         if (newMgmtFeeRatePerSecond > MAX_FEE_RATE) {
@@ -239,7 +240,7 @@ contract WatermarkFeeManager is MachinePeriphery, AccessManagedUpgradeable, IWat
     }
 
     /// @inheritdoc IWatermarkFeeManager
-    function setSmFeeRatePerSecond(uint256 newSmFeeRatePerSecond) external restricted {
+    function setSmFeeRatePerSecond(uint256 newSmFeeRatePerSecond) external override restricted {
         WatermarkFeeManagerStorage storage $ = _getWatermarkFeeManagerStorage();
 
         if (newSmFeeRatePerSecond > MAX_FEE_RATE) {
@@ -251,7 +252,7 @@ contract WatermarkFeeManager is MachinePeriphery, AccessManagedUpgradeable, IWat
     }
 
     /// @inheritdoc IWatermarkFeeManager
-    function setPerfFeeRate(uint256 newPerfFeeRate) external restricted {
+    function setPerfFeeRate(uint256 newPerfFeeRate) external override restricted {
         WatermarkFeeManagerStorage storage $ = _getWatermarkFeeManagerStorage();
 
         if (newPerfFeeRate > MAX_FEE_RATE) {
@@ -265,6 +266,7 @@ contract WatermarkFeeManager is MachinePeriphery, AccessManagedUpgradeable, IWat
     /// @inheritdoc IWatermarkFeeManager
     function setMgmtFeeSplit(address[] calldata newMgmtFeeReceivers, uint256[] calldata newMgmtFeeSplitBps)
         external
+        override
         restricted
     {
         WatermarkFeeManagerStorage storage $ = _getWatermarkFeeManagerStorage();
@@ -279,6 +281,7 @@ contract WatermarkFeeManager is MachinePeriphery, AccessManagedUpgradeable, IWat
     /// @inheritdoc IWatermarkFeeManager
     function setPerfFeeSplit(address[] calldata newPerfFeeReceivers, uint256[] calldata newPerfFeeSplitBps)
         external
+        override
         restricted
     {
         WatermarkFeeManagerStorage storage $ = _getWatermarkFeeManagerStorage();
@@ -291,7 +294,7 @@ contract WatermarkFeeManager is MachinePeriphery, AccessManagedUpgradeable, IWat
     }
 
     /// @inheritdoc IStakingModuleReference
-    function setStakingModule(address _stakingModule) external onlyFactory {
+    function setStakingModule(address _stakingModule) external override onlyFactory {
         WatermarkFeeManagerStorage storage $ = _getWatermarkFeeManagerStorage();
 
         if ($._stakingModule != address(0)) {

@@ -11,9 +11,9 @@ library Errors {
     error FutureRequest();
     error GreaterThanCurrentWatermark();
     error InvalidFeeSplit();
-    error InvalidMachineDepositorImplemId();
+    error InvalidDepositorImplemId();
     error InvalidFeeManagerImplemId();
-    error InvalidMachineRedeemerImplemId();
+    error InvalidRedeemerImplemId();
     error InvalidStakingModule();
     error MachineAlreadySet();
     error MachineNotSet();
@@ -24,9 +24,9 @@ library Errors {
     error NotFeeManager();
     error NotFinalized();
     error NotImplemented();
-    error NotMachineDepositor();
+    error NotDepositor();
     error NotMachinePeriphery();
-    error NotMachineRedeemer();
+    error NotRedeemer();
     error NotStakingModule();
     error SlashingSettlementOngoing();
     error StakingModuleAlreadySet();

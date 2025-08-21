@@ -15,12 +15,12 @@ import {MakinaPeripheryContext} from "../utils/MakinaPeripheryContext.sol";
 contract HubPeripheryFactory is AccessManagedUpgradeable, MakinaPeripheryContext, IHubPeripheryFactory {
     /// @custom:storage-location erc7201:makina.storage.HubPeripheryFactory
     struct HubPeripheryFactoryStorage {
-        mapping(address machineDepositor => bool isMachineDepositor) _isMachineDepositor;
-        mapping(address machineRedeemer => bool isMachineRedeemer) _isMachineRedeemer;
+        mapping(address depositor => bool isDepositor) _isDepositor;
+        mapping(address redeemer => bool isRedeemer) _isRedeemer;
         mapping(address feeManager => bool isFeeManager) _isFeeManager;
         mapping(address stakingModule => bool isStakingModule) _isStakingModule;
-        mapping(address machineDepositor => uint16 implemId) _machineDepositorImplemId;
-        mapping(address machineRedeemer => uint16 implemId) _machineRedeemerImplemId;
+        mapping(address depositor => uint16 implemId) _depositorImplemId;
+        mapping(address redeemer => uint16 implemId) _redeemerImplemId;
         mapping(address feeManager => uint16 implemId) _feeManagerImplemId;
     }
 
@@ -43,13 +43,13 @@ contract HubPeripheryFactory is AccessManagedUpgradeable, MakinaPeripheryContext
     }
 
     /// @inheritdoc IHubPeripheryFactory
-    function isMachineDepositor(address _machineDepositor) external view override returns (bool) {
-        return _getHubPeripheryFactoryStorage()._isMachineDepositor[_machineDepositor];
+    function isDepositor(address _depositor) external view override returns (bool) {
+        return _getHubPeripheryFactoryStorage()._isDepositor[_depositor];
     }
 
     /// @inheritdoc IHubPeripheryFactory
-    function isMachineRedeemer(address _machineRedeemer) external view override returns (bool) {
-        return _getHubPeripheryFactoryStorage()._isMachineRedeemer[_machineRedeemer];
+    function isRedeemer(address _redeemer) external view override returns (bool) {
+        return _getHubPeripheryFactoryStorage()._isRedeemer[_redeemer];
     }
 
     /// @inheritdoc IHubPeripheryFactory
@@ -63,21 +63,21 @@ contract HubPeripheryFactory is AccessManagedUpgradeable, MakinaPeripheryContext
     }
 
     /// @inheritdoc IHubPeripheryFactory
-    function machineDepositorImplemId(address _machineDepositor) external view override returns (uint16) {
+    function depositorImplemId(address _depositor) external view override returns (uint16) {
         HubPeripheryFactoryStorage storage $ = _getHubPeripheryFactoryStorage();
-        if (!$._isMachineDepositor[_machineDepositor]) {
-            revert Errors.NotMachineDepositor();
+        if (!$._isDepositor[_depositor]) {
+            revert Errors.NotDepositor();
         }
-        return $._machineDepositorImplemId[_machineDepositor];
+        return $._depositorImplemId[_depositor];
     }
 
     /// @inheritdoc IHubPeripheryFactory
-    function machineRedeemerImplemId(address _machineRedeemer) external view override returns (uint16) {
+    function redeemerImplemId(address _redeemer) external view override returns (uint16) {
         HubPeripheryFactoryStorage storage $ = _getHubPeripheryFactoryStorage();
-        if (!$._isMachineRedeemer[_machineRedeemer]) {
-            revert Errors.NotMachineRedeemer();
+        if (!$._isRedeemer[_redeemer]) {
+            revert Errors.NotRedeemer();
         }
-        return $._machineRedeemerImplemId[_machineRedeemer];
+        return $._redeemerImplemId[_redeemer];
     }
 
     /// @inheritdoc IHubPeripheryFactory
@@ -94,8 +94,8 @@ contract HubPeripheryFactory is AccessManagedUpgradeable, MakinaPeripheryContext
         HubPeripheryFactoryStorage storage $ = _getHubPeripheryFactoryStorage();
 
         if (
-            !$._isMachineDepositor[machinePeriphery] && !$._isMachineRedeemer[machinePeriphery]
-                && !$._isFeeManager[machinePeriphery] && !$._isStakingModule[machinePeriphery]
+            !$._isDepositor[machinePeriphery] && !$._isRedeemer[machinePeriphery] && !$._isFeeManager[machinePeriphery]
+                && !$._isStakingModule[machinePeriphery]
         ) {
             revert Errors.NotMachinePeriphery();
         }
@@ -119,7 +119,7 @@ contract HubPeripheryFactory is AccessManagedUpgradeable, MakinaPeripheryContext
     }
 
     /// @inheritdoc IHubPeripheryFactory
-    function createMachineDepositor(uint16 _implemId, bytes calldata _initializationData)
+    function createDepositor(uint16 _implemId, bytes calldata _initializationData)
         external
         override
         restricted
@@ -127,24 +127,24 @@ contract HubPeripheryFactory is AccessManagedUpgradeable, MakinaPeripheryContext
     {
         HubPeripheryFactoryStorage storage $ = _getHubPeripheryFactoryStorage();
 
-        address beacon = IHubPeripheryRegistry(peripheryRegistry).machineDepositorBeacon(_implemId);
+        address beacon = IHubPeripheryRegistry(peripheryRegistry).depositorBeacon(_implemId);
         if (beacon == address(0)) {
-            revert Errors.InvalidMachineDepositorImplemId();
+            revert Errors.InvalidDepositorImplemId();
         }
 
-        address machineDepositor =
+        address depositor =
             address(new BeaconProxy(beacon, abi.encodeCall(IMachinePeriphery.initialize, (_initializationData))));
 
-        $._isMachineDepositor[machineDepositor] = true;
-        $._machineDepositorImplemId[machineDepositor] = _implemId;
+        $._isDepositor[depositor] = true;
+        $._depositorImplemId[depositor] = _implemId;
 
-        emit MachineDepositorCreated(machineDepositor, _implemId);
+        emit DepositorCreated(depositor, _implemId);
 
-        return machineDepositor;
+        return depositor;
     }
 
     /// @inheritdoc IHubPeripheryFactory
-    function createMachineRedeemer(uint16 _implemId, bytes calldata _initializationData)
+    function createRedeemer(uint16 _implemId, bytes calldata _initializationData)
         external
         override
         restricted
@@ -152,20 +152,20 @@ contract HubPeripheryFactory is AccessManagedUpgradeable, MakinaPeripheryContext
     {
         HubPeripheryFactoryStorage storage $ = _getHubPeripheryFactoryStorage();
 
-        address beacon = IHubPeripheryRegistry(peripheryRegistry).machineRedeemerBeacon(_implemId);
+        address beacon = IHubPeripheryRegistry(peripheryRegistry).redeemerBeacon(_implemId);
         if (beacon == address(0)) {
-            revert Errors.InvalidMachineRedeemerImplemId();
+            revert Errors.InvalidRedeemerImplemId();
         }
 
-        address machineRedeemer =
+        address redeemer =
             address(new BeaconProxy(beacon, abi.encodeCall(IMachinePeriphery.initialize, (_initializationData))));
 
-        $._isMachineRedeemer[machineRedeemer] = true;
-        $._machineRedeemerImplemId[machineRedeemer] = _implemId;
+        $._isRedeemer[redeemer] = true;
+        $._redeemerImplemId[redeemer] = _implemId;
 
-        emit MachineRedeemerCreated(machineRedeemer, _implemId);
+        emit RedeemerCreated(redeemer, _implemId);
 
-        return machineRedeemer;
+        return redeemer;
     }
 
     /// @inheritdoc IHubPeripheryFactory

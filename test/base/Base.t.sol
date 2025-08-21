@@ -48,12 +48,10 @@ abstract contract Base_Test is Base, Test, Constants, CoreHelpers {
     HubPeripheryFactory public hubPeripheryFactory;
 
     // Machine Depositors
-    UpgradeableBeacon public openMachineDepositorBeacon;
-    UpgradeableBeacon public whitelistMachineDepositorBeacon;
+    UpgradeableBeacon public directDepositorBeacon;
 
     // Machine Redeemers
-    UpgradeableBeacon public asyncMachineRedeemerBeacon;
-    UpgradeableBeacon public whitelistAsyncMachineRedeemerBeacon;
+    UpgradeableBeacon public asyncRedeemerBeacon;
 
     // Machine Fee Managers
     UpgradeableBeacon public watermarkFeeManagerBeacon;
@@ -130,10 +128,8 @@ abstract contract Base_Hub_Test is Base_Test {
         flashloanAggregator = hubPeriphery.flashloanAggregator;
         hubPeripheryRegistry = hubPeriphery.hubPeripheryRegistry;
         hubPeripheryFactory = hubPeriphery.hubPeripheryFactory;
-        openMachineDepositorBeacon = hubPeriphery.openMachineDepositorBeacon;
-        whitelistMachineDepositorBeacon = hubPeriphery.whitelistMachineDepositorBeacon;
-        asyncMachineRedeemerBeacon = hubPeriphery.asyncMachineRedeemerBeacon;
-        whitelistAsyncMachineRedeemerBeacon = hubPeriphery.whitelistAsyncMachineRedeemerBeacon;
+        directDepositorBeacon = hubPeriphery.directDepositorBeacon;
+        asyncRedeemerBeacon = hubPeriphery.asyncRedeemerBeacon;
         watermarkFeeManagerBeacon = hubPeriphery.watermarkFeeManagerBeacon;
         stakingModuleBeacon = hubPeriphery.stakingModuleBeacon;
 
@@ -141,21 +137,17 @@ abstract contract Base_Hub_Test is Base_Test {
         registerHubPeripheryFactory(address(hubPeripheryRegistry), address(hubPeripheryFactory));
         registerStakingModuleBeacon(address(hubPeripheryRegistry), address(stakingModuleBeacon));
 
-        uint16[] memory mdImplemIds = new uint16[](2);
-        mdImplemIds[0] = OPEN_DEPOSIT_MANAGER_IMPLEM_ID;
-        mdImplemIds[1] = WHITELISTED_DEPOSIT_MANAGER_IMPLEM_ID;
-        address[] memory mdBeacons = new address[](2);
-        mdBeacons[0] = address(hubPeriphery.openMachineDepositorBeacon);
-        mdBeacons[1] = address(hubPeriphery.whitelistMachineDepositorBeacon);
-        registerMachineDepositorBeacons(address(hubPeripheryRegistry), mdImplemIds, mdBeacons);
+        uint16[] memory mdImplemIds = new uint16[](1);
+        mdImplemIds[0] = DIRECT_DEPOSITOR_IMPLEM_ID;
+        address[] memory mdBeacons = new address[](1);
+        mdBeacons[0] = address(hubPeriphery.directDepositorBeacon);
+        registerDepositorBeacons(address(hubPeripheryRegistry), mdImplemIds, mdBeacons);
 
-        uint16[] memory mrImplemIds = new uint16[](2);
-        mrImplemIds[0] = ASYNC_REDEEM_MANAGER_IMPLEM_ID;
-        mrImplemIds[1] = WHITELISTED_ASYNC_REDEEM_MANAGER_IMPLEM_ID;
-        address[] memory mrBeacons = new address[](2);
-        mrBeacons[0] = address(hubPeriphery.asyncMachineRedeemerBeacon);
-        mrBeacons[1] = address(hubPeriphery.whitelistAsyncMachineRedeemerBeacon);
-        registerMachineRedeemerBeacons(address(hubPeripheryRegistry), mrImplemIds, mrBeacons);
+        uint16[] memory mrImplemIds = new uint16[](1);
+        mrImplemIds[0] = ASYNC_REDEEMER_IMPLEM_ID;
+        address[] memory mrBeacons = new address[](1);
+        mrBeacons[0] = address(hubPeriphery.asyncRedeemerBeacon);
+        registerRedeemerBeacons(address(hubPeripheryRegistry), mrImplemIds, mrBeacons);
 
         uint16[] memory fmImplemIds = new uint16[](1);
         fmImplemIds[0] = WATERMARK_FEE_MANAGER_IMPLEM_ID;
@@ -166,18 +158,16 @@ abstract contract Base_Hub_Test is Base_Test {
         _setupAccessManager(accessManager, dao);
     }
 
-    function _deployMachine(
-        address _accountingToken,
-        address _machineDepositor,
-        address _machineRedeemer,
-        address _machineFeeManager
-    ) public returns (Machine, Caliber) {
+    function _deployMachine(address _accountingToken, address _depositor, address _redeemer, address _machineFeeManager)
+        public
+        returns (Machine, Caliber)
+    {
         vm.prank(dao);
         Machine _machine = Machine(
             hubCoreFactory.createMachine(
                 IMachine.MachineInitParams({
-                    initialDepositor: _machineDepositor,
-                    initialRedeemer: _machineRedeemer,
+                    initialDepositor: _depositor,
+                    initialRedeemer: _redeemer,
                     initialFeeManager: _machineFeeManager,
                     initialCaliberStaleThreshold: DEFAULT_MACHINE_CALIBER_STALE_THRESHOLD,
                     initialMaxFeeAccrualRate: DEFAULT_MACHINE_MAX_FEE_ACCRUAL_RATE,

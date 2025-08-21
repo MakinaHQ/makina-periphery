@@ -9,8 +9,8 @@ contract HubPeripheryRegistry is AccessManagedUpgradeable, IHubPeripheryRegistry
     /// @custom:storage-location erc7201:makina.storage.HubPeripheryRegistry
     struct HubPeripheryRegistryStorage {
         address _peripheryFactory;
-        mapping(uint16 implemId => address machineDepositor) _machineDepositors;
-        mapping(uint16 implemId => address machineRedeemer) _machineRedeemers;
+        mapping(uint16 implemId => address depositor) _depositors;
+        mapping(uint16 implemId => address redeemer) _redeemers;
         mapping(uint16 implemId => address feeManager) _feeManagers;
         address _stakingModuleBeacon;
     }
@@ -39,13 +39,13 @@ contract HubPeripheryRegistry is AccessManagedUpgradeable, IHubPeripheryRegistry
     }
 
     /// @inheritdoc IHubPeripheryRegistry
-    function machineDepositorBeacon(uint16 implemId) external view override returns (address) {
-        return _getHubPeripheryRegistryStorage()._machineDepositors[implemId];
+    function depositorBeacon(uint16 implemId) external view override returns (address) {
+        return _getHubPeripheryRegistryStorage()._depositors[implemId];
     }
 
     /// @inheritdoc IHubPeripheryRegistry
-    function machineRedeemerBeacon(uint16 implemId) external view override returns (address) {
-        return _getHubPeripheryRegistryStorage()._machineRedeemers[implemId];
+    function redeemerBeacon(uint16 implemId) external view override returns (address) {
+        return _getHubPeripheryRegistryStorage()._redeemers[implemId];
     }
 
     /// @inheritdoc IHubPeripheryRegistry
@@ -66,17 +66,17 @@ contract HubPeripheryRegistry is AccessManagedUpgradeable, IHubPeripheryRegistry
     }
 
     /// @inheritdoc IHubPeripheryRegistry
-    function setMachineDepositorBeacon(uint16 implemId, address _machineDepositorBeacon) external override restricted {
+    function setDepositorBeacon(uint16 implemId, address _depositorBeacon) external override restricted {
         HubPeripheryRegistryStorage storage $ = _getHubPeripheryRegistryStorage();
-        emit MachineDepositorBeaconChanged(implemId, $._machineDepositors[implemId], _machineDepositorBeacon);
-        $._machineDepositors[implemId] = _machineDepositorBeacon;
+        emit DepositorBeaconChanged(implemId, $._depositors[implemId], _depositorBeacon);
+        $._depositors[implemId] = _depositorBeacon;
     }
 
     /// @inheritdoc IHubPeripheryRegistry
-    function setMachineRedeemerBeacon(uint16 implemId, address _machineRedeemerBeacon) external override restricted {
+    function setRedeemerBeacon(uint16 implemId, address _redeemerBeacon) external override restricted {
         HubPeripheryRegistryStorage storage $ = _getHubPeripheryRegistryStorage();
-        emit MachineRedeemerBeaconChanged(implemId, $._machineRedeemers[implemId], _machineRedeemerBeacon);
-        $._machineRedeemers[implemId] = _machineRedeemerBeacon;
+        emit RedeemerBeaconChanged(implemId, $._redeemers[implemId], _redeemerBeacon);
+        $._redeemers[implemId] = _redeemerBeacon;
     }
 
     /// @inheritdoc IHubPeripheryRegistry

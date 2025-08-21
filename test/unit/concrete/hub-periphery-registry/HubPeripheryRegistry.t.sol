@@ -10,23 +10,9 @@ import {Unit_Concrete_Test} from "../UnitConcrete.t.sol";
 contract Getters_Setters_HubPeripheryRegistry_Unit_Concrete_Test is Unit_Concrete_Test {
     function test_Getters() public view {
         assertEq(hubPeripheryRegistry.peripheryFactory(), address(hubPeripheryFactory));
-        assertEq(
-            hubPeripheryRegistry.machineDepositorBeacon(OPEN_DEPOSIT_MANAGER_IMPLEM_ID),
-            address(openMachineDepositorBeacon)
-        );
-        assertEq(
-            hubPeripheryRegistry.machineDepositorBeacon(WHITELISTED_DEPOSIT_MANAGER_IMPLEM_ID),
-            address(whitelistMachineDepositorBeacon)
-        );
+        assertEq(hubPeripheryRegistry.depositorBeacon(DIRECT_DEPOSITOR_IMPLEM_ID), address(directDepositorBeacon));
 
-        assertEq(
-            hubPeripheryRegistry.machineRedeemerBeacon(ASYNC_REDEEM_MANAGER_IMPLEM_ID),
-            address(asyncMachineRedeemerBeacon)
-        );
-        assertEq(
-            hubPeripheryRegistry.machineRedeemerBeacon(WHITELISTED_ASYNC_REDEEM_MANAGER_IMPLEM_ID),
-            address(whitelistAsyncMachineRedeemerBeacon)
-        );
+        assertEq(hubPeripheryRegistry.redeemerBeacon(ASYNC_REDEEMER_IMPLEM_ID), address(asyncRedeemerBeacon));
 
         assertEq(
             hubPeripheryRegistry.feeManagerBeacon(WATERMARK_FEE_MANAGER_IMPLEM_ID), address(watermarkFeeManagerBeacon)
@@ -47,36 +33,36 @@ contract Getters_Setters_HubPeripheryRegistry_Unit_Concrete_Test is Unit_Concret
         assertEq(hubPeripheryRegistry.peripheryFactory(), newPeripheryFactory);
     }
 
-    function test_SetMachineDepositorBeacon_RevertWhen_CallerWithoutRole() public {
+    function test_SetDepositorBeacon_RevertWhen_CallerWithoutRole() public {
         vm.expectRevert(abi.encodeWithSelector(IAccessManaged.AccessManagedUnauthorized.selector, address(this)));
-        hubPeripheryRegistry.setMachineDepositorBeacon(OPEN_DEPOSIT_MANAGER_IMPLEM_ID, address(0));
+        hubPeripheryRegistry.setDepositorBeacon(DIRECT_DEPOSITOR_IMPLEM_ID, address(0));
     }
 
-    function test_SetMachineDepositorBeacon() public {
-        address newMachineDepositorBeacon = makeAddr("newMachineDepositorBeacon");
+    function test_SetDepositorBeacon() public {
+        address newDepositorBeacon = makeAddr("newDepositorBeacon");
         vm.expectEmit(true, true, false, false, address(hubPeripheryRegistry));
-        emit IHubPeripheryRegistry.MachineDepositorBeaconChanged(
-            OPEN_DEPOSIT_MANAGER_IMPLEM_ID, address(openMachineDepositorBeacon), newMachineDepositorBeacon
+        emit IHubPeripheryRegistry.DepositorBeaconChanged(
+            DIRECT_DEPOSITOR_IMPLEM_ID, address(directDepositorBeacon), newDepositorBeacon
         );
         vm.prank(dao);
-        hubPeripheryRegistry.setMachineDepositorBeacon(OPEN_DEPOSIT_MANAGER_IMPLEM_ID, newMachineDepositorBeacon);
-        assertEq(hubPeripheryRegistry.machineDepositorBeacon(OPEN_DEPOSIT_MANAGER_IMPLEM_ID), newMachineDepositorBeacon);
+        hubPeripheryRegistry.setDepositorBeacon(DIRECT_DEPOSITOR_IMPLEM_ID, newDepositorBeacon);
+        assertEq(hubPeripheryRegistry.depositorBeacon(DIRECT_DEPOSITOR_IMPLEM_ID), newDepositorBeacon);
     }
 
-    function test_SetMachineRedeemerBeacon_RevertWhen_CallerWithoutRole() public {
+    function test_SetRedeemerBeacon_RevertWhen_CallerWithoutRole() public {
         vm.expectRevert(abi.encodeWithSelector(IAccessManaged.AccessManagedUnauthorized.selector, address(this)));
-        hubPeripheryRegistry.setMachineRedeemerBeacon(ASYNC_REDEEM_MANAGER_IMPLEM_ID, address(0));
+        hubPeripheryRegistry.setRedeemerBeacon(ASYNC_REDEEMER_IMPLEM_ID, address(0));
     }
 
-    function test_SetMachineRedeemerBeacon() public {
-        address newMachineRedeemerBeacon = makeAddr("newMachineRedeemerBeacon");
+    function test_SetRedeemerBeacon() public {
+        address newRedeemerBeacon = makeAddr("newRedeemerBeacon");
         vm.expectEmit(true, true, false, false, address(hubPeripheryRegistry));
-        emit IHubPeripheryRegistry.MachineRedeemerBeaconChanged(
-            ASYNC_REDEEM_MANAGER_IMPLEM_ID, address(asyncMachineRedeemerBeacon), newMachineRedeemerBeacon
+        emit IHubPeripheryRegistry.RedeemerBeaconChanged(
+            ASYNC_REDEEMER_IMPLEM_ID, address(asyncRedeemerBeacon), newRedeemerBeacon
         );
         vm.prank(dao);
-        hubPeripheryRegistry.setMachineRedeemerBeacon(ASYNC_REDEEM_MANAGER_IMPLEM_ID, newMachineRedeemerBeacon);
-        assertEq(hubPeripheryRegistry.machineRedeemerBeacon(ASYNC_REDEEM_MANAGER_IMPLEM_ID), newMachineRedeemerBeacon);
+        hubPeripheryRegistry.setRedeemerBeacon(ASYNC_REDEEMER_IMPLEM_ID, newRedeemerBeacon);
+        assertEq(hubPeripheryRegistry.redeemerBeacon(ASYNC_REDEEMER_IMPLEM_ID), newRedeemerBeacon);
     }
 
     function test_SetFeeManagerBeacon_RevertWhen_CallerWithoutRole() public {

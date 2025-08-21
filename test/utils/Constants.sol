@@ -7,10 +7,10 @@ abstract contract Constants {
     // Whitelist
     bool public constant DEFAULT_INITIAL_WHITELIST_STATUS = false;
 
-    // Deposit managers
+    // Depositors
     uint16 public constant DIRECT_DEPOSITOR_IMPLEM_ID = 1;
 
-    // Redeem managers
+    // Redeemers
     uint16 public constant ASYNC_REDEEMER_IMPLEM_ID = 1;
     uint256 public constant DEFAULT_FINALIZATION_DELAY = 1 hours;
 

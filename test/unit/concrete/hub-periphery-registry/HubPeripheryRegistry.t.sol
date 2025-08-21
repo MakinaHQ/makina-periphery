@@ -11,12 +11,11 @@ contract Getters_Setters_HubPeripheryRegistry_Unit_Concrete_Test is Unit_Concret
     function test_Getters() public view {
         assertEq(hubPeripheryRegistry.peripheryFactory(), address(hubPeripheryFactory));
         assertEq(hubPeripheryRegistry.depositorBeacon(DIRECT_DEPOSITOR_IMPLEM_ID), address(directDepositorBeacon));
-
         assertEq(hubPeripheryRegistry.redeemerBeacon(ASYNC_REDEEMER_IMPLEM_ID), address(asyncRedeemerBeacon));
-
         assertEq(
             hubPeripheryRegistry.feeManagerBeacon(WATERMARK_FEE_MANAGER_IMPLEM_ID), address(watermarkFeeManagerBeacon)
         );
+        assertEq(hubPeripheryRegistry.stakingModuleBeacon(), address(stakingModuleBeacon));
     }
 
     function test_SetPeripheryFactory_RevertWhen_CallerWithoutRole() public {

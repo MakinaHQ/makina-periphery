@@ -82,22 +82,22 @@ contract StakingModule is ERC20Upgradeable, ReentrancyGuardUpgradeable, MachineP
     }
 
     /// @inheritdoc IStakingModule
-    function machineShare() public view returns (address) {
+    function machineShare() public view override returns (address) {
         return _getStakingModuleStorage()._machineShare;
     }
 
     /// @inheritdoc IStakingModule
-    function cooldownDuration() public view returns (uint256) {
+    function cooldownDuration() public view override returns (uint256) {
         return _getStakingModuleStorage()._cooldownDuration;
     }
 
     /// @inheritdoc IStakingModule
-    function maxSlashableBps() public view returns (uint256) {
+    function maxSlashableBps() public view override returns (uint256) {
         return _getStakingModuleStorage()._maxSlashableBps;
     }
 
     /// @inheritdoc IStakingModule
-    function minBalanceAfterSlash() public view returns (uint256) {
+    function minBalanceAfterSlash() public view override returns (uint256) {
         return _getStakingModuleStorage()._minBalanceAfterSlash;
     }
 
@@ -108,12 +108,12 @@ contract StakingModule is ERC20Upgradeable, ReentrancyGuardUpgradeable, MachineP
     }
 
     /// @inheritdoc IStakingModule
-    function slashingMode() public view returns (bool) {
+    function slashingMode() public view override returns (bool) {
         return _getStakingModuleStorage()._slashingMode;
     }
 
     /// @inheritdoc IStakingModule
-    function totalStakedAmount() public view returns (uint256) {
+    function totalStakedAmount() public view override returns (uint256) {
         return IERC20(_getStakingModuleStorage()._machineShare).balanceOf(address(this));
     }
 
@@ -230,20 +230,20 @@ contract StakingModule is ERC20Upgradeable, ReentrancyGuardUpgradeable, MachineP
     }
 
     /// @inheritdoc IStakingModule
-    function settleSlashing() external onlySecurityCouncil {
+    function settleSlashing() external override onlySecurityCouncil {
         _getStakingModuleStorage()._slashingMode = false;
         emit SlashingSettled();
     }
 
     /// @inheritdoc IStakingModule
-    function setCooldownDuration(uint256 newCooldownDuration) external onlyRiskManager {
+    function setCooldownDuration(uint256 newCooldownDuration) external override onlyRiskManager {
         StakingModuleStorage storage $ = _getStakingModuleStorage();
         emit CooldownDurationChanged($._cooldownDuration, newCooldownDuration);
         $._cooldownDuration = newCooldownDuration;
     }
 
     /// @inheritdoc IStakingModule
-    function setMaxSlashableBps(uint256 newMaxSlashableBps) external onlyRiskManager {
+    function setMaxSlashableBps(uint256 newMaxSlashableBps) external override onlyRiskManager {
         StakingModuleStorage storage $ = _getStakingModuleStorage();
         if (newMaxSlashableBps > MAX_BPS) {
             revert Errors.MaxBpsValueExceeded();
@@ -253,7 +253,7 @@ contract StakingModule is ERC20Upgradeable, ReentrancyGuardUpgradeable, MachineP
     }
 
     /// @inheritdoc IStakingModule
-    function setMinBalanceAfterSlash(uint256 newMinBalanceAfterSlash) external onlyRiskManager {
+    function setMinBalanceAfterSlash(uint256 newMinBalanceAfterSlash) external override onlyRiskManager {
         StakingModuleStorage storage $ = _getStakingModuleStorage();
         emit MinBalanceAfterSlashChanged($._minBalanceAfterSlash, newMinBalanceAfterSlash);
         $._minBalanceAfterSlash = newMinBalanceAfterSlash;

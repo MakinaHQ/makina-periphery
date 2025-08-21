@@ -17,10 +17,10 @@ interface IHubPeripheryRegistry {
     /// @notice Address of the periphery factory.
     function peripheryFactory() external view returns (address);
 
-    /// @notice Implementation ID => Address of the deposit manager beacon
+    /// @notice Implementation ID => Address of the depositor beacon
     function depositorBeacon(uint16 implemId) external view returns (address);
 
-    /// @notice Implementation ID => Address of the redeem manager beacon
+    /// @notice Implementation ID => Address of the redeemer beacon
     function redeemerBeacon(uint16 implemId) external view returns (address);
 
     /// @notice Implementation ID => Address of the fee manager beacon
@@ -33,13 +33,13 @@ interface IHubPeripheryRegistry {
     /// @param _peripheryFactory The periphery factory address.
     function setPeripheryFactory(address _peripheryFactory) external;
 
-    /// @notice Sets the beacon address for the deposit manager implementation.
-    /// @param implemId The ID of the deposit manager implementation.
+    /// @notice Sets the beacon address for the depositor implementation.
+    /// @param implemId The ID of the machine depositor implementation.
     /// @param _depositorBeacon The machine depositor beacon address.
     function setDepositorBeacon(uint16 implemId, address _depositorBeacon) external;
 
-    /// @notice Sets the beacon address for the redeem manager implementation.
-    /// @param implemId The ID of the redeem manager implementation.
+    /// @notice Sets the beacon address for the redeemer implementation.
+    /// @param implemId The ID of the redeemer implementation.
     /// @param _redeemerBeacon The machine redeemer beacon address.
     function setRedeemerBeacon(uint16 implemId, address _redeemerBeacon) external;
 

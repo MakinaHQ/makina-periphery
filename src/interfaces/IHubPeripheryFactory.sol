@@ -9,10 +9,10 @@ interface IHubPeripheryFactory {
     event FeeManagerCreated(address indexed feeManager, uint16 indexed implemId);
     event StakingModuleCreated(address indexed stakingModule);
 
-    /// @notice Address => Whether this is a deposit manager deployed by this factory
+    /// @notice Address => Whether this is a depositor deployed by this factory
     function isDepositor(address depositor) external view returns (bool);
 
-    /// @notice Address => Whether this is a redeem manager deployed by this factory
+    /// @notice Address => Whether this is a redeemer deployed by this factory
     function isRedeemer(address redeemer) external view returns (bool);
 
     /// @notice Address => Whether this is a fee manager deployed by this factory
@@ -21,10 +21,10 @@ interface IHubPeripheryFactory {
     /// @notice Address => Whether this is a staking module deployed by this factory
     function isStakingModule(address stakingModule) external view returns (bool);
 
-    /// @notice Deposit manager => Implementation ID
+    /// @notice Depositor => Implementation ID
     function depositorImplemId(address depositor) external view returns (uint16);
 
-    /// @notice Redeem manager => Implementation ID
+    /// @notice Redeemer => Implementation ID
     function redeemerImplemId(address redeemer) external view returns (uint16);
 
     /// @notice Fee manager => Implementation ID
@@ -40,19 +40,19 @@ interface IHubPeripheryFactory {
     /// @param stakingModule The address of the staking module to be set.
     function setStakingModule(address feeManager, address stakingModule) external;
 
-    /// @notice Creates a new deposit manager using the specified implementation ID.
-    /// @param implemId The ID of the deposit manager implementation to be used.
+    /// @notice Creates a new machine depositor using the specified implementation ID.
+    /// @param implemId The ID of the depositor implementation to be used.
     /// @param initializationData Additional initialization data.
-    /// @return depositor The address of the newly created deposit manager.
+    /// @return depositor The address of the newly created depositor.
     function createDepositor(uint16 implemId, bytes calldata initializationData) external returns (address depositor);
 
-    /// @notice Creates a new redeem manager using the specified implementation ID.
-    /// @param implemId The ID of the redeem manager implementation to be used.
+    /// @notice Creates a new machine redeemer using the specified implementation ID.
+    /// @param implemId The ID of the redeemer implementation to be used.
     /// @param initializationData Additional initialization data.
-    /// @return redeemer The address of the newly created redeem manager.
+    /// @return redeemer The address of the newly created redeemer.
     function createRedeemer(uint16 implemId, bytes calldata initializationData) external returns (address redeemer);
 
-    /// @notice Creates a new fee manager using the specified implementation ID.
+    /// @notice Creates a new machine fee manager using the specified implementation ID.
     /// @param implemId The ID of the fee manager implementation to be used.
     /// @param initializationData Additional initialization data.
     /// @return feeManager The address of the newly created fee manager.

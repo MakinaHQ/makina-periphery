@@ -31,7 +31,7 @@ contract AsyncRedeemer is ERC721Upgradeable, ReentrancyGuardUpgradeable, Machine
 
     // keccak256(abi.encode(uint256(keccak256("makina.storage.AsyncRedeemer")) - 1)) & ~bytes32(uint256(0xff))
     bytes32 private constant AsyncRedeemerStorageLocation =
-        0x834d0b78c6ccd5774fe62696b39cee631e0dfdc36e42b36ad17cbc45095ebe00;
+        0x187c268ec5d498b5b6e4945b27f62abf37217cdbd80e6429181b3e4c2c378900;
 
     function _getAsyncRedeemerStorage() private pure returns (AsyncRedeemerStorage storage $) {
         assembly {

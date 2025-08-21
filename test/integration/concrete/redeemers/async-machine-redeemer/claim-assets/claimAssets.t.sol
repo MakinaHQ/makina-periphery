@@ -4,7 +4,7 @@ pragma solidity 0.8.28;
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IERC721Errors} from "@openzeppelin/contracts/interfaces/draft-IERC6093.sol";
 
-import {Errors} from "src/libraries/Errors.sol";
+import {Errors, CoreErrors} from "src/libraries/Errors.sol";
 import {IAsyncRedeemer} from "src/interfaces/IAsyncRedeemer.sol";
 
 import {AsyncRedeemer_Integration_Concrete_Test} from "../AsyncRedeemer.t.sol";
@@ -15,6 +15,11 @@ contract ClaimAssets_Integration_Concrete_Test is AsyncRedeemer_Integration_Conc
 
         vm.prank(dao);
         hubPeripheryFactory.setMachine(address(asyncRedeemer), address(machine));
+    }
+
+    function test_RevertWhen_UnauthorizedCaller_WithWhitelistEnabled() public withWhitelistEnabled {
+        vm.expectRevert(CoreErrors.UnauthorizedCaller.selector);
+        asyncRedeemer.claimAssets(1);
     }
 
     function test_RevertWhen_NonExistentRequest() public {
@@ -277,5 +282,48 @@ contract ClaimAssets_Integration_Concrete_Test is AsyncRedeemer_Integration_Conc
 
         assertEq(claimedAssets2, assetsToWithdraw2);
         assertEq(accountingToken.balanceOf(user4), claimedAssets2);
+    }
+
+    function test_ClaimAssets_WithWhitelistEnabled() public withWhitelistEnabled withWhitelistedUser(user1) {
+        uint256 assets = 1e18;
+
+        // Deposit assets to the machine
+        deal(address(accountingToken), depositorAddr, assets);
+        vm.startPrank(depositorAddr);
+        IERC20(accountingToken).approve(address(machine), assets);
+        uint256 shares = machine.deposit(assets, user1, 0);
+        vm.stopPrank();
+
+        // User1 enters queue
+        vm.startPrank(user1);
+        machineShare.approve(address(asyncRedeemer), shares);
+        uint256 requestId = asyncRedeemer.requestRedeem(shares, user3);
+        vm.stopPrank();
+
+        skip(asyncRedeemer.finalizationDelay());
+
+        // Finalize request
+        vm.prank(mechanic);
+        asyncRedeemer.finalizeRequests(requestId, assets);
+
+        // User3 tries to claim assets, but is not whitelisted
+        vm.expectRevert(CoreErrors.UnauthorizedCaller.selector);
+        vm.prank(user3);
+        asyncRedeemer.claimAssets(requestId);
+
+        // whitelist User3
+        address[] memory users = new address[](1);
+        users[0] = user3;
+        vm.prank(dao);
+        asyncRedeemer.setWhitelistedUsers(users, true);
+
+        // User3 claims assets
+        vm.expectEmit(true, true, false, true, address(asyncRedeemer));
+        emit IAsyncRedeemer.RedeemRequestClaimed(requestId, shares, assets, user3);
+        vm.prank(user3);
+        uint256 claimedAssets = asyncRedeemer.claimAssets(requestId);
+
+        assertEq(claimedAssets, assets);
+        assertEq(accountingToken.balanceOf(user3), claimedAssets);
     }
 }

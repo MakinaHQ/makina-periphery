@@ -179,7 +179,7 @@ contract AsyncRedeemer is ERC721Upgradeable, ReentrancyGuardUpgradeable, Machine
     }
 
     /// @inheritdoc IAsyncRedeemer
-    function claimAssets(uint256 requestId) external override nonReentrant returns (uint256) {
+    function claimAssets(uint256 requestId) external override nonReentrant whitelistCheck returns (uint256) {
         AsyncRedeemerStorage storage $ = _getAsyncRedeemerStorage();
 
         address recipient = ownerOf(requestId);

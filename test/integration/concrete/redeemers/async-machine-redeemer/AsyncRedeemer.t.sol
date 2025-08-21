@@ -3,15 +3,14 @@ pragma solidity 0.8.28;
 
 import {MachineShare} from "@makina-core/machine/MachineShare.sol";
 
-import {IAsyncRedeemer} from "src/interfaces/IAsyncRedeemer.sol";
-import {IWhitelist} from "src/interfaces/IWhitelist.sol";
+import {AsyncRedeemer} from "src/redeemers/AsyncRedeemer.sol";
 
 import {Constants} from "../../../../utils/Constants.sol";
 
 import {MachinePeriphery_Integration_Concrete_Test} from "../../machine-periphery/MachinePeriphery.t.sol";
 
 contract AsyncRedeemer_Integration_Concrete_Test is MachinePeriphery_Integration_Concrete_Test {
-    IAsyncRedeemer public asyncRedeemer;
+    AsyncRedeemer public asyncRedeemer;
 
     address public depositorAddr;
 
@@ -19,7 +18,7 @@ contract AsyncRedeemer_Integration_Concrete_Test is MachinePeriphery_Integration
         MachinePeriphery_Integration_Concrete_Test.setUp();
 
         vm.prank(dao);
-        asyncRedeemer = IAsyncRedeemer(
+        asyncRedeemer = AsyncRedeemer(
             hubPeripheryFactory.createRedeemer(
                 ASYNC_REDEEMER_IMPLEM_ID, abi.encode(DEFAULT_FINALIZATION_DELAY, DEFAULT_INITIAL_WHITELIST_STATUS)
             )
@@ -40,7 +39,7 @@ contract AsyncRedeemer_Integration_Concrete_Test is MachinePeriphery_Integration
 
     modifier withWhitelistEnabled() {
         vm.prank(dao);
-        IWhitelist(address(asyncRedeemer)).setWhitelistStatus(true);
+        asyncRedeemer.setWhitelistStatus(true);
 
         _;
     }
@@ -50,7 +49,7 @@ contract AsyncRedeemer_Integration_Concrete_Test is MachinePeriphery_Integration
         users[0] = _user;
 
         vm.prank(dao);
-        IWhitelist(address(asyncRedeemer)).setWhitelistedUsers(users, true);
+        asyncRedeemer.setWhitelistedUsers(users, true);
 
         _;
     }

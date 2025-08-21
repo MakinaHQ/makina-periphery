@@ -11,14 +11,14 @@ import {MachinePeriphery_Integration_Concrete_Test} from "../machine-periphery/M
 abstract contract StakingModule_Integration_Concrete_Test is MachinePeriphery_Integration_Concrete_Test {
     StakingModule public stakingModule;
 
-    address public machineDepositorAddr;
+    address public depositorAddr;
 
     function setUp() public virtual override {
         MachinePeriphery_Integration_Concrete_Test.setUp();
 
-        machineDepositorAddr = makeAddr("machineDepositor");
+        depositorAddr = makeAddr("depositor");
 
-        (machine,) = _deployMachine(address(accountingToken), machineDepositorAddr, address(0), address(0));
+        (machine,) = _deployMachine(address(accountingToken), depositorAddr, address(0), address(0));
         machineShare = MachineShare(machine.shareToken());
 
         vm.prank(dao);

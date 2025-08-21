@@ -4,13 +4,14 @@ pragma solidity 0.8.28;
 abstract contract Constants {
     uint16 public constant DUMMY_MANAGER_IMPLEM_ID = 0;
 
+    // Whitelist
+    bool public constant DEFAULT_INITIAL_WHITELIST_STATUS = false;
+
     // Deposit managers
-    uint16 public constant OPEN_DEPOSIT_MANAGER_IMPLEM_ID = 1;
-    uint16 public constant WHITELISTED_DEPOSIT_MANAGER_IMPLEM_ID = 2;
+    uint16 public constant DIRECT_DEPOSITOR_IMPLEM_ID = 1;
 
     // Redeem managers
-    uint16 public constant ASYNC_REDEEM_MANAGER_IMPLEM_ID = 1;
-    uint16 public constant WHITELISTED_ASYNC_REDEEM_MANAGER_IMPLEM_ID = 2;
+    uint16 public constant ASYNC_REDEEMER_IMPLEM_ID = 1;
     uint256 public constant DEFAULT_FINALIZATION_DELAY = 1 hours;
 
     // Fee managers

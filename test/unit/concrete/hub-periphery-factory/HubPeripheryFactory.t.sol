@@ -8,19 +8,19 @@ import {Unit_Concrete_Test} from "../UnitConcrete.t.sol";
 contract Getters_HubPeripheryFactory_Unit_Concrete_Test is Unit_Concrete_Test {
     function test_Getters() public view {
         assertEq(hubPeripheryFactory.peripheryRegistry(), address(hubPeripheryRegistry));
-        assertFalse(hubPeripheryFactory.isMachineDepositor(address(0)));
-        assertFalse(hubPeripheryFactory.isMachineRedeemer(address(0)));
+        assertFalse(hubPeripheryFactory.isDepositor(address(0)));
+        assertFalse(hubPeripheryFactory.isRedeemer(address(0)));
         assertFalse(hubPeripheryFactory.isFeeManager(address(0)));
     }
 
-    function test_MachineDepositorImplemId_RevertWhen_NotMachineDepositor() public {
-        vm.expectRevert(Errors.NotMachineDepositor.selector);
-        hubPeripheryFactory.machineDepositorImplemId(address(0));
+    function test_DepositorImplemId_RevertWhen_NotDepositor() public {
+        vm.expectRevert(Errors.NotDepositor.selector);
+        hubPeripheryFactory.depositorImplemId(address(0));
     }
 
-    function test_MachineRedeemerImplemId_RevertWhen_NotMachineRedeemer() public {
-        vm.expectRevert(Errors.NotMachineRedeemer.selector);
-        hubPeripheryFactory.machineRedeemerImplemId(address(0));
+    function test_RedeemerImplemId_RevertWhen_NotRedeemer() public {
+        vm.expectRevert(Errors.NotRedeemer.selector);
+        hubPeripheryFactory.redeemerImplemId(address(0));
     }
 
     function test_FeeManagerImplemId_RevertWhen_NotFeeManager() public {

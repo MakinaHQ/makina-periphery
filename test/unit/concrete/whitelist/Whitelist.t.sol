@@ -13,7 +13,31 @@ abstract contract Whitelist_Unit_Concrete_Test is Unit_Concrete_Test {
     function setUp() public virtual override {}
 
     function test_Getters() public view {
+        assertFalse(whitelist.isWhitelistEnabled());
         assertFalse(whitelist.isWhitelistedUser(address(0)));
+    }
+
+    function test_SetWhitelistStatus_RevertGiven_CallerWithoutRole() public {
+        vm.expectRevert(abi.encodeWithSelector(IAccessManaged.AccessManagedUnauthorized.selector, address(this)));
+        whitelist.setWhitelistStatus(true);
+    }
+
+    function test_SetWhitelistStatus() public {
+        assertFalse(whitelist.isWhitelistEnabled());
+
+        vm.expectEmit(true, false, false, false, address(whitelist));
+        emit IWhitelist.WhitelistStatusChanged(true);
+        vm.prank(dao);
+        whitelist.setWhitelistStatus(true);
+
+        assertTrue(whitelist.isWhitelistEnabled());
+
+        vm.expectEmit(true, true, false, false, address(whitelist));
+        emit IWhitelist.WhitelistStatusChanged(false);
+        vm.prank(dao);
+        whitelist.setWhitelistStatus(false);
+
+        assertFalse(whitelist.isWhitelistEnabled());
     }
 
     function test_SetWhitelistedUsers_RevertGiven_CallerWithoutRole() public {

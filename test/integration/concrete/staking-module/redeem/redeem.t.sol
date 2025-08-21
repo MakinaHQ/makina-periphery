@@ -11,8 +11,8 @@ contract Redeem_Integration_Concrete_Test is StakingModule_Integration_Concrete_
         uint256 inputAssets1 = 1e18;
 
         // Deposit assets to the machine
-        deal(address(accountingToken), machineDepositorAddr, inputAssets1);
-        vm.startPrank(machineDepositorAddr);
+        deal(address(accountingToken), depositorAddr, inputAssets1);
+        vm.startPrank(depositorAddr);
         accountingToken.approve(address(machine), inputAssets1);
         uint256 machineShares1 = machine.deposit(inputAssets1, user1, 0);
         vm.stopPrank();
@@ -40,8 +40,8 @@ contract Redeem_Integration_Concrete_Test is StakingModule_Integration_Concrete_
         uint256 inputAssets1 = 1e18;
 
         // Deposit assets to the machine
-        deal(address(accountingToken), machineDepositorAddr, inputAssets1);
-        vm.startPrank(machineDepositorAddr);
+        deal(address(accountingToken), depositorAddr, inputAssets1);
+        vm.startPrank(depositorAddr);
         accountingToken.approve(address(machine), inputAssets1);
         uint256 machineShares1 = machine.deposit(inputAssets1, user1, 0);
         vm.stopPrank();
@@ -71,8 +71,8 @@ contract Redeem_Integration_Concrete_Test is StakingModule_Integration_Concrete_
         uint256 inputAssets1 = 1e18;
 
         // Deposit assets to the machine
-        deal(address(accountingToken), machineDepositorAddr, inputAssets1);
-        vm.startPrank(machineDepositorAddr);
+        deal(address(accountingToken), depositorAddr, inputAssets1);
+        vm.startPrank(depositorAddr);
         accountingToken.approve(address(machine), inputAssets1);
         uint256 machineShares1 = machine.deposit(inputAssets1, user1, 0);
         vm.stopPrank();
@@ -108,8 +108,8 @@ contract Redeem_Integration_Concrete_Test is StakingModule_Integration_Concrete_
         uint256 yieldAmount = 2e17;
 
         // Deposit assets to the machine
-        deal(address(accountingToken), machineDepositorAddr, inputAssets1);
-        vm.startPrank(machineDepositorAddr);
+        deal(address(accountingToken), depositorAddr, inputAssets1);
+        vm.startPrank(depositorAddr);
         accountingToken.approve(address(machine), inputAssets1);
         uint256 machineShares1 = machine.deposit(inputAssets1, user1, 0);
         vm.stopPrank();
@@ -149,8 +149,8 @@ contract Redeem_Integration_Concrete_Test is StakingModule_Integration_Concrete_
         uint256 yieldAmount = 2e17;
 
         // Deposit assets to the machine
-        deal(address(accountingToken), machineDepositorAddr, inputAssets1);
-        vm.startPrank(machineDepositorAddr);
+        deal(address(accountingToken), depositorAddr, inputAssets1);
+        vm.startPrank(depositorAddr);
         accountingToken.approve(address(machine), inputAssets1);
         uint256 machineShares1 = machine.deposit(inputAssets1, user1, 0);
         vm.stopPrank();
@@ -194,8 +194,8 @@ contract Redeem_Integration_Concrete_Test is StakingModule_Integration_Concrete_
         uint256 usersDelay = 1 hours;
 
         // Deposit assets to the machine
-        deal(address(accountingToken), machineDepositorAddr, inputAssets1 + inputAssets2);
-        vm.startPrank(machineDepositorAddr);
+        deal(address(accountingToken), depositorAddr, inputAssets1 + inputAssets2);
+        vm.startPrank(depositorAddr);
         accountingToken.approve(address(machine), inputAssets1 + inputAssets2);
         uint256 machineShares1 = machine.deposit(inputAssets1, user1, 0);
         uint256 machineShares2 = machine.deposit(inputAssets2, user2, 0);

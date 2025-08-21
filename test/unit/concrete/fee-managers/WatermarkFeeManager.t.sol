@@ -57,7 +57,7 @@ abstract contract WatermarkFeeManager_Util_Concrete_Test is MachinePeriphery_Uti
     }
 }
 
-contract Getters_Setters_AsyncMachineRedeemer_Util_Concrete_Test is
+contract Getters_Setters_AsyncRedeemer_Util_Concrete_Test is
     Getter_Setter_MachinePeriphery_Util_Concrete_Test,
     WatermarkFeeManager_Util_Concrete_Test
 {

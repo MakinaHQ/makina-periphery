@@ -19,8 +19,8 @@ contract Stake_Integration_Concrete_Test is StakingModule_Integration_Concrete_T
         uint256 inputAssets1 = 1e18;
 
         // Deposit assets to the machine
-        deal(address(accountingToken), machineDepositorAddr, inputAssets1);
-        vm.startPrank(machineDepositorAddr);
+        deal(address(accountingToken), depositorAddr, inputAssets1);
+        vm.startPrank(depositorAddr);
         accountingToken.approve(address(machine), inputAssets1);
         uint256 shares1 = machine.deposit(inputAssets1, user1, 0);
         vm.stopPrank();
@@ -38,8 +38,8 @@ contract Stake_Integration_Concrete_Test is StakingModule_Integration_Concrete_T
         uint256 inputAssets1 = 1e18;
 
         // Deposit assets to the machine
-        deal(address(accountingToken), machineDepositorAddr, inputAssets1);
-        vm.startPrank(machineDepositorAddr);
+        deal(address(accountingToken), depositorAddr, inputAssets1);
+        vm.startPrank(depositorAddr);
         accountingToken.approve(address(machine), inputAssets1);
         uint256 machineShares1 = machine.deposit(inputAssets1, user1, 0);
         vm.stopPrank();

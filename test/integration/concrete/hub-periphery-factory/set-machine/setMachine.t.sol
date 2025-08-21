@@ -22,7 +22,7 @@ contract SetMachine_Integration_Concrete_Test is HubPeripheryFactory_Integration
 
     function test_SetMachine() public {
         vm.prank(dao);
-        address machinePeriphery = hubPeripheryFactory.createMachineDepositor(DUMMY_MANAGER_IMPLEM_ID, "");
+        address machinePeriphery = hubPeripheryFactory.createDepositor(DUMMY_MANAGER_IMPLEM_ID, "");
 
         address machine = makeAddr("machine");
 

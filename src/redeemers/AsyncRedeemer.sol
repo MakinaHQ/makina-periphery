@@ -3,6 +3,7 @@ pragma solidity 0.8.28;
 
 import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {IAccessManaged} from "@openzeppelin/contracts/access/manager/IAccessManaged.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IERC721Errors} from "@openzeppelin/contracts/interfaces/draft-IERC6093.sol";
 import {ERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
@@ -12,33 +13,29 @@ import {IMachine} from "@makina-core/interfaces/IMachine.sol";
 
 import {Errors} from "../libraries/Errors.sol";
 import {MachinePeriphery} from "../utils/MachinePeriphery.sol";
-import {IAsyncMachineRedeemer} from "../interfaces/IAsyncMachineRedeemer.sol";
+import {Whitelist} from "../utils/Whitelist.sol";
+import {IAsyncRedeemer} from "../interfaces/IAsyncRedeemer.sol";
 import {IMachinePeriphery} from "../interfaces/IMachinePeriphery.sol";
 
-contract AsyncMachineRedeemer is
-    ERC721Upgradeable,
-    ReentrancyGuardUpgradeable,
-    MachinePeriphery,
-    IAsyncMachineRedeemer
-{
+contract AsyncRedeemer is ERC721Upgradeable, ReentrancyGuardUpgradeable, MachinePeriphery, Whitelist, IAsyncRedeemer {
     using Math for uint256;
     using SafeERC20 for IERC20;
 
-    /// @custom:storage-location erc7201:makina.storage.AsyncMachineRedeemer
-    struct AsyncMachineRedeemerStorage {
+    /// @custom:storage-location erc7201:makina.storage.AsyncRedeemer
+    struct AsyncRedeemerStorage {
         uint256 _nextRequestId;
         uint256 _lastFinalizedRequestId;
         uint256 _finalizationDelay;
-        mapping(uint256 requestId => IAsyncMachineRedeemer.RedeemRequest request) _requests;
+        mapping(uint256 requestId => IAsyncRedeemer.RedeemRequest request) _requests;
     }
 
-    // keccak256(abi.encode(uint256(keccak256("makina.storage.AsyncMachineRedeemer")) - 1)) & ~bytes32(uint256(0xff))
-    bytes32 private constant AsyncMachineRedeemerStorageLocation =
+    // keccak256(abi.encode(uint256(keccak256("makina.storage.AsyncRedeemer")) - 1)) & ~bytes32(uint256(0xff))
+    bytes32 private constant AsyncRedeemerStorageLocation =
         0x834d0b78c6ccd5774fe62696b39cee631e0dfdc36e42b36ad17cbc45095ebe00;
 
-    function _getAsyncMachineRedeemerStorage() private pure returns (AsyncMachineRedeemerStorage storage $) {
+    function _getAsyncRedeemerStorage() private pure returns (AsyncRedeemerStorage storage $) {
         assembly {
-            $.slot := AsyncMachineRedeemerStorageLocation
+            $.slot := AsyncRedeemerStorageLocation
         }
     }
 
@@ -48,45 +45,51 @@ contract AsyncMachineRedeemer is
 
     /// @inheritdoc IMachinePeriphery
     function initialize(bytes calldata data) external virtual override initializer {
-        (uint256 _finalizationDelay) = abi.decode(data, (uint256));
+        (uint256 _finalizationDelay, bool _whitelistStatus) = abi.decode(data, (uint256, bool));
 
-        AsyncMachineRedeemerStorage storage $ = _getAsyncMachineRedeemerStorage();
+        AsyncRedeemerStorage storage $ = _getAsyncRedeemerStorage();
 
         $._finalizationDelay = _finalizationDelay;
         $._nextRequestId = 1;
 
+        __Whitelist_init(_whitelistStatus);
         __ERC721_init("Makina Redeem Queue NFT", "MakinaRedeemQueueNFT");
     }
 
-    /// @inheritdoc IAsyncMachineRedeemer
-    function nextRequestId() external view override returns (uint256) {
-        return _getAsyncMachineRedeemerStorage()._nextRequestId;
+    /// @inheritdoc IAccessManaged
+    function authority() public view override returns (address) {
+        return IAccessManaged(machine()).authority();
     }
 
-    /// @inheritdoc IAsyncMachineRedeemer
+    /// @inheritdoc IAsyncRedeemer
+    function nextRequestId() external view override returns (uint256) {
+        return _getAsyncRedeemerStorage()._nextRequestId;
+    }
+
+    /// @inheritdoc IAsyncRedeemer
     function lastFinalizedRequestId() external view override returns (uint256) {
-        return _getAsyncMachineRedeemerStorage()._lastFinalizedRequestId;
+        return _getAsyncRedeemerStorage()._lastFinalizedRequestId;
     }
 
     function finalizationDelay() external view override returns (uint256) {
-        return _getAsyncMachineRedeemerStorage()._finalizationDelay;
+        return _getAsyncRedeemerStorage()._finalizationDelay;
     }
 
-    /// @inheritdoc IAsyncMachineRedeemer
+    /// @inheritdoc IAsyncRedeemer
     function getShares(uint256 requestId) external view override returns (uint256) {
         _requireOwned(requestId);
-        return _getAsyncMachineRedeemerStorage()._requests[requestId].shares;
+        return _getAsyncRedeemerStorage()._requests[requestId].shares;
     }
 
-    /// @inheritdoc IAsyncMachineRedeemer
+    /// @inheritdoc IAsyncRedeemer
     function getClaimableAssets(uint256 requestId) public view override returns (uint256) {
         _validateFinalizedRequest(requestId);
-        return _getAsyncMachineRedeemerStorage()._requests[requestId].assets;
+        return _getAsyncRedeemerStorage()._requests[requestId].assets;
     }
 
-    /// @inheritdoc IAsyncMachineRedeemer
+    /// @inheritdoc IAsyncRedeemer
     function previewFinalizeRequests(uint256 upToRequestId) public view override returns (uint256, uint256) {
-        AsyncMachineRedeemerStorage storage $ = _getAsyncMachineRedeemerStorage();
+        AsyncRedeemerStorage storage $ = _getAsyncRedeemerStorage();
 
         _validateFinalizableRequest(upToRequestId);
 
@@ -94,7 +97,7 @@ contract AsyncMachineRedeemer is
         uint256 totalAssets;
 
         for (uint256 i = $._lastFinalizedRequestId + 1; i <= upToRequestId; ++i) {
-            IAsyncMachineRedeemer.RedeemRequest memory request = $._requests[i];
+            IAsyncRedeemer.RedeemRequest memory request = $._requests[i];
 
             uint256 newSharesValue = IMachine(machine()).convertToAssets(request.shares);
             uint256 newAssets = newSharesValue < request.assets ? newSharesValue : request.assets;
@@ -106,16 +109,23 @@ contract AsyncMachineRedeemer is
         return (totalShares, totalAssets);
     }
 
-    /// @inheritdoc IAsyncMachineRedeemer
-    function requestRedeem(uint256 shares, address recipient) public virtual override nonReentrant returns (uint256) {
-        AsyncMachineRedeemerStorage storage $ = _getAsyncMachineRedeemerStorage();
+    /// @inheritdoc IAsyncRedeemer
+    function requestRedeem(uint256 shares, address recipient)
+        public
+        virtual
+        override
+        nonReentrant
+        whitelistCheck
+        returns (uint256)
+    {
+        AsyncRedeemerStorage storage $ = _getAsyncRedeemerStorage();
 
         uint256 requestId = $._nextRequestId++;
 
         address _machine = machine();
 
         $._requests[requestId] =
-            IAsyncMachineRedeemer.RedeemRequest(shares, IMachine(_machine).convertToAssets(shares), block.timestamp);
+            IAsyncRedeemer.RedeemRequest(shares, IMachine(_machine).convertToAssets(shares), block.timestamp);
 
         IERC20(IMachine(_machine).shareToken()).safeTransferFrom(msg.sender, address(this), shares);
         _safeMint(recipient, requestId);
@@ -125,7 +135,7 @@ contract AsyncMachineRedeemer is
         return requestId;
     }
 
-    /// @inheritdoc IAsyncMachineRedeemer
+    /// @inheritdoc IAsyncRedeemer
     function finalizeRequests(uint256 upToRequestId, uint256 minAssets)
         external
         override
@@ -133,7 +143,7 @@ contract AsyncMachineRedeemer is
         nonReentrant
         returns (uint256, uint256)
     {
-        AsyncMachineRedeemerStorage storage $ = _getAsyncMachineRedeemerStorage();
+        AsyncRedeemerStorage storage $ = _getAsyncRedeemerStorage();
 
         _validateFinalizableRequest(upToRequestId);
 
@@ -143,7 +153,7 @@ contract AsyncMachineRedeemer is
         uint256 totalAssets;
 
         for (uint256 i = $._lastFinalizedRequestId + 1; i <= upToRequestId; ++i) {
-            IAsyncMachineRedeemer.RedeemRequest storage request = $._requests[i];
+            IAsyncRedeemer.RedeemRequest storage request = $._requests[i];
 
             uint256 newAssets = IMachine(_machine).convertToAssets(request.shares);
             request.assets = newAssets < request.assets ? newAssets : request.assets;
@@ -168,9 +178,9 @@ contract AsyncMachineRedeemer is
         return (totalShares, totalAssets);
     }
 
-    /// @inheritdoc IAsyncMachineRedeemer
+    /// @inheritdoc IAsyncRedeemer
     function claimAssets(uint256 requestId) external override nonReentrant returns (uint256) {
-        AsyncMachineRedeemerStorage storage $ = _getAsyncMachineRedeemerStorage();
+        AsyncRedeemerStorage storage $ = _getAsyncRedeemerStorage();
 
         address recipient = ownerOf(requestId);
 
@@ -191,9 +201,9 @@ contract AsyncMachineRedeemer is
         return assets;
     }
 
-    /// @inheritdoc IAsyncMachineRedeemer
+    /// @inheritdoc IAsyncRedeemer
     function setFinalizationDelay(uint256 newDelay) external override onlyRiskManager {
-        AsyncMachineRedeemerStorage storage $ = _getAsyncMachineRedeemerStorage();
+        AsyncRedeemerStorage storage $ = _getAsyncRedeemerStorage();
         emit FinalizationDelayChanged($._finalizationDelay, newDelay);
         $._finalizationDelay = newDelay;
     }
@@ -201,14 +211,14 @@ contract AsyncMachineRedeemer is
     /// @dev Checks that the request exists, is finalized, and has not yet been claimed.
     function _validateFinalizedRequest(uint256 requestId) internal view {
         _requireOwned(requestId);
-        if (requestId > _getAsyncMachineRedeemerStorage()._lastFinalizedRequestId) {
+        if (requestId > _getAsyncRedeemerStorage()._lastFinalizedRequestId) {
             revert Errors.NotFinalized();
         }
     }
 
     /// @dev Checks that the request exists and is eligible for finalization.
     function _validateFinalizableRequest(uint256 requestId) internal view {
-        AsyncMachineRedeemerStorage storage $ = _getAsyncMachineRedeemerStorage();
+        AsyncRedeemerStorage storage $ = _getAsyncRedeemerStorage();
 
         _requireOwned(requestId);
 

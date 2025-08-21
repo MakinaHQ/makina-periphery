@@ -3,7 +3,7 @@ pragma solidity 0.8.28;
 
 import {IMachinePeriphery} from "./IMachinePeriphery.sol";
 
-interface IAsyncMachineRedeemer is IMachinePeriphery {
+interface IAsyncRedeemer is IMachinePeriphery {
     event FinalizationDelayChanged(uint256 indexed oldDelay, uint256 indexed newDelay);
     event RedeemRequestCreated(uint256 indexed requestId, uint256 shares, address indexed recipient);
     event RedeemRequestClaimed(uint256 indexed requestId, uint256 shares, uint256 assets, address indexed recipient);

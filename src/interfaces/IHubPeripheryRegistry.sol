@@ -2,15 +2,15 @@
 pragma solidity 0.8.28;
 
 interface IHubPeripheryRegistry {
-    event MachineDepositorBeaconChanged(
-        uint16 indexed implemId, address indexed oldMachineDepositorBeacon, address indexed newMachineDepositorBeacon
+    event DepositorBeaconChanged(
+        uint16 indexed implemId, address indexed oldDepositorBeacon, address indexed newDepositorBeacon
     );
     event FeeManagerBeaconChanged(
         uint16 indexed implemId, address indexed oldFeeManagerBeacon, address indexed newFeeManagerBeacon
     );
     event PeripheryFactoryChanged(address indexed oldPeripheryFactory, address indexed newPeripheryFactory);
-    event MachineRedeemerBeaconChanged(
-        uint16 indexed implemId, address indexed oldMachineRedeemerBeacon, address indexed newMachineRedeemerBeacon
+    event RedeemerBeaconChanged(
+        uint16 indexed implemId, address indexed oldRedeemerBeacon, address indexed newRedeemerBeacon
     );
     event StakingModuleBeaconChanged(address indexed oldStakingModuleBeacon, address indexed newStakingModuleBeacon);
 
@@ -18,10 +18,10 @@ interface IHubPeripheryRegistry {
     function peripheryFactory() external view returns (address);
 
     /// @notice Implementation ID => Address of the deposit manager beacon
-    function machineDepositorBeacon(uint16 implemId) external view returns (address);
+    function depositorBeacon(uint16 implemId) external view returns (address);
 
     /// @notice Implementation ID => Address of the redeem manager beacon
-    function machineRedeemerBeacon(uint16 implemId) external view returns (address);
+    function redeemerBeacon(uint16 implemId) external view returns (address);
 
     /// @notice Implementation ID => Address of the fee manager beacon
     function feeManagerBeacon(uint16 implemId) external view returns (address);
@@ -35,13 +35,13 @@ interface IHubPeripheryRegistry {
 
     /// @notice Sets the beacon address for the deposit manager implementation.
     /// @param implemId The ID of the deposit manager implementation.
-    /// @param _machineDepositorBeacon The machine depositor beacon address.
-    function setMachineDepositorBeacon(uint16 implemId, address _machineDepositorBeacon) external;
+    /// @param _depositorBeacon The machine depositor beacon address.
+    function setDepositorBeacon(uint16 implemId, address _depositorBeacon) external;
 
     /// @notice Sets the beacon address for the redeem manager implementation.
     /// @param implemId The ID of the redeem manager implementation.
-    /// @param _machineRedeemerBeacon The machine redeemer beacon address.
-    function setMachineRedeemerBeacon(uint16 implemId, address _machineRedeemerBeacon) external;
+    /// @param _redeemerBeacon The machine redeemer beacon address.
+    function setRedeemerBeacon(uint16 implemId, address _redeemerBeacon) external;
 
     /// @notice Sets the beacon address for the fee manager implementation.
     /// @param implemId The ID of the fee manager implementation.

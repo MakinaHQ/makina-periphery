@@ -4,16 +4,16 @@ pragma solidity 0.8.28;
 import {IStakingModule} from "../interfaces/IStakingModule.sol";
 
 interface IHubPeripheryFactory {
-    event MachineDepositorCreated(address indexed machineDepositor, uint16 indexed implemId);
-    event MachineRedeemerCreated(address indexed machineRedeemer, uint16 indexed implemId);
+    event DepositorCreated(address indexed depositor, uint16 indexed implemId);
+    event RedeemerCreated(address indexed redeemer, uint16 indexed implemId);
     event FeeManagerCreated(address indexed feeManager, uint16 indexed implemId);
     event StakingModuleCreated(address indexed stakingModule);
 
     /// @notice Address => Whether this is a deposit manager deployed by this factory
-    function isMachineDepositor(address machineDepositor) external view returns (bool);
+    function isDepositor(address depositor) external view returns (bool);
 
     /// @notice Address => Whether this is a redeem manager deployed by this factory
-    function isMachineRedeemer(address machineRedeemer) external view returns (bool);
+    function isRedeemer(address redeemer) external view returns (bool);
 
     /// @notice Address => Whether this is a fee manager deployed by this factory
     function isFeeManager(address feeManager) external view returns (bool);
@@ -22,10 +22,10 @@ interface IHubPeripheryFactory {
     function isStakingModule(address stakingModule) external view returns (bool);
 
     /// @notice Deposit manager => Implementation ID
-    function machineDepositorImplemId(address machineDepositor) external view returns (uint16);
+    function depositorImplemId(address depositor) external view returns (uint16);
 
     /// @notice Redeem manager => Implementation ID
-    function machineRedeemerImplemId(address machineRedeemer) external view returns (uint16);
+    function redeemerImplemId(address redeemer) external view returns (uint16);
 
     /// @notice Fee manager => Implementation ID
     function feeManagerImplemId(address feeManager) external view returns (uint16);
@@ -43,18 +43,14 @@ interface IHubPeripheryFactory {
     /// @notice Creates a new deposit manager using the specified implementation ID.
     /// @param implemId The ID of the deposit manager implementation to be used.
     /// @param initializationData Additional initialization data.
-    /// @return machineDepositor The address of the newly created deposit manager.
-    function createMachineDepositor(uint16 implemId, bytes calldata initializationData)
-        external
-        returns (address machineDepositor);
+    /// @return depositor The address of the newly created deposit manager.
+    function createDepositor(uint16 implemId, bytes calldata initializationData) external returns (address depositor);
 
     /// @notice Creates a new redeem manager using the specified implementation ID.
     /// @param implemId The ID of the redeem manager implementation to be used.
     /// @param initializationData Additional initialization data.
-    /// @return machineRedeemer The address of the newly created redeem manager.
-    function createMachineRedeemer(uint16 implemId, bytes calldata initializationData)
-        external
-        returns (address machineRedeemer);
+    /// @return redeemer The address of the newly created redeem manager.
+    function createRedeemer(uint16 implemId, bytes calldata initializationData) external returns (address redeemer);
 
     /// @notice Creates a new fee manager using the specified implementation ID.
     /// @param implemId The ID of the fee manager implementation to be used.

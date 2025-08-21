@@ -11,6 +11,7 @@ abstract contract Whitelist is AccessManagedUpgradeable, IWhitelist {
     /// @custom:storage-location erc7201:makina.storage.Whitelist
     struct WhitelistStorage {
         mapping(address user => bool isWhitelisted) _isWhitelistedUser;
+        bool _isWhitelistEnabled;
     }
 
     // keccak256(abi.encode(uint256(keccak256("makina.storage.Whitelist")) - 1)) & ~bytes32(uint256(0xff))
@@ -23,16 +24,36 @@ abstract contract Whitelist is AccessManagedUpgradeable, IWhitelist {
         }
     }
 
-    modifier onlyWhitelistedUser() {
-        if (!_getWhitelistStorage()._isWhitelistedUser[msg.sender]) {
+    function __Whitelist_init(bool _initialWhitelistStatus) internal onlyInitializing {
+        WhitelistStorage storage $ = _getWhitelistStorage();
+        $._isWhitelistEnabled = _initialWhitelistStatus;
+    }
+
+    modifier whitelistCheck() {
+        WhitelistStorage storage $ = _getWhitelistStorage();
+        if ($._isWhitelistEnabled && !$._isWhitelistedUser[msg.sender]) {
             revert CoreErrors.UnauthorizedCaller();
         }
         _;
     }
 
     /// @inheritdoc IWhitelist
+    function isWhitelistEnabled() public view returns (bool) {
+        return _getWhitelistStorage()._isWhitelistEnabled;
+    }
+
+    /// @inheritdoc IWhitelist
     function isWhitelistedUser(address user) public view override returns (bool) {
         return _getWhitelistStorage()._isWhitelistedUser[user];
+    }
+
+    /// @inheritdoc IWhitelist
+    function setWhitelistStatus(bool enabled) external override restricted {
+        WhitelistStorage storage $ = _getWhitelistStorage();
+        if ($._isWhitelistEnabled != enabled) {
+            $._isWhitelistEnabled = enabled;
+            emit WhitelistStatusChanged(enabled);
+        }
     }
 
     /// @inheritdoc IWhitelist

@@ -14,8 +14,8 @@ contract SettleSlashing_Integration_Concrete_Test is StakingModule_Integration_C
 
         // Deposit assets to the machine
         uint256 inputAssets = 3 * DEFAULT_MIN_BALANCE_AFTER_SLASH;
-        deal(address(accountingToken), machineDepositorAddr, inputAssets);
-        vm.startPrank(machineDepositorAddr);
+        deal(address(accountingToken), depositorAddr, inputAssets);
+        vm.startPrank(depositorAddr);
         accountingToken.approve(address(machine), inputAssets);
         machineShares = machine.deposit(inputAssets, user1, 0);
         vm.stopPrank();

@@ -193,6 +193,7 @@ contract HubPeripheryFactory is AccessManagedUpgradeable, MakinaPeripheryContext
         return feeManager;
     }
 
+    /// @inheritdoc IHubPeripheryFactory
     function createStakingModule(IStakingModule.StakingModuleInitParams calldata smParams)
         external
         override

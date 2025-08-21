@@ -86,6 +86,7 @@ contract HubPeripheryRegistry is AccessManagedUpgradeable, IHubPeripheryRegistry
         $._feeManagers[implemId] = _feeManagerBeacon;
     }
 
+    /// @inheritdoc IHubPeripheryRegistry
     function setStakingModuleBeacon(address _stakingModuleBeacon) external override restricted {
         HubPeripheryRegistryStorage storage $ = _getHubPeripheryRegistryStorage();
         emit StakingModuleBeaconChanged($._stakingModuleBeacon, _stakingModuleBeacon);

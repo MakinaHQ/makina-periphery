@@ -5,8 +5,8 @@ import {IStakingModule} from "src/interfaces/IStakingModule.sol";
 
 import {StakingModule_Integration_Concrete_Test} from "../StakingModule.t.sol";
 
-contract Cooldown_Integration_Concrete_Test is StakingModule_Integration_Concrete_Test {
-    function test_Cooldown() public {
+contract StartCooldown_Integration_Concrete_Test is StakingModule_Integration_Concrete_Test {
+    function test_StartCooldown() public {
         uint256 inputAssets1 = 1e18;
 
         // Deposit assets to the machine
@@ -37,7 +37,7 @@ contract Cooldown_Integration_Concrete_Test is StakingModule_Integration_Concret
         assertEq(maturity, expectedCDMaturity);
     }
 
-    function test_Cooldown_Override() public {
+    function test_StartCooldown_Override() public {
         uint256 inputAssets1 = 1e18;
 
         // Deposit assets to the machine

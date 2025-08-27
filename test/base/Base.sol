@@ -26,7 +26,7 @@ abstract contract Base {
         UpgradeableBeacon stakingModuleBeacon;
     }
 
-    struct FlashLoanAggregatorInitParams {
+    struct FlashloanProviders {
         address balancerV2Pool;
         address balancerV3Pool;
         address morphoPool;
@@ -39,11 +39,11 @@ abstract contract Base {
     /// HUB PERIPHERY DEPLOYMENTS
     ///
 
-    function deployPeriphery(
+    function deployHubPeriphery(
         address accessManager,
         address coreFactory,
         address dao,
-        FlashLoanAggregatorInitParams memory flProviders
+        FlashloanProviders memory flProviders
     ) public returns (HubPeriphery memory deployment) {
         deployment.flashloanAggregator = new FlashloanAggregator(
             coreFactory,

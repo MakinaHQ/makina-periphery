@@ -25,6 +25,10 @@ interface IStakingModule is IMachinePeriphery {
         uint256 initialMinBalanceAfterSlash;
     }
 
+    /// @notice Pending cooldown parameters.
+    /// @param shares Amount of staking shares to be redeemed.
+    /// @param maxAssets Maximum amount of machine shares that can be redeemed.
+    /// @param maturity Timestamp when the cooldown period ends.
     struct PendingCooldown {
         uint256 shares;
         uint256 maxAssets;
@@ -85,8 +89,8 @@ interface IStakingModule is IMachinePeriphery {
 
     /// @notice Requests a cooldown for redeeming staking shares.
     /// @param shares Amount of staking shares to redeem.
-    /// @return maturity Timestamp when the cooldown will be mature and the shares can be redeemed.
-    function cooldown(uint256 shares) external returns (uint256 maturity);
+    /// @return maturity Timestamp at which the cooldown period will end and the shares can be redeemed.
+    function startCooldown(uint256 shares) external returns (uint256 maturity);
 
     /// @notice Slashes a specified amount from the total staked amount and triggers the slashing mode.
     /// @param amount Amount to slash from the total staked amount.

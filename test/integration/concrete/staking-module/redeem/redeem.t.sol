@@ -25,9 +25,9 @@ contract Redeem_Integration_Concrete_Test is StakingModule_Integration_Concrete_
 
         uint256 stakingSharesToRedeem = stakingShares1 / 2;
 
-        // User3 enters cooldown
+        // User3 starts cooldown
         vm.prank(user3);
-        stakingModule.cooldown(stakingSharesToRedeem);
+        stakingModule.startCooldown(stakingSharesToRedeem);
 
         skip(stakingModule.cooldownDuration() - 1);
 
@@ -54,9 +54,9 @@ contract Redeem_Integration_Concrete_Test is StakingModule_Integration_Concrete_
 
         uint256 stakingSharesToRedeem = stakingShares1 / 2;
 
-        // User3 enters cooldown
+        // User3 starts cooldown
         vm.prank(user3);
-        stakingModule.cooldown(stakingSharesToRedeem);
+        stakingModule.startCooldown(stakingSharesToRedeem);
 
         skip(stakingModule.cooldownDuration());
 
@@ -85,9 +85,9 @@ contract Redeem_Integration_Concrete_Test is StakingModule_Integration_Concrete_
 
         uint256 stakingSharesToRedeem = stakingShares1 / 2;
 
-        // User3 enters cooldown
+        // User3 starts cooldown
         vm.prank(user3);
-        stakingModule.cooldown(stakingSharesToRedeem);
+        stakingModule.startCooldown(stakingSharesToRedeem);
 
         skip(stakingModule.cooldownDuration());
 
@@ -122,9 +122,9 @@ contract Redeem_Integration_Concrete_Test is StakingModule_Integration_Concrete_
 
         uint256 stakingSharesToRedeem = stakingShares1 / 2;
 
-        // User3 enters cooldown
+        // User3 starts cooldown
         vm.prank(user3);
-        stakingModule.cooldown(stakingSharesToRedeem);
+        stakingModule.startCooldown(stakingSharesToRedeem);
 
         skip(stakingModule.cooldownDuration());
 
@@ -163,9 +163,9 @@ contract Redeem_Integration_Concrete_Test is StakingModule_Integration_Concrete_
 
         uint256 stakingSharesToRedeem = stakingShares1 / 2;
 
-        // User3 enters cooldown
+        // User3 starts cooldown
         vm.prank(user3);
-        stakingModule.cooldown(stakingSharesToRedeem);
+        stakingModule.startCooldown(stakingSharesToRedeem);
 
         skip(stakingModule.cooldownDuration());
 
@@ -213,9 +213,9 @@ contract Redeem_Integration_Concrete_Test is StakingModule_Integration_Concrete_
         uint256 stakingShares2 = stakingModule.stake(machineShares2, user4, 0);
         vm.stopPrank();
 
-        // User3 enters cooldown
+        // User3 starts cooldown
         vm.prank(user3);
-        stakingModule.cooldown(stakingShares1);
+        stakingModule.startCooldown(stakingShares1);
         uint256 previewRedeem1 = stakingModule.previewStake(stakingShares1);
 
         skip(usersDelay);
@@ -223,9 +223,9 @@ contract Redeem_Integration_Concrete_Test is StakingModule_Integration_Concrete_
         // generate positive yield
         deal(address(machineShare), address(stakingModule), machineShares1 + machineShares2 + yieldAmount);
 
-        // User4 enters cooldown
+        // User4 starts cooldown
         vm.prank(user4);
-        stakingModule.cooldown(stakingShares2);
+        stakingModule.startCooldown(stakingShares2);
 
         // generate negative yield
         deal(address(machineShare), address(stakingModule), machineShares1 + machineShares2);

@@ -115,7 +115,6 @@ abstract contract Base_Hub_Test is Base_Test {
         HubPeriphery memory hubPeriphery = deployHubPeriphery(
             address(accessManager),
             address(hubCore.hubCoreFactory),
-            dao,
             FlashloanProviders({
                 balancerV2Pool: balancerV2Pool,
                 balancerV3Pool: balancerV3Pool,
@@ -123,7 +122,8 @@ abstract contract Base_Hub_Test is Base_Test {
                 dssFlash: dssFlash,
                 aaveV3AddressProvider: aaveV3AddressProvider,
                 dai: dai
-            })
+            }),
+            dao
         );
         flashloanAggregator = hubPeriphery.flashloanAggregator;
         hubPeripheryRegistry = hubPeriphery.hubPeripheryRegistry;

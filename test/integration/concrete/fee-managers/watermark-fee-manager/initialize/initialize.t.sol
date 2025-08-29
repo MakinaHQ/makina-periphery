@@ -13,23 +13,23 @@ contract Initialize_Integration_Concrete_Test is WatermarkFeeManager_Integration
     function test_RevertWhen_ProvidedMaxFeeRateValueExceeded() public {
         IWatermarkFeeManager.WatermarkFeeManagerInitParams memory initParams = _getWatermarkFeeManagerInitParams();
 
-        initParams._initialMgmtFeeRatePerSecond = 1e18 + 1;
+        initParams.initialMgmtFeeRatePerSecond = 1e18 + 1;
 
         vm.expectRevert(Errors.MaxFeeRateValueExceeded.selector);
         new BeaconProxy(
             address(watermarkFeeManagerBeacon), abi.encodeCall(IMachinePeriphery.initialize, (abi.encode(initParams)))
         );
 
-        initParams._initialMgmtFeeRatePerSecond = 1e18;
-        initParams._initialSmFeeRatePerSecond = 1e18 + 1;
+        initParams.initialMgmtFeeRatePerSecond = 1e18;
+        initParams.initialSmFeeRatePerSecond = 1e18 + 1;
 
         vm.expectRevert(Errors.MaxFeeRateValueExceeded.selector);
         new BeaconProxy(
             address(watermarkFeeManagerBeacon), abi.encodeCall(IMachinePeriphery.initialize, (abi.encode(initParams)))
         );
 
-        initParams._initialSmFeeRatePerSecond = 1e18;
-        initParams._initialPerfFeeRate = 1e18 + 1;
+        initParams.initialSmFeeRatePerSecond = 1e18;
+        initParams.initialPerfFeeRate = 1e18 + 1;
 
         vm.expectRevert(Errors.MaxFeeRateValueExceeded.selector);
         new BeaconProxy(
@@ -48,13 +48,13 @@ contract Initialize_Integration_Concrete_Test is WatermarkFeeManager_Integration
         dummyFeeSplitReceivers[0] = dao;
 
         return IWatermarkFeeManager.WatermarkFeeManagerInitParams({
-            _initialMgmtFeeRatePerSecond: DEFAULT_WATERMARK_FEE_MANAGER_MGMT_FEE_RATE_PER_SECOND,
-            _initialSmFeeRatePerSecond: DEFAULT_WATERMARK_FEE_MANAGER_SM_FEE_RATE_PER_SECOND,
-            _initialPerfFeeRate: DEFAULT_WATERMARK_FEE_MANAGER_PERF_FEE_RATE,
-            _initialMgmtFeeSplitBps: dummyFeeSplitBps,
-            _initialMgmtFeeReceivers: dummyFeeSplitReceivers,
-            _initialPerfFeeSplitBps: dummyFeeSplitBps,
-            _initialPerfFeeReceivers: dummyFeeSplitReceivers
+            initialMgmtFeeRatePerSecond: DEFAULT_WATERMARK_FEE_MANAGER_MGMT_FEE_RATE_PER_SECOND,
+            initialSmFeeRatePerSecond: DEFAULT_WATERMARK_FEE_MANAGER_SM_FEE_RATE_PER_SECOND,
+            initialPerfFeeRate: DEFAULT_WATERMARK_FEE_MANAGER_PERF_FEE_RATE,
+            initialMgmtFeeSplitBps: dummyFeeSplitBps,
+            initialMgmtFeeReceivers: dummyFeeSplitReceivers,
+            initialPerfFeeSplitBps: dummyFeeSplitBps,
+            initialPerfFeeReceivers: dummyFeeSplitReceivers
         });
     }
 }

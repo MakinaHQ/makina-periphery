@@ -16,21 +16,21 @@ interface IWatermarkFeeManager is IFeeManager, IStakingModuleReference, IMachine
     event WatermarkReset(uint256 indexed newWatermark);
 
     /// @notice Initialization parameters.
-    /// @param _initialMgmtFeeRate Management fee rate in 18 decimals precision.
-    /// @param _initialSmFeeRate Staking module fee rate in 18 decimals precision.
-    /// @param _initialPerfFeeRate Performance fee rate in 18 decimals precision.
-    /// @param _initialMgmtFeeSplitBps Fixed fee split between receivers in basis points. Values must sum to 10_000.
-    /// @param _initialMgmtFeeReceivers Fixed fee receivers.
-    /// @param _initialPerfFeeSplitBps Performance fee split between receivers in basis points. Values must sum to 10_000.
-    /// @param _initialPerfFeeReceivers Performance fee receivers.
+    /// @param initialMgmtFeeRatePerSecond Management fee rate per second, in 18 decimals precision.
+    /// @param initialSmFeeRatePerSecond Staking module fee rate per second, in 18 decimals precision.
+    /// @param initialPerfFeeRate Performance fee rate on profit, in 18 decimals precision.
+    /// @param initialMgmtFeeSplitBps Fixed fee split between receivers in basis points. Values must sum to 10_000.
+    /// @param initialMgmtFeeReceivers Fixed fee receivers.
+    /// @param initialPerfFeeSplitBps Performance fee split between receivers in basis points. Values must sum to 10_000.
+    /// @param initialPerfFeeReceivers Performance fee receivers.
     struct WatermarkFeeManagerInitParams {
-        uint256 _initialMgmtFeeRatePerSecond;
-        uint256 _initialSmFeeRatePerSecond;
-        uint256 _initialPerfFeeRate;
-        uint256[] _initialMgmtFeeSplitBps;
-        address[] _initialMgmtFeeReceivers;
-        uint256[] _initialPerfFeeSplitBps;
-        address[] _initialPerfFeeReceivers;
+        uint256 initialMgmtFeeRatePerSecond;
+        uint256 initialSmFeeRatePerSecond;
+        uint256 initialPerfFeeRate;
+        uint256[] initialMgmtFeeSplitBps;
+        address[] initialMgmtFeeReceivers;
+        uint256[] initialPerfFeeSplitBps;
+        address[] initialPerfFeeReceivers;
     }
 
     /// @notice Management fee rate per second, 1e18 = 100%.

@@ -1,0 +1,6 @@
+{   
+  "machineShare": "0x0000000000000000000000000000000000000000",
+  "initialCooldownDuration": 0,
+  "initialMaxSlashableBps": 0,
+  "initialMinBalanceAfterSlash": 0
+}

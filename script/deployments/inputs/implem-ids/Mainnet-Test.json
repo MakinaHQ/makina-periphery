@@ -1,0 +1,5 @@
+{
+  "directDepositorImplemId": "1001",
+  "asyncRedeemerImplemId": "2001",
+  "watermarkFeeManagerImplemId": "3001"
+}

@@ -33,7 +33,7 @@ abstract contract Fork_Test is Base, Test, CoreHelpers {
     address public mechanic;
     address public securityCouncil;
 
-    FlashLoanAggregatorInitParams public flashLoanAggregatorInitParams;
+    FlashloanProviders public flashloanProviders;
 
     // Hub Core
     AccessManagerUpgradeable public accessManager;
@@ -69,19 +69,15 @@ abstract contract Fork_Test is Base, Test, CoreHelpers {
         securityCouncil = abi.decode(vm.parseJson(coreInputJson, ".securityCouncil"), (address));
 
         // read misc addresses from json
-        flashLoanAggregatorInitParams = FlashLoanAggregatorInitParams({
-            balancerV2Pool: abi.decode(
-                vm.parseJson(peripheryInputJson, ".flashLoanAggregatorInitParams.balancerV2Pool"), (address)
-            ),
-            balancerV3Pool: abi.decode(
-                vm.parseJson(peripheryInputJson, ".flashLoanAggregatorInitParams.balancerV3Pool"), (address)
-            ),
-            morphoPool: abi.decode(vm.parseJson(peripheryInputJson, ".flashLoanAggregatorInitParams.morphoPool"), (address)),
-            dssFlash: abi.decode(vm.parseJson(peripheryInputJson, ".flashLoanAggregatorInitParams.dssFlash"), (address)),
+        flashloanProviders = FlashloanProviders({
+            balancerV2Pool: abi.decode(vm.parseJson(peripheryInputJson, ".flashloanProviders.balancerV2Pool"), (address)),
+            balancerV3Pool: abi.decode(vm.parseJson(peripheryInputJson, ".flashloanProviders.balancerV3Pool"), (address)),
+            morphoPool: abi.decode(vm.parseJson(peripheryInputJson, ".flashloanProviders.morphoPool"), (address)),
+            dssFlash: abi.decode(vm.parseJson(peripheryInputJson, ".flashloanProviders.dssFlash"), (address)),
             aaveV3AddressProvider: abi.decode(
-                vm.parseJson(peripheryInputJson, ".flashLoanAggregatorInitParams.aaveV3AddressProvider"), (address)
+                vm.parseJson(peripheryInputJson, ".flashloanProviders.aaveV3AddressProvider"), (address)
             ),
-            dai: abi.decode(vm.parseJson(peripheryInputJson, ".flashLoanAggregatorInitParams.dai"), (address))
+            dai: abi.decode(vm.parseJson(peripheryInputJson, ".flashloanProviders.dai"), (address))
         });
 
         // deploy core contracts
@@ -97,7 +93,7 @@ abstract contract Fork_Test is Base, Test, CoreHelpers {
 
         // Hub Periphery
         HubPeriphery memory hubPeriphery =
-            deployPeriphery(address(accessManager), address(hubCore.hubCoreFactory), dao, flashLoanAggregatorInitParams);
+            deployHubPeriphery(address(accessManager), address(hubCore.hubCoreFactory), flashloanProviders, dao);
         flashloanAggregator = hubPeriphery.flashloanAggregator;
         hubPeripheryRegistry = hubPeriphery.hubPeripheryRegistry;
         hubPeripheryFactory = hubPeriphery.hubPeripheryFactory;

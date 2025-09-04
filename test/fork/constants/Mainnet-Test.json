@@ -1,5 +1,5 @@
 {
-  "flashLoanAggregatorInitParams": {
+  "flashloanProviders": {
     "dai": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
     "balancerV2Pool": "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
     "balancerV3Pool": "0xbA1333333333a1BA1108E8412f11850A5C319bA9",

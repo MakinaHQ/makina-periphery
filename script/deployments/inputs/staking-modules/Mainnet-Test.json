@@ -1,0 +1,6 @@
+{   
+  "machineShare": "0x5b4b8fd619a38f2906d4ae22b6fe338550c3b449",
+  "initialCooldownDuration": 604800,
+  "initialMaxSlashableBps": 5000,
+  "initialMinBalanceAfterSlash": 1000000000000000000
+}

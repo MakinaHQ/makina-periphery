@@ -112,18 +112,18 @@ abstract contract Base_Hub_Test is Base_Test {
         hubCoreFactory = hubCore.hubCoreFactory;
 
         // Hub Periphery
-        HubPeriphery memory hubPeriphery = deployPeriphery(
+        HubPeriphery memory hubPeriphery = deployHubPeriphery(
             address(accessManager),
             address(hubCore.hubCoreFactory),
-            dao,
-            FlashLoanAggregatorInitParams({
+            FlashloanProviders({
                 balancerV2Pool: balancerV2Pool,
                 balancerV3Pool: balancerV3Pool,
                 morphoPool: morphoPool,
                 dssFlash: dssFlash,
                 aaveV3AddressProvider: aaveV3AddressProvider,
                 dai: dai
-            })
+            }),
+            dao
         );
         flashloanAggregator = hubPeriphery.flashloanAggregator;
         hubPeripheryRegistry = hubPeriphery.hubPeripheryRegistry;

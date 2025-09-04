@@ -26,7 +26,7 @@ abstract contract Base {
         UpgradeableBeacon stakingModuleBeacon;
     }
 
-    struct FlashLoanAggregatorInitParams {
+    struct FlashloanProviders {
         address balancerV2Pool;
         address balancerV3Pool;
         address morphoPool;
@@ -39,21 +39,13 @@ abstract contract Base {
     /// HUB PERIPHERY DEPLOYMENTS
     ///
 
-    function deployPeriphery(
+    function deployHubPeriphery(
         address accessManager,
-        address coreFactory,
-        address dao,
-        FlashLoanAggregatorInitParams memory flProviders
+        address caliberFactory,
+        FlashloanProviders memory flProviders,
+        address dao
     ) public returns (HubPeriphery memory deployment) {
-        deployment.flashloanAggregator = new FlashloanAggregator(
-            coreFactory,
-            flProviders.balancerV2Pool,
-            flProviders.balancerV3Pool,
-            flProviders.morphoPool,
-            flProviders.dssFlash,
-            flProviders.aaveV3AddressProvider,
-            flProviders.dai
-        );
+        deployment.flashloanAggregator = deployFlashloanAggregator(caliberFactory, flProviders);
 
         address hubPeripheryRegistryImplemAddr = address(new HubPeripheryRegistry());
         deployment.hubPeripheryRegistry = HubPeripheryRegistry(
@@ -89,6 +81,21 @@ abstract contract Base {
 
         address stakingModuleImplemAddr = address(new StakingModule(address(deployment.hubPeripheryRegistry)));
         deployment.stakingModuleBeacon = new UpgradeableBeacon(stakingModuleImplemAddr, dao);
+    }
+
+    function deployFlashloanAggregator(address caliberFactory, FlashloanProviders memory flProviders)
+        public
+        returns (FlashloanAggregator)
+    {
+        return new FlashloanAggregator(
+            caliberFactory,
+            flProviders.balancerV2Pool,
+            flProviders.balancerV3Pool,
+            flProviders.morphoPool,
+            flProviders.dssFlash,
+            flProviders.aaveV3AddressProvider,
+            flProviders.dai
+        );
     }
 
     ///

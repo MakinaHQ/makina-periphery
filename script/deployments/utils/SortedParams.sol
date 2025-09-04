@@ -1,0 +1,40 @@
+// SPDX-License-Identifier: Unlicense
+pragma solidity 0.8.28;
+
+abstract contract SortedParams {
+    struct FlashloanProvidersSorted {
+        address aaveV3AddressProvider;
+        address balancerV2Pool;
+        address balancerV3Pool;
+        address dai;
+        address dssFlash;
+        address morphoPool;
+    }
+
+    struct HubPeripherySorted {
+        address asyncRedeemerBeacon;
+        address directDepositorBeacon;
+        address flashloanAggregator;
+        address hubPeripheryFactory;
+        address hubPeripheryRegistry;
+        address stakingModuleBeacon;
+        address watermarkFeeManagerBeacon;
+    }
+
+    struct StakingModuleInitParamsSorted {
+        uint256 initialCooldownDuration;
+        uint256 initialMaxSlashableBps;
+        uint256 initialMinBalanceAfterSlash;
+        address machineShare;
+    }
+
+    struct WatermarkFeeManagerInitParamsSorted {
+        uint256 initialMgmtFeeRatePerSecond;
+        address[] initialMgmtFeeReceivers;
+        uint256[] initialMgmtFeeSplitBps;
+        uint256 initialPerfFeeRate;
+        address[] initialPerfFeeReceivers;
+        uint256[] initialPerfFeeSplitBps;
+        uint256 initialSmFeeRatePerSecond;
+    }
+}

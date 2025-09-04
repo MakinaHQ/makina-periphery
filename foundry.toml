@@ -11,6 +11,12 @@ fs_permissions = [{ access = "read-write", path = "./"}]
 [rpc_endpoints]
 mainnet = "${MAINNET_RPC_URL}"
 base = "${BASE_RPC_URL}"
+ink = "${INK_RPC_URL}"
+
+[etherscan]
+1 = { key = "${MAINNET_ETHERSCAN_API_KEY}", url = "${MAINNET_ETHERSCAN_API_URL}" }
+8453 = { key = "${BASE_ETHERSCAN_API_KEY}", url = "${BASE_ETHERSCAN_API_URL}" }
+57073 = { key = "${INK_ETHERSCAN_API_KEY}", url = "${INK_ETHERSCAN_API_URL}" }
 
 [fuzz]
 runs = 1024

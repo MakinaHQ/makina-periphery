@@ -12,7 +12,7 @@ interface IHubPeripheryRegistry {
     event RedeemerBeaconChanged(
         uint16 indexed implemId, address indexed oldRedeemerBeacon, address indexed newRedeemerBeacon
     );
-    event StakingModuleBeaconChanged(address indexed oldStakingModuleBeacon, address indexed newStakingModuleBeacon);
+    event SecurityModuleBeaconChanged(address indexed oldSecurityModuleBeacon, address indexed newSecurityModuleBeacon);
 
     /// @notice Address of the periphery factory.
     function peripheryFactory() external view returns (address);
@@ -26,8 +26,8 @@ interface IHubPeripheryRegistry {
     /// @notice Implementation ID => Address of the fee manager beacon
     function feeManagerBeacon(uint16 implemId) external view returns (address);
 
-    /// @notice Address of the staking module beacon.
-    function stakingModuleBeacon() external view returns (address);
+    /// @notice Address of the security module beacon.
+    function securityModuleBeacon() external view returns (address);
 
     /// @notice Sets the address of the periphery factory.
     /// @param _peripheryFactory The periphery factory address.
@@ -48,7 +48,7 @@ interface IHubPeripheryRegistry {
     /// @param _feeManagerBeacon The fee manager beacon address.
     function setFeeManagerBeacon(uint16 implemId, address _feeManagerBeacon) external;
 
-    /// @notice Sets the staking module beacon address.
-    /// @param _stakingModuleBeacon The staking module beacon address.
-    function setStakingModuleBeacon(address _stakingModuleBeacon) external;
+    /// @notice Sets the security module beacon address.
+    /// @param _securityModuleBeacon The security module beacon address.
+    function setSecurityModuleBeacon(address _securityModuleBeacon) external;
 }

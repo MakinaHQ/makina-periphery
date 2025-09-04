@@ -69,7 +69,7 @@ contract SetupHubPeriphery is Base, Script, SortedParams {
         }
 
         registerHubPeripheryFactory(_hubPeriphery.hubPeripheryRegistry, _hubPeriphery.hubPeripheryFactory);
-        registerStakingModuleBeacon(_hubPeriphery.hubPeripheryRegistry, _hubPeriphery.stakingModuleBeacon);
+        registerSecurityModuleBeacon(_hubPeriphery.hubPeripheryRegistry, _hubPeriphery.securityModuleBeacon);
         registerDepositorBeacons(_hubPeriphery.hubPeripheryRegistry, mdImplemIds, mdBeacons);
         registerRedeemerBeacons(_hubPeriphery.hubPeripheryRegistry, mrImplemIds, mrBeacons);
         registerFeeManagerBeacons(_hubPeriphery.hubPeripheryRegistry, fmImplemIds, fmBeacons);

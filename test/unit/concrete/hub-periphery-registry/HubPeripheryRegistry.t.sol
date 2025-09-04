@@ -15,7 +15,7 @@ contract Getters_Setters_HubPeripheryRegistry_Unit_Concrete_Test is Unit_Concret
         assertEq(
             hubPeripheryRegistry.feeManagerBeacon(WATERMARK_FEE_MANAGER_IMPLEM_ID), address(watermarkFeeManagerBeacon)
         );
-        assertEq(hubPeripheryRegistry.stakingModuleBeacon(), address(stakingModuleBeacon));
+        assertEq(hubPeripheryRegistry.securityModuleBeacon(), address(securityModuleBeacon));
     }
 
     function test_SetPeripheryFactory_RevertWhen_CallerWithoutRole() public {

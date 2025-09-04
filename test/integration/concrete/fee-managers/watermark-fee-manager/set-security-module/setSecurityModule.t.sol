@@ -7,49 +7,49 @@ import {MockMachinePeriphery} from "test/mocks/MockMachinePeriphery.sol";
 
 import {WatermarkFeeManager_Integration_Concrete_Test} from "../WatermarkFeeManager.t.sol";
 
-contract SetStakingModule_Integration_Concrete_Test is WatermarkFeeManager_Integration_Concrete_Test {
+contract SetSecurityModule_Integration_Concrete_Test is WatermarkFeeManager_Integration_Concrete_Test {
     function test_RevertWhen_CallerNotFactory() public {
         vm.expectRevert(CoreErrors.NotFactory.selector);
-        watermarkFeeManager.setStakingModule(address(0));
+        watermarkFeeManager.setSecurityModule(address(0));
     }
 
     function test_RevertGiven_MachineNotSet() public {
         vm.expectRevert(Errors.MachineNotSet.selector);
         vm.prank(address(hubPeripheryFactory));
-        watermarkFeeManager.setStakingModule(address(stakingModuleAddr));
+        watermarkFeeManager.setSecurityModule(address(securityModuleAddr));
     }
 
-    function test_RevertGiven_StakingModuleAlreadySet() public {
+    function test_RevertGiven_SecurityModuleAlreadySet() public {
         vm.prank(dao);
         hubPeripheryFactory.setMachine(address(watermarkFeeManager), address(machine));
 
         vm.startPrank(address(hubPeripheryFactory));
-        watermarkFeeManager.setStakingModule(address(stakingModuleAddr));
+        watermarkFeeManager.setSecurityModule(address(securityModuleAddr));
 
-        vm.expectRevert(Errors.StakingModuleAlreadySet.selector);
-        watermarkFeeManager.setStakingModule(address(stakingModuleAddr));
+        vm.expectRevert(Errors.SecurityModuleAlreadySet.selector);
+        watermarkFeeManager.setSecurityModule(address(securityModuleAddr));
     }
 
-    function test_RevertGiven_InvalidStakingModule() public {
+    function test_RevertGiven_InvalidSecurityModule() public {
         vm.prank(dao);
         hubPeripheryFactory.setMachine(address(watermarkFeeManager), address(machine));
 
-        MockMachinePeriphery mockStakingModule = new MockMachinePeriphery();
+        MockMachinePeriphery mockSecurityModule = new MockMachinePeriphery();
 
         vm.startPrank(address(hubPeripheryFactory));
-        vm.expectRevert(Errors.InvalidStakingModule.selector);
-        watermarkFeeManager.setStakingModule(address(mockStakingModule));
+        vm.expectRevert(Errors.InvalidSecurityModule.selector);
+        watermarkFeeManager.setSecurityModule(address(mockSecurityModule));
     }
 
-    function test_SetStakingModule() public {
+    function test_SetSecurityModule() public {
         vm.prank(dao);
         hubPeripheryFactory.setMachine(address(watermarkFeeManager), address(machine));
 
         vm.expectEmit(true, false, false, false, address(watermarkFeeManager));
-        emit IWatermarkFeeManager.StakingModuleSet(stakingModuleAddr);
+        emit IWatermarkFeeManager.SecurityModuleSet(securityModuleAddr);
         vm.prank(address(hubPeripheryFactory));
-        watermarkFeeManager.setStakingModule(stakingModuleAddr);
+        watermarkFeeManager.setSecurityModule(securityModuleAddr);
 
-        assertEq(watermarkFeeManager.stakingModule(), stakingModuleAddr);
+        assertEq(watermarkFeeManager.securityModule(), securityModuleAddr);
     }
 }

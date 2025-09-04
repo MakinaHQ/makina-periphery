@@ -105,7 +105,7 @@ contract DistributeFees_Integration_Concrete_Test is WatermarkFeeManager_Integra
         assertEq(machineShare.balanceOf(address(watermarkFeeManager)), 0);
     }
 
-    function test_DistributeFees_WithoutStakingModule() public {
+    function test_DistributeFees_WithoutSecurityModule() public {
         uint256 fixedFee = 1e18;
         uint256 perfFee = 2e18;
 
@@ -123,13 +123,13 @@ contract DistributeFees_Integration_Concrete_Test is WatermarkFeeManager_Integra
         assertEq(machineShare.balanceOf(address(watermarkFeeManager)), 0);
     }
 
-    function test_DistributeFees_WithStakingModule_ZeroSmFeeRate() public {
+    function test_DistributeFees_WithSecurityModule_ZeroSmFeeRate() public {
         uint256 fixedFee = 1e18;
         uint256 perfFee = 2e18;
 
-        // Set the staking module
+        // Set the security module
         vm.prank(address(hubPeripheryFactory));
-        watermarkFeeManager.setStakingModule(stakingModuleAddr);
+        watermarkFeeManager.setSecurityModule(securityModuleAddr);
 
         // Set the SM fee rate to zero
         vm.prank(dao);
@@ -149,13 +149,13 @@ contract DistributeFees_Integration_Concrete_Test is WatermarkFeeManager_Integra
         assertEq(machineShare.balanceOf(address(watermarkFeeManager)), 0);
     }
 
-    function test_DistributeFees_WithStakingModule() public {
+    function test_DistributeFees_WithSecurityModule() public {
         uint256 fixedFee = 1e18;
         uint256 perfFee = 2e18;
 
-        // Set the staking module
+        // Set the security module
         vm.prank(address(hubPeripheryFactory));
-        watermarkFeeManager.setStakingModule(stakingModuleAddr);
+        watermarkFeeManager.setSecurityModule(securityModuleAddr);
 
         deal(address(machineShare), address(machine), fixedFee + perfFee, true);
 
@@ -167,7 +167,7 @@ contract DistributeFees_Integration_Concrete_Test is WatermarkFeeManager_Integra
             / (watermarkFeeManager.smFeeRatePerSecond() + watermarkFeeManager.mgmtFeeRatePerSecond());
         uint256 mgmtFee = fixedFee - smFee;
 
-        assertEq(machineShare.balanceOf(stakingModuleAddr), smFee);
+        assertEq(machineShare.balanceOf(securityModuleAddr), smFee);
         assertEq(machineShare.balanceOf(mgmtReceiver1), mgmtFee * mgmtSplitBps1 / 10_000);
         assertEq(machineShare.balanceOf(mgmtReceiver2), mgmtFee * mgmtSplitBps2 / 10_000);
         assertEq(machineShare.balanceOf(mgmtReceiver3), mgmtFee * mgmtSplitBps3 / 10_000);
@@ -176,12 +176,12 @@ contract DistributeFees_Integration_Concrete_Test is WatermarkFeeManager_Integra
         assertEq(machineShare.balanceOf(address(watermarkFeeManager)), 0);
     }
 
-    function test_DistributeFees_WithStakingModule_ZeroPerfFee() public {
+    function test_DistributeFees_WithSecurityModule_ZeroPerfFee() public {
         uint256 fixedFee = 1e18;
 
-        // Set the staking module
+        // Set the security module
         vm.prank(address(hubPeripheryFactory));
-        watermarkFeeManager.setStakingModule(stakingModuleAddr);
+        watermarkFeeManager.setSecurityModule(securityModuleAddr);
 
         deal(address(machineShare), address(machine), fixedFee, true);
 
@@ -193,7 +193,7 @@ contract DistributeFees_Integration_Concrete_Test is WatermarkFeeManager_Integra
             / (watermarkFeeManager.smFeeRatePerSecond() + watermarkFeeManager.mgmtFeeRatePerSecond());
         uint256 mgmtFee = fixedFee - smFee;
 
-        assertEq(machineShare.balanceOf(stakingModuleAddr), smFee);
+        assertEq(machineShare.balanceOf(securityModuleAddr), smFee);
         assertEq(machineShare.balanceOf(mgmtReceiver1), mgmtFee * mgmtSplitBps1 / 10_000);
         assertEq(machineShare.balanceOf(mgmtReceiver2), mgmtFee * mgmtSplitBps2 / 10_000);
         assertEq(machineShare.balanceOf(mgmtReceiver3), mgmtFee * mgmtSplitBps3 / 10_000);

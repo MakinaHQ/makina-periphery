@@ -12,7 +12,7 @@ import {IMachine} from "@makina-core/interfaces/IMachine.sol";
 
 import {IWatermarkFeeManager} from "../interfaces/IWatermarkFeeManager.sol";
 import {IMachinePeriphery} from "../interfaces/IMachinePeriphery.sol";
-import {IStakingModuleReference} from "../interfaces/IStakingModuleReference.sol";
+import {ISecurityModuleReference} from "../interfaces/ISecurityModuleReference.sol";
 import {Errors, CoreErrors} from "../libraries/Errors.sol";
 import {MachinePeriphery} from "../utils/MachinePeriphery.sol";
 
@@ -36,7 +36,7 @@ contract WatermarkFeeManager is MachinePeriphery, AccessManagedUpgradeable, IWat
         uint256[] _mgmtFeeSplitBps;
         address[] _perfFeeReceivers;
         uint256[] _perfFeeSplitBps;
-        address _stakingModule;
+        address _securityModule;
     }
 
     // keccak256(abi.encode(uint256(keccak256("makina.storage.WatermarkFeeManager")) - 1)) & ~bytes32(uint256(0xff))
@@ -122,9 +122,9 @@ contract WatermarkFeeManager is MachinePeriphery, AccessManagedUpgradeable, IWat
         return _getWatermarkFeeManagerStorage()._perfFeeSplitBps;
     }
 
-    /// @inheritdoc IStakingModuleReference
-    function stakingModule() external view override returns (address) {
-        return _getWatermarkFeeManagerStorage()._stakingModule;
+    /// @inheritdoc ISecurityModuleReference
+    function securityModule() external view override returns (address) {
+        return _getWatermarkFeeManagerStorage()._securityModule;
     }
 
     /// @inheritdoc IWatermarkFeeManager
@@ -185,11 +185,11 @@ contract WatermarkFeeManager is MachinePeriphery, AccessManagedUpgradeable, IWat
             uint256 smRate = $._smFeeRatePerSecond;
             uint256 mgmtRate = $._mgmtFeeRatePerSecond;
 
-            if ($._stakingModule != address(0) && smRate != 0) {
+            if ($._securityModule != address(0) && smRate != 0) {
                 uint256 smFee = fixedFee.mulDiv(smRate, smRate + mgmtRate);
                 mgmtFee = fixedFee - smFee;
                 if (smFee != 0) {
-                    IERC20(_machineShare).safeTransferFrom(_machine, $._stakingModule, smFee);
+                    IERC20(_machineShare).safeTransferFrom(_machine, $._securityModule, smFee);
                 }
             } else {
                 mgmtFee = fixedFee;
@@ -293,19 +293,19 @@ contract WatermarkFeeManager is MachinePeriphery, AccessManagedUpgradeable, IWat
         emit PerfFeeSplitChanged();
     }
 
-    /// @inheritdoc IStakingModuleReference
-    function setStakingModule(address _stakingModule) external override onlyFactory {
+    /// @inheritdoc ISecurityModuleReference
+    function setSecurityModule(address _securityModule) external override onlyFactory {
         WatermarkFeeManagerStorage storage $ = _getWatermarkFeeManagerStorage();
 
-        if ($._stakingModule != address(0)) {
-            revert Errors.StakingModuleAlreadySet();
+        if ($._securityModule != address(0)) {
+            revert Errors.SecurityModuleAlreadySet();
         }
-        if (IMachinePeriphery(_stakingModule).machine() != machine()) {
-            revert Errors.InvalidStakingModule();
+        if (IMachinePeriphery(_securityModule).machine() != machine()) {
+            revert Errors.InvalidSecurityModule();
         }
 
-        emit StakingModuleSet(_stakingModule);
-        $._stakingModule = _stakingModule;
+        emit SecurityModuleSet(_securityModule);
+        $._securityModule = _securityModule;
     }
 
     /// @notice Checks that the provided fee split setup is valid.

@@ -13,7 +13,7 @@ import {HubPeripheryFactory} from "../../src/factories/HubPeripheryFactory.sol";
 import {WatermarkFeeManager} from "../../src/fee-managers/WatermarkFeeManager.sol";
 import {DirectDepositor} from "../../src/depositors/DirectDepositor.sol";
 import {AsyncRedeemer} from "../../src/redeemers/AsyncRedeemer.sol";
-import {StakingModule} from "../../src/staking-module/StakingModule.sol";
+import {SecurityModule} from "../../src/security-module/SecurityModule.sol";
 
 abstract contract Base {
     struct HubPeriphery {
@@ -23,7 +23,7 @@ abstract contract Base {
         UpgradeableBeacon directDepositorBeacon;
         UpgradeableBeacon asyncRedeemerBeacon;
         UpgradeableBeacon watermarkFeeManagerBeacon;
-        UpgradeableBeacon stakingModuleBeacon;
+        UpgradeableBeacon securityModuleBeacon;
     }
 
     struct FlashloanProviders {
@@ -79,8 +79,8 @@ abstract contract Base {
             address(new WatermarkFeeManager(address(deployment.hubPeripheryRegistry)));
         deployment.watermarkFeeManagerBeacon = new UpgradeableBeacon(watermarkFeeManagerImplemAddr, dao);
 
-        address stakingModuleImplemAddr = address(new StakingModule(address(deployment.hubPeripheryRegistry)));
-        deployment.stakingModuleBeacon = new UpgradeableBeacon(stakingModuleImplemAddr, dao);
+        address securityModuleImplemAddr = address(new SecurityModule(address(deployment.hubPeripheryRegistry)));
+        deployment.securityModuleBeacon = new UpgradeableBeacon(securityModuleImplemAddr, dao);
     }
 
     function deployFlashloanAggregator(address caliberFactory, FlashloanProviders memory flProviders)
@@ -110,8 +110,8 @@ abstract contract Base {
         IHubPeripheryRegistry(hubPeripheryRegistry).setPeripheryFactory(hubPeripheryFactory);
     }
 
-    function registerStakingModuleBeacon(address hubPeripheryRegistry, address stakingModuleBeacon) public {
-        IHubPeripheryRegistry(hubPeripheryRegistry).setStakingModuleBeacon(stakingModuleBeacon);
+    function registerSecurityModuleBeacon(address hubPeripheryRegistry, address securityModuleBeacon) public {
+        IHubPeripheryRegistry(hubPeripheryRegistry).setSecurityModuleBeacon(securityModuleBeacon);
     }
 
     function registerDepositorBeacons(

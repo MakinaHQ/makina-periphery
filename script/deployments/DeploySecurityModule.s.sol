@@ -5,13 +5,13 @@ import {Script} from "forge-std/Script.sol";
 import {stdJson} from "forge-std/StdJson.sol";
 
 import {IHubPeripheryFactory} from "../../src/interfaces/IHubPeripheryFactory.sol";
-import {IStakingModule} from "../../src/interfaces/IStakingModule.sol";
+import {ISecurityModule} from "../../src/interfaces/ISecurityModule.sol";
 
 import {SortedParams} from "./utils/SortedParams.sol";
 
 import {Base} from "../../test/base/Base.sol";
 
-contract DeployStakingModule is Base, Script, SortedParams {
+contract DeploySecurityModule is Base, Script, SortedParams {
     using stdJson for string;
 
     string public deploymentOutputJson;
@@ -20,7 +20,7 @@ contract DeployStakingModule is Base, Script, SortedParams {
 
     HubPeripherySorted private _hubPeriphery;
 
-    StakingModuleInitParamsSorted public stakingModuleInitParams;
+    SecurityModuleInitParamsSorted public securityModuleInitParams;
 
     address public deployedInstance;
 
@@ -37,19 +37,19 @@ contract DeployStakingModule is Base, Script, SortedParams {
         deploymentOutputJson = vm.readFile(deploymentOutputPath);
 
         // load input params
-        string memory inputPath = string.concat(basePath, "inputs/staking-modules/");
+        string memory inputPath = string.concat(basePath, "inputs/security-modules/");
         inputPath = string.concat(inputPath, inputFilename);
         inputJson = vm.readFile(inputPath);
 
         // output path to later save deployed contracts
-        outputPath = string.concat(basePath, "outputs/staking-modules/");
+        outputPath = string.concat(basePath, "outputs/security-modules/");
         outputPath = string.concat(outputPath, outputFilename);
     }
 
     function run() public {
         _hubPeriphery = abi.decode(vm.parseJson(deploymentOutputJson), (HubPeripherySorted));
 
-        stakingModuleInitParams = abi.decode(vm.parseJson(inputJson), (StakingModuleInitParamsSorted));
+        securityModuleInitParams = abi.decode(vm.parseJson(inputJson), (SecurityModuleInitParamsSorted));
 
         address sender = vm.envOr("TEST_SENDER", address(0));
         if (sender != address(0)) {
@@ -58,20 +58,20 @@ contract DeployStakingModule is Base, Script, SortedParams {
             vm.startBroadcast();
         }
 
-        deployedInstance = IHubPeripheryFactory(_hubPeriphery.hubPeripheryFactory).createStakingModule(
-            IStakingModule.StakingModuleInitParams({
-                initialCooldownDuration: stakingModuleInitParams.initialCooldownDuration,
-                initialMaxSlashableBps: stakingModuleInitParams.initialMaxSlashableBps,
-                initialMinBalanceAfterSlash: stakingModuleInitParams.initialMinBalanceAfterSlash,
-                machineShare: stakingModuleInitParams.machineShare
+        deployedInstance = IHubPeripheryFactory(_hubPeriphery.hubPeripheryFactory).createSecurityModule(
+            ISecurityModule.SecurityModuleInitParams({
+                initialCooldownDuration: securityModuleInitParams.initialCooldownDuration,
+                initialMaxSlashableBps: securityModuleInitParams.initialMaxSlashableBps,
+                initialMinBalanceAfterSlash: securityModuleInitParams.initialMinBalanceAfterSlash,
+                machineShare: securityModuleInitParams.machineShare
             })
         );
 
         vm.stopBroadcast();
 
-        string memory key = "key-deploy-staking-module-output-file";
+        string memory key = "key-deploy-security-module-output-file";
 
         // write to file
-        vm.writeJson(vm.serializeAddress(key, "StakingModule", deployedInstance), outputPath);
+        vm.writeJson(vm.serializeAddress(key, "SecurityModule", deployedInstance), outputPath);
     }
 }

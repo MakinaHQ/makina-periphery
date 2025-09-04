@@ -9,12 +9,12 @@ import {ChainsInfo} from "@makina-core-test/utils/ChainsInfo.sol";
 import {FlashloanAggregator} from "src/flashloans/FlashloanAggregator.sol";
 import {AsyncRedeemer} from "src/redeemers/AsyncRedeemer.sol";
 import {DirectDepositor} from "src/depositors/DirectDepositor.sol";
-import {StakingModule} from "src/staking-module/StakingModule.sol";
+import {SecurityModule} from "src/security-module/SecurityModule.sol";
 import {WatermarkFeeManager} from "src/fee-managers/WatermarkFeeManager.sol";
 
 import {DeployHubPeriphery} from "script/deployments/DeployHubPeriphery.s.sol";
 import {DeploySpokePeriphery} from "script/deployments/DeploySpokePeriphery.s.sol";
-import {DeployStakingModule} from "script/deployments/DeployStakingModule.s.sol";
+import {DeploySecurityModule} from "script/deployments/DeploySecurityModule.s.sol";
 import {DeployDirectDepositor} from "script/deployments/DeployDirectDepositor.s.sol";
 import {DeployAsyncRedeemer} from "script/deployments/DeployAsyncRedeemer.s.sol";
 import {DeployWatermarkFeeManager} from "script/deployments/DeployWatermarkFeeManager.s.sol";
@@ -30,7 +30,7 @@ contract Deploy_Scripts_Test is Base_Test {
     // Scripts to test
     DeployHubPeriphery public deployHubPeriphery;
     SetupHubPeriphery public setupHubPeriphery;
-    DeployStakingModule public deployStakingModule;
+    DeploySecurityModule public deploySecurityModule;
     DeployDirectDepositor public deployDirectDepositor;
     DeployAsyncRedeemer public deployAsyncRedeemer;
     DeployWatermarkFeeManager public deployWatermarkFeeManager;
@@ -99,8 +99,8 @@ contract Deploy_Scripts_Test is Base_Test {
             hubPeripheryDeployment.hubPeripheryRegistry.peripheryFactory()
         );
         assertEq(
-            address(hubPeripheryDeployment.stakingModuleBeacon),
-            hubPeripheryDeployment.hubPeripheryRegistry.stakingModuleBeacon()
+            address(hubPeripheryDeployment.securityModuleBeacon),
+            hubPeripheryDeployment.hubPeripheryRegistry.securityModuleBeacon()
         );
         assertEq(
             address(hubPeripheryDeployment.directDepositorBeacon),
@@ -148,30 +148,30 @@ contract Deploy_Scripts_Test is Base_Test {
         assertEq(address(deployment.morphoPool()), flProviders.morphoPool);
     }
 
-    function testScript_DeployStakingModule() public {
+    function testScript_DeploySecurityModule() public {
         HubPeriphery memory hubPeripheryDeployment = _deployHubPeriphery();
 
         // Depositor deployment
-        deployStakingModule = new DeployStakingModule();
-        deployStakingModule.run();
+        deploySecurityModule = new DeploySecurityModule();
+        deploySecurityModule.run();
 
-        StakingModule stakingModule = StakingModule(deployStakingModule.deployedInstance());
-        assertTrue(hubPeripheryDeployment.hubPeripheryFactory.isStakingModule(address(stakingModule)));
+        SecurityModule securityModule = SecurityModule(deploySecurityModule.deployedInstance());
+        assertTrue(hubPeripheryDeployment.hubPeripheryFactory.isSecurityModule(address(securityModule)));
         assertEq(
-            stakingModule.machineShare(),
-            abi.decode(vm.parseJson(deployStakingModule.inputJson(), ".machineShare"), (address))
+            securityModule.machineShare(),
+            abi.decode(vm.parseJson(deploySecurityModule.inputJson(), ".machineShare"), (address))
         );
         assertEq(
-            stakingModule.cooldownDuration(),
-            abi.decode(vm.parseJson(deployStakingModule.inputJson(), ".initialCooldownDuration"), (uint256))
+            securityModule.cooldownDuration(),
+            abi.decode(vm.parseJson(deploySecurityModule.inputJson(), ".initialCooldownDuration"), (uint256))
         );
         assertEq(
-            stakingModule.maxSlashableBps(),
-            abi.decode(vm.parseJson(deployStakingModule.inputJson(), ".initialMaxSlashableBps"), (uint256))
+            securityModule.maxSlashableBps(),
+            abi.decode(vm.parseJson(deploySecurityModule.inputJson(), ".initialMaxSlashableBps"), (uint256))
         );
         assertEq(
-            stakingModule.minBalanceAfterSlash(),
-            abi.decode(vm.parseJson(deployStakingModule.inputJson(), ".initialMinBalanceAfterSlash"), (uint256))
+            securityModule.minBalanceAfterSlash(),
+            abi.decode(vm.parseJson(deploySecurityModule.inputJson(), ".initialMinBalanceAfterSlash"), (uint256))
         );
     }
 

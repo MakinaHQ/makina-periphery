@@ -17,11 +17,11 @@ abstract contract SortedParams {
         address flashloanAggregator;
         address hubPeripheryFactory;
         address hubPeripheryRegistry;
-        address stakingModuleBeacon;
+        address securityModuleBeacon;
         address watermarkFeeManagerBeacon;
     }
 
-    struct StakingModuleInitParamsSorted {
+    struct SecurityModuleInitParamsSorted {
         uint256 initialCooldownDuration;
         uint256 initialMaxSlashableBps;
         uint256 initialMinBalanceAfterSlash;

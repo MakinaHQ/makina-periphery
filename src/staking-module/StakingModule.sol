@@ -200,7 +200,7 @@ contract StakingModule is ERC20Upgradeable, ReentrancyGuardUpgradeable, MachineP
     }
 
     /// @inheritdoc IStakingModule
-    function cooldown(uint256 shares) external override nonReentrant returns (uint256) {
+    function startCooldown(uint256 shares) external override nonReentrant returns (uint256) {
         StakingModuleStorage storage $ = _getStakingModuleStorage();
 
         address account = msg.sender;

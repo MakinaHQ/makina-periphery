@@ -47,13 +47,13 @@ contract SetStakingModule_Integration_Concrete_Test is HubPeripheryFactory_Integ
             WATERMARK_FEE_MANAGER_IMPLEM_ID,
             abi.encode(
                 IWatermarkFeeManager.WatermarkFeeManagerInitParams({
-                    _initialMgmtFeeRatePerSecond: DEFAULT_WATERMARK_FEE_MANAGER_MGMT_FEE_RATE_PER_SECOND,
-                    _initialSmFeeRatePerSecond: DEFAULT_WATERMARK_FEE_MANAGER_SM_FEE_RATE_PER_SECOND,
-                    _initialPerfFeeRate: DEFAULT_WATERMARK_FEE_MANAGER_PERF_FEE_RATE,
-                    _initialMgmtFeeSplitBps: dummyFeeSplitBps,
-                    _initialMgmtFeeReceivers: dummyFeeSplitReceivers,
-                    _initialPerfFeeSplitBps: dummyFeeSplitBps,
-                    _initialPerfFeeReceivers: dummyFeeSplitReceivers
+                    initialMgmtFeeRatePerSecond: DEFAULT_WATERMARK_FEE_MANAGER_MGMT_FEE_RATE_PER_SECOND,
+                    initialSmFeeRatePerSecond: DEFAULT_WATERMARK_FEE_MANAGER_SM_FEE_RATE_PER_SECOND,
+                    initialPerfFeeRate: DEFAULT_WATERMARK_FEE_MANAGER_PERF_FEE_RATE,
+                    initialMgmtFeeSplitBps: dummyFeeSplitBps,
+                    initialMgmtFeeReceivers: dummyFeeSplitReceivers,
+                    initialPerfFeeSplitBps: dummyFeeSplitBps,
+                    initialPerfFeeReceivers: dummyFeeSplitReceivers
                 })
             )
         );

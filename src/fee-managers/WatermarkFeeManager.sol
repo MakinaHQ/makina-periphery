@@ -54,25 +54,25 @@ contract WatermarkFeeManager is MachinePeriphery, AccessManagedUpgradeable, IWat
     }
 
     /// @inheritdoc IMachinePeriphery
-    function initialize(bytes calldata _data) external override initializer {
+    function initialize(bytes calldata data) external override initializer {
         WatermarkFeeManagerStorage storage $ = _getWatermarkFeeManagerStorage();
 
-        WatermarkFeeManagerInitParams memory params = abi.decode(_data, (WatermarkFeeManagerInitParams));
+        WatermarkFeeManagerInitParams memory params = abi.decode(data, (WatermarkFeeManagerInitParams));
 
         if (
-            params._initialMgmtFeeRatePerSecond > MAX_FEE_RATE || params._initialSmFeeRatePerSecond > MAX_FEE_RATE
-                || params._initialPerfFeeRate > MAX_FEE_RATE
+            params.initialMgmtFeeRatePerSecond > MAX_FEE_RATE || params.initialSmFeeRatePerSecond > MAX_FEE_RATE
+                || params.initialPerfFeeRate > MAX_FEE_RATE
         ) {
             revert Errors.MaxFeeRateValueExceeded();
         }
 
-        $._mgmtFeeRatePerSecond = params._initialMgmtFeeRatePerSecond;
-        $._smFeeRatePerSecond = params._initialSmFeeRatePerSecond;
-        $._perfFeeRate = params._initialPerfFeeRate;
-        $._mgmtFeeSplitBps = params._initialMgmtFeeSplitBps;
-        $._mgmtFeeReceivers = params._initialMgmtFeeReceivers;
-        $._perfFeeSplitBps = params._initialPerfFeeSplitBps;
-        $._perfFeeReceivers = params._initialPerfFeeReceivers;
+        $._mgmtFeeRatePerSecond = params.initialMgmtFeeRatePerSecond;
+        $._smFeeRatePerSecond = params.initialSmFeeRatePerSecond;
+        $._perfFeeRate = params.initialPerfFeeRate;
+        $._mgmtFeeSplitBps = params.initialMgmtFeeSplitBps;
+        $._mgmtFeeReceivers = params.initialMgmtFeeReceivers;
+        $._perfFeeSplitBps = params.initialPerfFeeSplitBps;
+        $._perfFeeReceivers = params.initialPerfFeeReceivers;
     }
 
     modifier onlyMachine() {

@@ -5,8 +5,8 @@ import {IStakingModule} from "src/interfaces/IStakingModule.sol";
 
 import {StakingModule_Integration_Concrete_Test} from "../StakingModule.t.sol";
 
-contract Cooldown_Integration_Concrete_Test is StakingModule_Integration_Concrete_Test {
-    function test_Cooldown() public {
+contract StartCooldown_Integration_Concrete_Test is StakingModule_Integration_Concrete_Test {
+    function test_StartCooldown() public {
         uint256 inputAssets1 = 1e18;
 
         // Deposit assets to the machine
@@ -25,11 +25,11 @@ contract Cooldown_Integration_Concrete_Test is StakingModule_Integration_Concret
         uint256 stakingSharesToRedeem = stakingShares1 / 2;
         uint256 expectedCDMaturity = block.timestamp + stakingModule.cooldownDuration();
 
-        // User3 enters cooldown
+        // User3 starts cooldown
         vm.prank(user3);
         vm.expectEmit(true, false, false, true, address(stakingModule));
         emit IStakingModule.Cooldown(user3, stakingSharesToRedeem, expectedCDMaturity);
-        stakingModule.cooldown(stakingSharesToRedeem);
+        stakingModule.startCooldown(stakingSharesToRedeem);
 
         (uint256 stakingSharesCD, uint256 maturity) = stakingModule.pendingCooldown(user3);
 
@@ -37,7 +37,7 @@ contract Cooldown_Integration_Concrete_Test is StakingModule_Integration_Concret
         assertEq(maturity, expectedCDMaturity);
     }
 
-    function test_Cooldown_Override() public {
+    function test_StartCooldown_Override() public {
         uint256 inputAssets1 = 1e18;
 
         // Deposit assets to the machine
@@ -53,17 +53,17 @@ contract Cooldown_Integration_Concrete_Test is StakingModule_Integration_Concret
         uint256 stakingShares1 = stakingModule.stake(machineShares1, user3, 0);
         vm.stopPrank();
 
-        // User3 enters cooldown
+        // User3 starts cooldown
         vm.startPrank(user3);
         uint256 expectedCDMaturity = block.timestamp + stakingModule.cooldownDuration();
         uint256 stakingSharesToRedeem = stakingShares1 / 2;
-        stakingModule.cooldown(stakingSharesToRedeem);
+        stakingModule.startCooldown(stakingSharesToRedeem);
 
-        // User3 reenters cooldown with different amount
+        // User3 restarts cooldown with different amount
         stakingSharesToRedeem--;
         vm.expectEmit(true, false, false, true, address(stakingModule));
         emit IStakingModule.Cooldown(user3, stakingSharesToRedeem, expectedCDMaturity);
-        stakingModule.cooldown(stakingSharesToRedeem);
+        stakingModule.startCooldown(stakingSharesToRedeem);
 
         (uint256 stakingSharesCD, uint256 maturity) = stakingModule.pendingCooldown(user3);
 
@@ -72,11 +72,11 @@ contract Cooldown_Integration_Concrete_Test is StakingModule_Integration_Concret
 
         skip(1);
 
-        // User3 reenters cooldown later
+        // User3 restarts cooldown later
         expectedCDMaturity = block.timestamp + stakingModule.cooldownDuration();
         vm.expectEmit(true, false, false, true, address(stakingModule));
         emit IStakingModule.Cooldown(user3, stakingSharesToRedeem, expectedCDMaturity);
-        stakingModule.cooldown(stakingSharesToRedeem);
+        stakingModule.startCooldown(stakingSharesToRedeem);
 
         (stakingSharesCD, maturity) = stakingModule.pendingCooldown(user3);
 

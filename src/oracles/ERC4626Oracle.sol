@@ -51,8 +51,10 @@ contract ERC4626Oracle is AggregatorV2V3Interface {
     constructor(IERC4626 _vault, uint8 _decimals) {
         vault = _vault;
         underlying = IERC20Metadata(_vault.asset());
-
         uint8 underlyingDecimals = underlying.decimals();
+
+        ONE_SHARE = 10 ** _vault.decimals();
+        ONE_ASSET = 10 ** underlyingDecimals;
 
         if (_decimals == 0) {
             decimals = underlyingDecimals;

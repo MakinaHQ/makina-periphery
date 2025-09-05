@@ -6,14 +6,14 @@ import {AccessManagedUpgradeable} from "@openzeppelin/contracts-upgradeable/acce
 
 import {ERC4626Oracle} from "../oracles/ERC4626Oracle.sol";
 import {MakinaPeripheryContext} from "../utils/MakinaPeripheryContext.sol";
-import {IMetaMorphoV1_1Factory} from "../interfaces/IMetaMorphoV1_1Factory.sol";
+import {IMetaMorphoFactory} from "../interfaces/IMetaMorphoFactory.sol";
 import {IMetaMorphoOracleFactory} from "../interfaces/IMetaMorphoOracleFactory.sol";
 
-contract MetaMorphoOracleFactory is AccessManagedUpgradeable, MakinaPeripheryContext, IMetaMorphoOracleFactory {
+contract MetaMorphoOracleFactory is AccessManagedUpgradeable, IMetaMorphoOracleFactory {
     // @custom:storage-location erc7201:makina.storage.MetaMorphoOracleFactory
     struct MetaMorphoOracleFactoryStorage {
-        address _morphoRegistry;
         mapping(address oracle => bool isOracle) _isOracle;
+        mapping(address factory => bool isFactory) _isMorphoFactory;
     }
 
     // keccak256(abi.encode(uint256(keccak256("makina.storage.MetaMorphoOracleFactory")) - 1)) & ~bytes32(uint256(0xff))
@@ -26,7 +26,7 @@ contract MetaMorphoOracleFactory is AccessManagedUpgradeable, MakinaPeripheryCon
         }
     }
 
-    constructor(address _peripheryRegistry) MakinaPeripheryContext(_peripheryRegistry) {
+    constructor() {
         _disableInitializers();
     }
 
@@ -41,13 +41,13 @@ contract MetaMorphoOracleFactory is AccessManagedUpgradeable, MakinaPeripheryCon
     }
 
     /// @inheritdoc IMetaMorphoOracleFactory
-    function setMorphoRegistry(address morphoRegistry) external override restricted {
+    function setMorphoFactory(address morphoFactory, bool isFactory) external override restricted {
         MetaMorphoOracleFactoryStorage storage $ = _getMetaMorphoOracleFactoryStorage();
-        $._morphoRegistry = morphoRegistry;
+        $._isMorphoFactory[morphoFactory] = isFactory;
     }
 
     /// @inheritdoc IMetaMorphoOracleFactory
-    function createMetaMorphoOracle(address metaMorphoVault, uint8 decimals)
+    function createMetaMorphoOracle(address factory, address metaMorphoVault, uint8 decimals)
         external
         override
         restricted
@@ -55,8 +55,12 @@ contract MetaMorphoOracleFactory is AccessManagedUpgradeable, MakinaPeripheryCon
     {
         MetaMorphoOracleFactoryStorage storage $ = _getMetaMorphoOracleFactoryStorage();
 
+        if (!$._isMorphoFactory[factory]) {
+            revert NotFactory();
+        }
+
         // Check whether the vault to create an oracle for is verified by Morpho.
-        if (!IMetaMorphoV1_1Factory($._morphoRegistry).isMetaMorpho(metaMorphoVault)) {
+        if (!IMetaMorphoFactory(factory).isMetaMorpho(metaMorphoVault)) {
             revert NotMetaMorphoVault();
         }
 

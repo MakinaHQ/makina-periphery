@@ -36,9 +36,6 @@ contract ERC4626Oracle is AggregatorV2V3Interface {
     /// @notice One unit of the ERC4626 vault.
     uint256 public immutable ONE_SHARE;
 
-    /// @notice One unit of the underlying asset.
-    uint256 public immutable ONE_ASSET;
-
     /// @notice Scaling factor numerator used to adjust price to the desired decimals.
     uint256 public immutable SCALING_NUMERATOR;
 
@@ -54,7 +51,6 @@ contract ERC4626Oracle is AggregatorV2V3Interface {
         uint8 underlyingDecimals = underlying.decimals();
 
         ONE_SHARE = 10 ** _vault.decimals();
-        ONE_ASSET = 10 ** underlyingDecimals;
 
         if (_decimals == 0) {
             decimals = underlyingDecimals;
@@ -82,7 +78,7 @@ contract ERC4626Oracle is AggregatorV2V3Interface {
     // V2 Interface:
     //
     function latestAnswer() external view override returns (int256) {
-        return SafeCast.toInt256(getPrice());
+        return getPrice().toInt256();
     }
 
     function latestTimestamp() external view override returns (uint256) {
@@ -94,7 +90,7 @@ contract ERC4626Oracle is AggregatorV2V3Interface {
     }
 
     function getAnswer(uint256) external view override returns (int256) {
-        return SafeCast.toInt256(getPrice());
+        return getPrice().toInt256();
     }
 
     function getTimestamp(uint256) external view override returns (uint256) {
@@ -109,9 +105,8 @@ contract ERC4626Oracle is AggregatorV2V3Interface {
         view
         returns (uint80 roundId, int256 answer, uint256 startedAt, uint256 updatedAt, uint80 answeredInRound)
     {
-        uint256 price = getPrice();
         uint256 timestamp = block.timestamp;
-        return (1, price.toInt256(), timestamp, timestamp, 1);
+        return (1, getPrice().toInt256(), timestamp, timestamp, 1);
     }
 
     function getRoundData(uint80)

@@ -9,6 +9,7 @@ interface IMetaMorphoOracleFactory {
     event MetaMorphoOracleCreated(address indexed oracle);
 
     /// @notice Address => Whether this is an oracle deployed by this factory.
+    /// @param oracle The oracle address to check.
     function isOracle(address oracle) external view returns (bool);
 
     /// @notice Sets the Morpho Registry in the factory contract.

@@ -12,7 +12,7 @@ contract HubPeripheryRegistry is AccessManagedUpgradeable, IHubPeripheryRegistry
         mapping(uint16 implemId => address depositor) _depositors;
         mapping(uint16 implemId => address redeemer) _redeemers;
         mapping(uint16 implemId => address feeManager) _feeManagers;
-        address _stakingModuleBeacon;
+        address _securityModuleBeacon;
     }
 
     // keccak256(abi.encode(uint256(keccak256("makina.storage.HubPeripheryRegistry")) - 1)) & ~bytes32(uint256(0xff))
@@ -54,8 +54,8 @@ contract HubPeripheryRegistry is AccessManagedUpgradeable, IHubPeripheryRegistry
     }
 
     /// @inheritdoc IHubPeripheryRegistry
-    function stakingModuleBeacon() external view override returns (address) {
-        return _getHubPeripheryRegistryStorage()._stakingModuleBeacon;
+    function securityModuleBeacon() external view override returns (address) {
+        return _getHubPeripheryRegistryStorage()._securityModuleBeacon;
     }
 
     /// @inheritdoc IHubPeripheryRegistry
@@ -87,9 +87,9 @@ contract HubPeripheryRegistry is AccessManagedUpgradeable, IHubPeripheryRegistry
     }
 
     /// @inheritdoc IHubPeripheryRegistry
-    function setStakingModuleBeacon(address _stakingModuleBeacon) external override restricted {
+    function setSecurityModuleBeacon(address _securityModuleBeacon) external override restricted {
         HubPeripheryRegistryStorage storage $ = _getHubPeripheryRegistryStorage();
-        emit StakingModuleBeaconChanged($._stakingModuleBeacon, _stakingModuleBeacon);
-        $._stakingModuleBeacon = _stakingModuleBeacon;
+        emit SecurityModuleBeaconChanged($._securityModuleBeacon, _securityModuleBeacon);
+        $._securityModuleBeacon = _securityModuleBeacon;
     }
 }

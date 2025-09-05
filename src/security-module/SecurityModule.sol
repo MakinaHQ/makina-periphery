@@ -13,18 +13,18 @@ import {DecimalsUtils} from "@makina-core/libraries/DecimalsUtils.sol";
 
 import {MachinePeriphery} from "../utils/MachinePeriphery.sol";
 import {IMachinePeriphery} from "../interfaces/IMachinePeriphery.sol";
-import {IStakingModule} from "../interfaces/IStakingModule.sol";
+import {ISecurityModule} from "../interfaces/ISecurityModule.sol";
 import {Errors, CoreErrors} from "../libraries/Errors.sol";
 
-contract StakingModule is ERC20Upgradeable, ReentrancyGuardUpgradeable, MachinePeriphery, IStakingModule {
+contract SecurityModule is ERC20Upgradeable, ReentrancyGuardUpgradeable, MachinePeriphery, ISecurityModule {
     using Math for uint256;
     using SafeERC20 for IERC20;
 
     /// @dev Full scale value in basis points
     uint256 private constant MAX_BPS = 10_000;
 
-    /// @custom:storage-location erc7201:makina.storage.StakingModule
-    struct StakingModuleStorage {
+    /// @custom:storage-location erc7201:makina.storage.SecurityModule
+    struct SecurityModuleStorage {
         address _machineShare;
         uint256 _cooldownDuration;
         uint256 _maxSlashableBps;
@@ -33,22 +33,22 @@ contract StakingModule is ERC20Upgradeable, ReentrancyGuardUpgradeable, MachineP
         bool _slashingMode;
     }
 
-    // keccak256(abi.encode(uint256(keccak256("makina.storage.StakingModule")) - 1)) & ~bytes32(uint256(0xff))
-    bytes32 private constant StakingModuleStorageLocation =
-        0xcf807f880d1fce9d8a42cc80c71b5f1fe1909efcfcb3a5a3e4fe259e044a5f00;
+    // keccak256(abi.encode(uint256(keccak256("makina.storage.SecurityModule")) - 1)) & ~bytes32(uint256(0xff))
+    bytes32 private constant SecurityModuleStorageLocation =
+        0x008282b5c1b058474ce5feb89ba7468762b87f27435b2f525bf76e3e0c3af500;
 
-    function _getStakingModuleStorage() private pure returns (StakingModuleStorage storage $) {
+    function _getSecurityModuleStorage() private pure returns (SecurityModuleStorage storage $) {
         assembly {
-            $.slot := StakingModuleStorageLocation
+            $.slot := SecurityModuleStorageLocation
         }
     }
 
     constructor(address _peripheryRegistry) MachinePeriphery(_peripheryRegistry) {}
 
     function initialize(bytes calldata _data) external virtual initializer {
-        StakingModuleStorage storage $ = _getStakingModuleStorage();
+        SecurityModuleStorage storage $ = _getSecurityModuleStorage();
 
-        (StakingModuleInitParams memory smParams) = abi.decode(_data, (StakingModuleInitParams));
+        (SecurityModuleInitParams memory smParams) = abi.decode(_data, (SecurityModuleInitParams));
 
         $._machineShare = smParams.machineShare;
         $._cooldownDuration = smParams.initialCooldownDuration;
@@ -59,13 +59,13 @@ contract StakingModule is ERC20Upgradeable, ReentrancyGuardUpgradeable, MachineP
         $._minBalanceAfterSlash = smParams.initialMinBalanceAfterSlash;
 
         __ERC20_init(
-            string(abi.encodePacked("Stake ", IERC20Metadata(smParams.machineShare).name())),
-            string(abi.encodePacked("STK-", IERC20Metadata(smParams.machineShare).symbol()))
+            string(abi.encodePacked("Security Module: ", IERC20Metadata(smParams.machineShare).name())),
+            string(abi.encodePacked("sm", IERC20Metadata(smParams.machineShare).symbol()))
         );
     }
 
     modifier NotSlashingMode() {
-        if (_getStakingModuleStorage()._slashingMode) {
+        if (_getSecurityModuleStorage()._slashingMode) {
             revert Errors.SlashingSettlementOngoing();
         }
         _;
@@ -78,78 +78,78 @@ contract StakingModule is ERC20Upgradeable, ReentrancyGuardUpgradeable, MachineP
 
     /// @inheritdoc IMachinePeriphery
     function machine() public view override(IMachinePeriphery, MachinePeriphery) returns (address) {
-        return IOwnable2Step(_getStakingModuleStorage()._machineShare).owner();
+        return IOwnable2Step(_getSecurityModuleStorage()._machineShare).owner();
     }
 
-    /// @inheritdoc IStakingModule
+    /// @inheritdoc ISecurityModule
     function machineShare() public view override returns (address) {
-        return _getStakingModuleStorage()._machineShare;
+        return _getSecurityModuleStorage()._machineShare;
     }
 
-    /// @inheritdoc IStakingModule
+    /// @inheritdoc ISecurityModule
     function cooldownDuration() public view override returns (uint256) {
-        return _getStakingModuleStorage()._cooldownDuration;
+        return _getSecurityModuleStorage()._cooldownDuration;
     }
 
-    /// @inheritdoc IStakingModule
+    /// @inheritdoc ISecurityModule
     function maxSlashableBps() public view override returns (uint256) {
-        return _getStakingModuleStorage()._maxSlashableBps;
+        return _getSecurityModuleStorage()._maxSlashableBps;
     }
 
-    /// @inheritdoc IStakingModule
+    /// @inheritdoc ISecurityModule
     function minBalanceAfterSlash() public view override returns (uint256) {
-        return _getStakingModuleStorage()._minBalanceAfterSlash;
+        return _getSecurityModuleStorage()._minBalanceAfterSlash;
     }
 
-    /// @inheritdoc IStakingModule
+    /// @inheritdoc ISecurityModule
     function pendingCooldown(address account) external view override returns (uint256 shares, uint256 maturity) {
-        PendingCooldown memory request = _getStakingModuleStorage()._pendingCooldowns[account];
+        PendingCooldown memory request = _getSecurityModuleStorage()._pendingCooldowns[account];
         return (request.shares, request.maturity);
     }
 
-    /// @inheritdoc IStakingModule
+    /// @inheritdoc ISecurityModule
     function slashingMode() public view override returns (bool) {
-        return _getStakingModuleStorage()._slashingMode;
+        return _getSecurityModuleStorage()._slashingMode;
     }
 
-    /// @inheritdoc IStakingModule
-    function totalStakedAmount() public view override returns (uint256) {
-        return IERC20(_getStakingModuleStorage()._machineShare).balanceOf(address(this));
+    /// @inheritdoc ISecurityModule
+    function totalLockedAmount() public view override returns (uint256) {
+        return IERC20(_getSecurityModuleStorage()._machineShare).balanceOf(address(this));
     }
 
-    /// @inheritdoc IStakingModule
+    /// @inheritdoc ISecurityModule
     function maxSlashable() public view override returns (uint256) {
-        StakingModuleStorage storage $ = _getStakingModuleStorage();
+        SecurityModuleStorage storage $ = _getSecurityModuleStorage();
 
-        uint256 totalStaked = totalStakedAmount();
+        uint256 totalLocked = totalLockedAmount();
 
-        if (totalStaked <= $._minBalanceAfterSlash) {
+        if (totalLocked <= $._minBalanceAfterSlash) {
             return 0;
         }
 
-        uint256 capLimit = totalStaked.mulDiv($._maxSlashableBps, MAX_BPS);
-        uint256 balanceLimit = totalStaked - $._minBalanceAfterSlash;
+        uint256 capLimit = totalLocked.mulDiv($._maxSlashableBps, MAX_BPS);
+        uint256 balanceLimit = totalLocked - $._minBalanceAfterSlash;
 
         return capLimit < balanceLimit ? capLimit : balanceLimit;
     }
 
-    /// @inheritdoc IStakingModule
+    /// @inheritdoc ISecurityModule
     function convertToShares(uint256 assets) public view override returns (uint256) {
-        return assets.mulDiv(totalSupply() + 1, totalStakedAmount() + 1);
+        return assets.mulDiv(totalSupply() + 1, totalLockedAmount() + 1);
     }
 
-    /// @inheritdoc IStakingModule
+    /// @inheritdoc ISecurityModule
     function convertToAssets(uint256 shares) public view override returns (uint256) {
-        return shares.mulDiv(totalStakedAmount() + 1, totalSupply() + 1);
+        return shares.mulDiv(totalLockedAmount() + 1, totalSupply() + 1);
     }
 
-    /// @inheritdoc IStakingModule
-    function previewStake(uint256 assets) public view override NotSlashingMode returns (uint256) {
+    /// @inheritdoc ISecurityModule
+    function previewLock(uint256 assets) public view override NotSlashingMode returns (uint256) {
         return convertToShares(assets);
     }
 
-    /// @inheritdoc IStakingModule
-    function stake(uint256 assets, address receiver, uint256 minShares)
+    /// @inheritdoc ISecurityModule
+    function lock(uint256 assets, address receiver, uint256 minShares)
         external
         override
         nonReentrant
@@ -157,23 +157,23 @@ contract StakingModule is ERC20Upgradeable, ReentrancyGuardUpgradeable, MachineP
         returns (uint256)
     {
         address account = msg.sender;
-        uint256 shares = previewStake(assets);
+        uint256 shares = previewLock(assets);
 
         if (shares < minShares) {
             revert CoreErrors.SlippageProtection();
         }
 
-        IERC20(_getStakingModuleStorage()._machineShare).safeTransferFrom(account, address(this), assets);
+        IERC20(_getSecurityModuleStorage()._machineShare).safeTransferFrom(account, address(this), assets);
         _mint(receiver, shares);
 
-        emit Stake(account, receiver, assets, shares);
+        emit Lock(account, receiver, assets, shares);
 
         return shares;
     }
 
-    /// @inheritdoc IStakingModule
+    /// @inheritdoc ISecurityModule
     function redeem(address receiver, uint256 minAssets) external override nonReentrant returns (uint256) {
-        StakingModuleStorage storage $ = _getStakingModuleStorage();
+        SecurityModuleStorage storage $ = _getSecurityModuleStorage();
 
         address account = msg.sender;
         PendingCooldown memory pc = $._pendingCooldowns[account];
@@ -199,9 +199,9 @@ contract StakingModule is ERC20Upgradeable, ReentrancyGuardUpgradeable, MachineP
         return assets;
     }
 
-    /// @inheritdoc IStakingModule
+    /// @inheritdoc ISecurityModule
     function startCooldown(uint256 shares) external override nonReentrant returns (uint256) {
-        StakingModuleStorage storage $ = _getStakingModuleStorage();
+        SecurityModuleStorage storage $ = _getSecurityModuleStorage();
 
         address account = msg.sender;
         uint256 assets = convertToAssets(shares);
@@ -214,9 +214,9 @@ contract StakingModule is ERC20Upgradeable, ReentrancyGuardUpgradeable, MachineP
         return maturity;
     }
 
-    /// @inheritdoc IStakingModule
+    /// @inheritdoc ISecurityModule
     function slash(uint256 amount) external override nonReentrant onlySecurityCouncil {
-        StakingModuleStorage storage $ = _getStakingModuleStorage();
+        SecurityModuleStorage storage $ = _getSecurityModuleStorage();
 
         if (amount > maxSlashable()) {
             revert Errors.MaxSlashableExceeded();
@@ -229,22 +229,22 @@ contract StakingModule is ERC20Upgradeable, ReentrancyGuardUpgradeable, MachineP
         emit Slash(amount);
     }
 
-    /// @inheritdoc IStakingModule
+    /// @inheritdoc ISecurityModule
     function settleSlashing() external override onlySecurityCouncil {
-        _getStakingModuleStorage()._slashingMode = false;
+        _getSecurityModuleStorage()._slashingMode = false;
         emit SlashingSettled();
     }
 
-    /// @inheritdoc IStakingModule
+    /// @inheritdoc ISecurityModule
     function setCooldownDuration(uint256 newCooldownDuration) external override onlyRiskManager {
-        StakingModuleStorage storage $ = _getStakingModuleStorage();
+        SecurityModuleStorage storage $ = _getSecurityModuleStorage();
         emit CooldownDurationChanged($._cooldownDuration, newCooldownDuration);
         $._cooldownDuration = newCooldownDuration;
     }
 
-    /// @inheritdoc IStakingModule
+    /// @inheritdoc ISecurityModule
     function setMaxSlashableBps(uint256 newMaxSlashableBps) external override onlyRiskManager {
-        StakingModuleStorage storage $ = _getStakingModuleStorage();
+        SecurityModuleStorage storage $ = _getSecurityModuleStorage();
         if (newMaxSlashableBps > MAX_BPS) {
             revert Errors.MaxBpsValueExceeded();
         }
@@ -252,9 +252,9 @@ contract StakingModule is ERC20Upgradeable, ReentrancyGuardUpgradeable, MachineP
         $._maxSlashableBps = newMaxSlashableBps;
     }
 
-    /// @inheritdoc IStakingModule
+    /// @inheritdoc ISecurityModule
     function setMinBalanceAfterSlash(uint256 newMinBalanceAfterSlash) external override onlyRiskManager {
-        StakingModuleStorage storage $ = _getStakingModuleStorage();
+        SecurityModuleStorage storage $ = _getSecurityModuleStorage();
         emit MinBalanceAfterSlashChanged($._minBalanceAfterSlash, newMinBalanceAfterSlash);
         $._minBalanceAfterSlash = newMinBalanceAfterSlash;
     }

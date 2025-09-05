@@ -5,35 +5,35 @@ import {IAccessManaged} from "@openzeppelin/contracts/access/manager/IAccessMana
 
 import {Machine} from "@makina-core/machine/Machine.sol";
 
-import {IStakingModule} from "src/interfaces/IStakingModule.sol";
-import {IStakingModuleReference} from "src/interfaces/IStakingModuleReference.sol";
+import {ISecurityModule} from "src/interfaces/ISecurityModule.sol";
+import {ISecurityModuleReference} from "src/interfaces/ISecurityModuleReference.sol";
 import {IWatermarkFeeManager} from "src/interfaces/IWatermarkFeeManager.sol";
 import {Errors} from "src/libraries/Errors.sol";
 
 import {HubPeripheryFactory_Integration_Concrete_Test} from "../HubPeripheryFactory.t.sol";
 
-contract SetStakingModule_Integration_Concrete_Test is HubPeripheryFactory_Integration_Concrete_Test {
+contract SetSecurityModule_Integration_Concrete_Test is HubPeripheryFactory_Integration_Concrete_Test {
     function test_RevertWhen_CallerWithoutRole() public {
         vm.expectRevert(abi.encodeWithSelector(IAccessManaged.AccessManagedUnauthorized.selector, address(this)));
-        hubPeripheryFactory.setStakingModule(address(0), address(0));
+        hubPeripheryFactory.setSecurityModule(address(0), address(0));
     }
 
     function test_RevertWhen_NotFeeManager() public {
         vm.expectRevert(Errors.NotFeeManager.selector);
         vm.prank(dao);
-        hubPeripheryFactory.setStakingModule(address(0), address(0));
+        hubPeripheryFactory.setSecurityModule(address(0), address(0));
     }
 
-    function test_RevertWhen_NotStakingModule() public {
+    function test_RevertWhen_NotSecurityModule() public {
         vm.startPrank(dao);
 
         address feeManager = hubPeripheryFactory.createFeeManager(DUMMY_MANAGER_IMPLEM_ID, "");
-        vm.expectRevert(Errors.NotStakingModule.selector);
+        vm.expectRevert(Errors.NotSecurityModule.selector);
 
-        hubPeripheryFactory.setStakingModule(feeManager, address(0));
+        hubPeripheryFactory.setSecurityModule(feeManager, address(0));
     }
 
-    function test_SetStakingModule() public {
+    function test_SetSecurityModule() public {
         (Machine machine,) = _deployMachine(address(accountingToken), address(0), address(0), address(0));
 
         uint256[] memory dummyFeeSplitBps = new uint256[](1);
@@ -61,8 +61,8 @@ contract SetStakingModule_Integration_Concrete_Test is HubPeripheryFactory_Integ
 
         address machineShare = machine.shareToken();
 
-        address stakingModule = hubPeripheryFactory.createStakingModule(
-            IStakingModule.StakingModuleInitParams({
+        address securityModule = hubPeripheryFactory.createSecurityModule(
+            ISecurityModule.SecurityModuleInitParams({
                 machineShare: machineShare,
                 initialCooldownDuration: 0,
                 initialMaxSlashableBps: 0,
@@ -70,8 +70,8 @@ contract SetStakingModule_Integration_Concrete_Test is HubPeripheryFactory_Integ
             })
         );
 
-        hubPeripheryFactory.setStakingModule(feeManager, stakingModule);
+        hubPeripheryFactory.setSecurityModule(feeManager, securityModule);
 
-        assertEq(IStakingModuleReference(feeManager).stakingModule(), stakingModule);
+        assertEq(ISecurityModuleReference(feeManager).securityModule(), securityModule);
     }
 }

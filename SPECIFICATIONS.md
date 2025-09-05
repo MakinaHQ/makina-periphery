@@ -21,15 +21,15 @@ The Redeemers contract is the contracts through which users redeem shares of the
 
 The fee manager is the contract that performs fee calculation, and dispatch them to designated receivers.
 
-**WatermarkFeeManager (ID = 1):** Calculates both fixed fees (management fee + staking module fee) and a variable performance fee. A high watermark mechanism ensures performance fees are charged only when the current share price exceeds the stored watermark.
+**WatermarkFeeManager (ID = 1):** Calculates both fixed fees (management fee + security module fee) and a variable performance fee. A high watermark mechanism ensures performance fees are charged only when the current share price exceeds the stored watermark.
 
-## Staking Module
+## Security Module
 
-The staking module serves as an insurance reserve, designed to mitigate losses in the event of a shortfall caused by incidents such as hacks, bad debt, or a depeg.
+The security module serves as an insurance reserve, designed to mitigate losses in the event of a shortfall caused by incidents such as hacks, bad debt, or a depeg.
 
-Machine shareholders can stake their shares in the staking module. In the event of a shortfall, the staked shares can be burned to cover losses.
+Machine shareholders can lock their shares in the security module. In the event of a shortfall, the locked shares can be burned to cover losses.
 
-In return, staking participants receive enhanced yields, distributed as a portion of the machine’s minted fee shares.
+In return, locking participants receive enhanced yields, distributed as a portion of the machine’s minted fee shares.
 
 ## Flashloan Aggregator
 

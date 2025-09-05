@@ -6,9 +6,9 @@ import {BeaconProxy} from "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol"
 
 import {IHubPeripheryFactory} from "../interfaces/IHubPeripheryFactory.sol";
 import {IHubPeripheryRegistry} from "../interfaces/IHubPeripheryRegistry.sol";
-import {IStakingModuleReference} from "../interfaces/IStakingModuleReference.sol";
+import {ISecurityModuleReference} from "../interfaces/ISecurityModuleReference.sol";
 import {IMachinePeriphery} from "../interfaces/IMachinePeriphery.sol";
-import {IStakingModule} from "../interfaces/IStakingModule.sol";
+import {ISecurityModule} from "../interfaces/ISecurityModule.sol";
 import {Errors} from "../libraries/Errors.sol";
 import {MakinaPeripheryContext} from "../utils/MakinaPeripheryContext.sol";
 
@@ -18,7 +18,7 @@ contract HubPeripheryFactory is AccessManagedUpgradeable, MakinaPeripheryContext
         mapping(address depositor => bool isDepositor) _isDepositor;
         mapping(address redeemer => bool isRedeemer) _isRedeemer;
         mapping(address feeManager => bool isFeeManager) _isFeeManager;
-        mapping(address stakingModule => bool isStakingModule) _isStakingModule;
+        mapping(address securityModule => bool isSecurityModule) _isSecurityModule;
         mapping(address depositor => uint16 implemId) _depositorImplemId;
         mapping(address redeemer => uint16 implemId) _redeemerImplemId;
         mapping(address feeManager => uint16 implemId) _feeManagerImplemId;
@@ -58,8 +58,8 @@ contract HubPeripheryFactory is AccessManagedUpgradeable, MakinaPeripheryContext
     }
 
     /// @inheritdoc IHubPeripheryFactory
-    function isStakingModule(address _stakingModule) external view override returns (bool) {
-        return _getHubPeripheryFactoryStorage()._isStakingModule[_stakingModule];
+    function isSecurityModule(address _securityModule) external view override returns (bool) {
+        return _getHubPeripheryFactoryStorage()._isSecurityModule[_securityModule];
     }
 
     /// @inheritdoc IHubPeripheryFactory
@@ -95,7 +95,7 @@ contract HubPeripheryFactory is AccessManagedUpgradeable, MakinaPeripheryContext
 
         if (
             !$._isDepositor[machinePeriphery] && !$._isRedeemer[machinePeriphery] && !$._isFeeManager[machinePeriphery]
-                && !$._isStakingModule[machinePeriphery]
+                && !$._isSecurityModule[machinePeriphery]
         ) {
             revert Errors.NotMachinePeriphery();
         }
@@ -104,18 +104,18 @@ contract HubPeripheryFactory is AccessManagedUpgradeable, MakinaPeripheryContext
     }
 
     /// @inheritdoc IHubPeripheryFactory
-    function setStakingModule(address feeManager, address stakingModule) external override restricted {
+    function setSecurityModule(address feeManager, address securityModule) external override restricted {
         HubPeripheryFactoryStorage storage $ = _getHubPeripheryFactoryStorage();
 
         if (!$._isFeeManager[feeManager]) {
             revert Errors.NotFeeManager();
         }
 
-        if (!$._isStakingModule[stakingModule]) {
-            revert Errors.NotStakingModule();
+        if (!$._isSecurityModule[securityModule]) {
+            revert Errors.NotSecurityModule();
         }
 
-        IStakingModuleReference(feeManager).setStakingModule(stakingModule);
+        ISecurityModuleReference(feeManager).setSecurityModule(securityModule);
     }
 
     /// @inheritdoc IHubPeripheryFactory
@@ -194,7 +194,7 @@ contract HubPeripheryFactory is AccessManagedUpgradeable, MakinaPeripheryContext
     }
 
     /// @inheritdoc IHubPeripheryFactory
-    function createStakingModule(IStakingModule.StakingModuleInitParams calldata smParams)
+    function createSecurityModule(ISecurityModule.SecurityModuleInitParams calldata smParams)
         external
         override
         restricted
@@ -202,17 +202,17 @@ contract HubPeripheryFactory is AccessManagedUpgradeable, MakinaPeripheryContext
     {
         HubPeripheryFactoryStorage storage $ = _getHubPeripheryFactoryStorage();
 
-        address stakingModule = address(
+        address securityModule = address(
             new BeaconProxy(
-                IHubPeripheryRegistry(peripheryRegistry).stakingModuleBeacon(),
+                IHubPeripheryRegistry(peripheryRegistry).securityModuleBeacon(),
                 abi.encodeCall(IMachinePeriphery.initialize, (abi.encode(smParams)))
             )
         );
 
-        $._isStakingModule[stakingModule] = true;
+        $._isSecurityModule[securityModule] = true;
 
-        emit StakingModuleCreated(stakingModule);
+        emit SecurityModuleCreated(securityModule);
 
-        return stakingModule;
+        return securityModule;
     }
 }

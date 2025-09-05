@@ -62,7 +62,7 @@ contract DeployWatermarkFeeManager is Base, Script, SortedParams {
         WatermarkFeeManagerInitParamsSorted memory initParams =
             abi.decode(vm.parseJson(inputJson, ".watermarkFeeManagerInitParams"), (WatermarkFeeManagerInitParamsSorted));
 
-        address stakingModule = abi.decode(vm.parseJson(inputJson, ".stakingModule"), (address));
+        address securityModule = abi.decode(vm.parseJson(inputJson, ".securityModule"), (address));
 
         address sender = vm.envOr("TEST_SENDER", address(0));
         if (sender != address(0)) {
@@ -85,8 +85,8 @@ contract DeployWatermarkFeeManager is Base, Script, SortedParams {
                 })
             )
         );
-        if (stakingModule != address(0)) {
-            IHubPeripheryFactory(_hubPeriphery.hubPeripheryFactory).setStakingModule(deployedInstance, stakingModule);
+        if (securityModule != address(0)) {
+            IHubPeripheryFactory(_hubPeriphery.hubPeripheryFactory).setSecurityModule(deployedInstance, securityModule);
         }
 
         vm.stopBroadcast();

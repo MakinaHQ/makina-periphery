@@ -3,13 +3,13 @@ pragma solidity 0.8.28;
 
 import {MachineShare} from "@makina-core/machine/MachineShare.sol";
 
-import {IStakingModule} from "src/interfaces/IStakingModule.sol";
-import {StakingModule} from "src/staking-module/StakingModule.sol";
+import {ISecurityModule} from "src/interfaces/ISecurityModule.sol";
+import {SecurityModule} from "src/security-module/SecurityModule.sol";
 
 import {MachinePeriphery_Integration_Concrete_Test} from "../machine-periphery/MachinePeriphery.t.sol";
 
-abstract contract StakingModule_Integration_Concrete_Test is MachinePeriphery_Integration_Concrete_Test {
-    StakingModule public stakingModule;
+abstract contract SecurityModule_Integration_Concrete_Test is MachinePeriphery_Integration_Concrete_Test {
+    SecurityModule public securityModule;
 
     address public depositorAddr;
 
@@ -22,9 +22,9 @@ abstract contract StakingModule_Integration_Concrete_Test is MachinePeriphery_In
         machineShare = MachineShare(machine.shareToken());
 
         vm.prank(dao);
-        stakingModule = StakingModule(
-            hubPeripheryFactory.createStakingModule(
-                IStakingModule.StakingModuleInitParams({
+        securityModule = SecurityModule(
+            hubPeripheryFactory.createSecurityModule(
+                ISecurityModule.SecurityModuleInitParams({
                     machineShare: address(machineShare),
                     initialCooldownDuration: DEFAULT_COOLDOWN_DURATION,
                     initialMaxSlashableBps: DEFAULT_MAX_SLASHABLE_BPS,

@@ -89,7 +89,7 @@ contract DeployHubPeriphery is Base, Script, SortedParams {
         vm.serializeAddress(key, "FlashloanAggregator", address(_hubPeriphery.flashloanAggregator));
         vm.serializeAddress(key, "HubPeripheryRegistry", address(_hubPeriphery.hubPeripheryRegistry));
         vm.serializeAddress(key, "HubPeripheryFactory", address(_hubPeriphery.hubPeripheryFactory));
-        vm.serializeAddress(key, "StakingModuleBeacon", address(_hubPeriphery.stakingModuleBeacon));
+        vm.serializeAddress(key, "SecurityModuleBeacon", address(_hubPeriphery.securityModuleBeacon));
         vm.serializeAddress(key, "DirectDepositorBeacon", address(_hubPeriphery.directDepositorBeacon));
         vm.serializeAddress(key, "AsyncRedeemerBeacon", address(_hubPeriphery.asyncRedeemerBeacon));
         vm.writeJson(

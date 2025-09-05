@@ -32,7 +32,7 @@ abstract contract Constants {
     uint256 public constant DEFAULT_WATERMARK_FEE_MANAGER_SM_FEE_RATE_PER_SECOND = 1e4; // 0.0000000000000001% of supply per second
     uint256 public constant DEFAULT_WATERMARK_FEE_MANAGER_PERF_FEE_RATE = 1e14; // 0.01% of profit
 
-    // Staking Module
+    // Security Module
     uint256 public constant DEFAULT_COOLDOWN_DURATION = 7 days;
     uint256 public constant DEFAULT_MAX_SLASHABLE_BPS = 5000; // 50%
     uint256 public constant DEFAULT_MIN_BALANCE_AFTER_SLASH = 1e17; // 0.1 token

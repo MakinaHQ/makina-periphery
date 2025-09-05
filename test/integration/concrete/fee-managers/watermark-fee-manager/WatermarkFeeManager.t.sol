@@ -4,14 +4,14 @@ pragma solidity 0.8.28;
 import {MachineShare} from "@makina-core/machine/MachineShare.sol";
 
 import {IWatermarkFeeManager} from "src/interfaces/IWatermarkFeeManager.sol";
-import {IStakingModule} from "src/interfaces/IStakingModule.sol";
+import {ISecurityModule} from "src/interfaces/ISecurityModule.sol";
 
 import {MachinePeriphery_Integration_Concrete_Test} from "../../machine-periphery/MachinePeriphery.t.sol";
 
 abstract contract WatermarkFeeManager_Integration_Concrete_Test is MachinePeriphery_Integration_Concrete_Test {
     IWatermarkFeeManager public watermarkFeeManager;
 
-    address public stakingModuleAddr;
+    address public securityModuleAddr;
 
     address public FEE_RECEIVER;
 
@@ -47,8 +47,8 @@ abstract contract WatermarkFeeManager_Integration_Concrete_Test is MachinePeriph
         machineShare = MachineShare(machine.shareToken());
 
         vm.prank(dao);
-        stakingModuleAddr = hubPeripheryFactory.createStakingModule(
-            IStakingModule.StakingModuleInitParams({
+        securityModuleAddr = hubPeripheryFactory.createSecurityModule(
+            ISecurityModule.SecurityModuleInitParams({
                 machineShare: address(machineShare),
                 initialCooldownDuration: 0,
                 initialMaxSlashableBps: 0,

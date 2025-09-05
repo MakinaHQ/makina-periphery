@@ -11,7 +11,7 @@ This is the list of role permissions in Makina Periphery contracts. These roles 
   - Can set address of depositor Beacons.
   - Can set address of redeemer Beacons.
   - Can set address of fee manager Beacons.
-  - Can set address of StakingModule Beacon.
+  - Can set address of SecurityModule Beacon.
 
 ### HubPeripheryFactory
 
@@ -19,7 +19,7 @@ This is the list of role permissions in Makina Periphery contracts. These roles 
   - Can deploy depositors.
   - Can deploy redeemers.
   - Can deploy fee managers.
-  - Can deploy staking modules.
+  - Can deploy security modules.
 
 ### DirectDepositor
 
@@ -46,11 +46,11 @@ This is the list of role permissions in Makina Periphery contracts. These roles 
   - Can set the fee rates.
   - Can define the allocation of fees to different receivers.
 
-### StakingModule
+### SecurityModule
 
 - **Security Council**
-  - Can slash staked machine shares up to the maximum slashable amount.
-  - Can re-enable staking after a slashing event.
+  - Can slash locked machine shares up to the maximum slashable amount.
+  - Can re-enable locking after a slashing event.
 
 - **Risk Manager**
   - Can set the cooldown duration.

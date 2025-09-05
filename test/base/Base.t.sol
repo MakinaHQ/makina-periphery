@@ -56,8 +56,8 @@ abstract contract Base_Test is Base, Test, Constants, CoreHelpers {
     // Machine Fee Managers
     UpgradeableBeacon public watermarkFeeManagerBeacon;
 
-    // Staking Module
-    UpgradeableBeacon public stakingModuleBeacon;
+    // Security Module
+    UpgradeableBeacon public securityModuleBeacon;
 
     function setUp() public virtual {
         deployer = address(this);
@@ -131,11 +131,11 @@ abstract contract Base_Hub_Test is Base_Test {
         directDepositorBeacon = hubPeriphery.directDepositorBeacon;
         asyncRedeemerBeacon = hubPeriphery.asyncRedeemerBeacon;
         watermarkFeeManagerBeacon = hubPeriphery.watermarkFeeManagerBeacon;
-        stakingModuleBeacon = hubPeriphery.stakingModuleBeacon;
+        securityModuleBeacon = hubPeriphery.securityModuleBeacon;
 
         registerFlashloanAggregator(address(hubCore.hubCoreRegistry), address(flashloanAggregator));
         registerHubPeripheryFactory(address(hubPeripheryRegistry), address(hubPeripheryFactory));
-        registerStakingModuleBeacon(address(hubPeripheryRegistry), address(stakingModuleBeacon));
+        registerSecurityModuleBeacon(address(hubPeripheryRegistry), address(securityModuleBeacon));
 
         uint16[] memory mdImplemIds = new uint16[](1);
         mdImplemIds[0] = DIRECT_DEPOSITOR_IMPLEM_ID;

@@ -35,13 +35,13 @@ forge script script/deployments/DeployHubPeriphery.s.sol --rpc-url <network-alia
 forge script script/deployments/SetupHubPeriphery.s.sol --rpc-url <network-alias> --account <keychain-name> --slow --broadcast -vvvv
 ```
 
-### Staking Module instance
+### Security Module instance
 
-1. Copy `script/deployments/inputs/staking-modules/TEMPLATE.json` to `script/deployments/inputs/staking-modules/{HUB_INPUT_FILENAME}` and fill in the required variables.
-2. Run the following command to initiate the deployment. This will generate an output file at `script/deployments/outputs/staking-modules/{HUB_OUTPUT_FILENAME}` containing the deployed contract address.
+1. Copy `script/deployments/inputs/security-modules/TEMPLATE.json` to `script/deployments/inputs/security-modules/{HUB_INPUT_FILENAME}` and fill in the required variables.
+2. Run the following command to initiate the deployment. This will generate an output file at `script/deployments/outputs/security-modules/{HUB_OUTPUT_FILENAME}` containing the deployed contract address.
 
 ```
-forge script script/deployments/DeployStakingModule.s.sol --rpc-url <network-alias> --account <keychain-name> --slow --broadcast --verify --etherscan-api-key <your-api-key> -vvvv
+forge script script/deployments/DeploySecurityModule.s.sol --rpc-url <network-alias> --account <keychain-name> --slow --broadcast --verify --etherscan-api-key <your-api-key> -vvvv
 ```
 
 ### Direct Depositor instance

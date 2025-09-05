@@ -14,7 +14,7 @@ library Errors {
     error InvalidDepositorImplemId();
     error InvalidFeeManagerImplemId();
     error InvalidRedeemerImplemId();
-    error InvalidStakingModule();
+    error InvalidSecurityModule();
     error MachineAlreadySet();
     error MachineNotSet();
     error MaxBpsValueExceeded();
@@ -27,9 +27,9 @@ library Errors {
     error NotDepositor();
     error NotMachinePeriphery();
     error NotRedeemer();
-    error NotStakingModule();
+    error NotSecurityModule();
     error SlashingSettlementOngoing();
-    error StakingModuleAlreadySet();
+    error SecurityModuleAlreadySet();
     error ZeroMachineAddress();
     error ZeroRequestId();
 }

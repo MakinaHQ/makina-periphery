@@ -8,6 +8,11 @@ interface IMetaMorphoOracleFactory {
 
     event MetaMorphoOracleCreated(address indexed oracle);
 
+    /// @notice Address => Whether this is a trusted Morpho factory.
+    /// @param morphoFactory The Morpho factory address to check.
+    /// @return isFactory True if the factory is trusted, false otherwise.
+    function isMorphoFactory(address morphoFactory) external view returns (bool isFactory);
+
     /// @notice Address => Whether this is an oracle deployed by this factory.
     /// @param oracle The oracle address to check.
     function isOracle(address oracle) external view returns (bool);

@@ -35,6 +35,12 @@ contract MetaMorphoOracleFactory is AccessManagedUpgradeable, IMetaMorphoOracleF
     }
 
     /// @inheritdoc IMetaMorphoOracleFactory
+    function isMorphoFactory(address morphoFactory) external view returns (bool) {
+        MetaMorphoOracleFactoryStorage storage $ = _getMetaMorphoOracleFactoryStorage();
+        return $._isMorphoFactory[morphoFactory];
+    }
+
+    /// @inheritdoc IMetaMorphoOracleFactory
     function isOracle(address oracle) external view returns (bool) {
         MetaMorphoOracleFactoryStorage storage $ = _getMetaMorphoOracleFactoryStorage();
         return $._isOracle[oracle];

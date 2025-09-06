@@ -14,6 +14,7 @@ import {WatermarkFeeManager} from "../../src/fee-managers/WatermarkFeeManager.so
 import {DirectDepositor} from "../../src/depositors/DirectDepositor.sol";
 import {AsyncRedeemer} from "../../src/redeemers/AsyncRedeemer.sol";
 import {SecurityModule} from "../../src/security-module/SecurityModule.sol";
+import {MetaMorphoOracleFactory} from "../../src/factories/MetaMorphoOracleFactory.sol";
 
 abstract contract Base {
     struct HubPeriphery {
@@ -24,6 +25,7 @@ abstract contract Base {
         UpgradeableBeacon asyncRedeemerBeacon;
         UpgradeableBeacon watermarkFeeManagerBeacon;
         UpgradeableBeacon securityModuleBeacon;
+        MetaMorphoOracleFactory metaMorphoOracleFactory;
     }
 
     struct FlashloanProviders {
@@ -81,6 +83,17 @@ abstract contract Base {
 
         address securityModuleImplemAddr = address(new SecurityModule(address(deployment.hubPeripheryRegistry)));
         deployment.securityModuleBeacon = new UpgradeableBeacon(securityModuleImplemAddr, dao);
+
+        address metaMorphoOracleFactoryImplemAddr = address(new MetaMorphoOracleFactory());
+        deployment.metaMorphoOracleFactory = MetaMorphoOracleFactory(
+            address(
+                new TransparentUpgradeableProxy(
+                    metaMorphoOracleFactoryImplemAddr,
+                    dao,
+                    abi.encodeCall(MetaMorphoOracleFactory.initialize, (address(accessManager)))
+                )
+            )
+        );
     }
 
     function deployFlashloanAggregator(address caliberFactory, FlashloanProviders memory flProviders)

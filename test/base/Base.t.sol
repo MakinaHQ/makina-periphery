@@ -26,6 +26,7 @@ import {CoreHelpers} from "../utils/CoreHelpers.sol";
 import {FlashloanAggregator} from "../../src/flashloans/FlashloanAggregator.sol";
 import {HubPeripheryRegistry} from "../../src/registries/HubPeripheryRegistry.sol";
 import {HubPeripheryFactory} from "../../src/factories/HubPeripheryFactory.sol";
+import {MetaMorphoOracleFactory} from "../../src/factories/MetaMorphoOracleFactory.sol";
 
 import {Base} from "./Base.sol";
 
@@ -58,6 +59,9 @@ abstract contract Base_Test is Base, Test, Constants, CoreHelpers {
 
     // Security Module
     UpgradeableBeacon public securityModuleBeacon;
+
+    // MetaMorpho Oracle Factory
+    MetaMorphoOracleFactory public metaMorphoOracleFactory;
 
     function setUp() public virtual {
         deployer = address(this);
@@ -132,6 +136,7 @@ abstract contract Base_Hub_Test is Base_Test {
         asyncRedeemerBeacon = hubPeriphery.asyncRedeemerBeacon;
         watermarkFeeManagerBeacon = hubPeriphery.watermarkFeeManagerBeacon;
         securityModuleBeacon = hubPeriphery.securityModuleBeacon;
+        metaMorphoOracleFactory = hubPeriphery.metaMorphoOracleFactory;
 
         registerFlashloanAggregator(address(hubCore.hubCoreRegistry), address(flashloanAggregator));
         registerHubPeripheryFactory(address(hubPeripheryRegistry), address(hubPeripheryFactory));

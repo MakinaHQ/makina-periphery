@@ -50,7 +50,7 @@ contract Getters_Setters_MetaMorphoOracleFactory_Unit_Concrete_Test is MetaMorph
 
         vm.expectRevert(abi.encodeWithSelector(IMetaMorphoOracleFactory.NotMetaMorphoVault.selector));
         vm.prank(dao);
-        metaMorphoOracleFactory.createMetaMorphoOracle(address(morphoVaultFactory), address(0), oracleDecimals);   
+        metaMorphoOracleFactory.createMetaMorphoOracle(address(morphoVaultFactory), address(0), oracleDecimals);
     }
 
     function test_ERC4626Oracle_Getters() public view {
@@ -122,9 +122,7 @@ contract Getters_Setters_MetaMorphoOracleFactory_Unit_Concrete_Test is MetaMorph
         // then the decimals of the oracle should be that of the `asset` of the vault
         vm.prank(dao);
         ERC4626Oracle oracle0 = ERC4626Oracle(
-            metaMorphoOracleFactory.createMetaMorphoOracle(
-                address(morphoVaultFactory), address(metaMorphoVault), 0
-            )
+            metaMorphoOracleFactory.createMetaMorphoOracle(address(morphoVaultFactory), address(metaMorphoVault), 0)
         );
         assertEq(oracle0.decimals(), baseToken.decimals());
         // In this case, the price should be exactly equal to the convertToAssets on the vault itself
@@ -133,9 +131,7 @@ contract Getters_Setters_MetaMorphoOracleFactory_Unit_Concrete_Test is MetaMorph
         // deploy an oracle with decimals > underlying.decimals
         vm.prank(dao);
         ERC4626Oracle oracle1 = ERC4626Oracle(
-            metaMorphoOracleFactory.createMetaMorphoOracle(
-                address(morphoVaultFactory), address(metaMorphoVault), 19
-            )
+            metaMorphoOracleFactory.createMetaMorphoOracle(address(morphoVaultFactory), address(metaMorphoVault), 19)
         );
         assertEq(oracle1.decimals(), 19);
     }

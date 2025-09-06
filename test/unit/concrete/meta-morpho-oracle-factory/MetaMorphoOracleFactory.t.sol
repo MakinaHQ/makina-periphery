@@ -8,6 +8,7 @@ import {console} from "forge-std/console.sol";
 import {MockERC4626} from "@makina-core-test/mocks/MockERC4626.sol";
 import {ERC4626, ERC20, IERC20} from "@openzeppelin/contracts/token/ERC20/extensions/ERC4626.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {IMetaMorphoOracleFactory} from "src/interfaces/IMetaMorphoOracleFactory.sol";
 
 abstract contract MetaMorphoOracleFactory_Unit_Concrete_Test is Unit_Concrete_Test {
     ERC4626Oracle public oracle;
@@ -40,6 +41,16 @@ contract Getters_Setters_MetaMorphoOracleFactory_Unit_Concrete_Test is MetaMorph
         assertFalse(metaMorphoOracleFactory.isMorphoFactory(address(0)));
         assertTrue(metaMorphoOracleFactory.isOracle(address(oracle)));
         assertFalse(metaMorphoOracleFactory.isOracle(address(0)));
+    }
+
+    function test_MetaMorphoOracleFactory_Create_Oracle_Invalid_Inputs() public {
+        vm.expectRevert(abi.encodeWithSelector(IMetaMorphoOracleFactory.NotFactory.selector));
+        vm.prank(dao);
+        metaMorphoOracleFactory.createMetaMorphoOracle(address(0), address(metaMorphoVault), oracleDecimals);
+
+        vm.expectRevert(abi.encodeWithSelector(IMetaMorphoOracleFactory.NotMetaMorphoVault.selector));
+        vm.prank(dao);
+        metaMorphoOracleFactory.createMetaMorphoOracle(address(morphoVaultFactory), address(0), oracleDecimals);   
     }
 
     function test_ERC4626Oracle_Getters() public view {

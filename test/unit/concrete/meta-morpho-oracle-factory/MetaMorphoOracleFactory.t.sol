@@ -60,11 +60,26 @@ contract Getters_Setters_MetaMorphoOracleFactory_Unit_Concrete_Test is MetaMorph
         assertEq(oracle.decimals(), oracleDecimals);
         assertEq(oracle.description(), "MMV / BT");
         assertEq(oracle.ONE_SHARE(), 10 ** metaMorphoVault.decimals());
+        // in the test, oracle_decimals (17) <= underlying_decimals (18)
+        assertEq(oracle.SCALING_NUMERATOR(), 1);
+        assertEq(oracle.SCALING_DENOMINATOR(), 10 ** (baseToken.decimals() - oracleDecimals));
+        assertEq(oracle.latestAnswer(), int256(10 ** oracleDecimals));
+        assertEq(oracle.latestTimestamp(), block.timestamp);
+        assertEq(oracle.latestRound(), 1);
+        assertEq(oracle.getAnswer(1), int256(10 ** oracleDecimals));
+        assertEq(oracle.getTimestamp(1), block.timestamp);
     }
 
     function test_ERC4626Oracle_Price_Invariants() public view {
         (uint80 roundId, int256 answer, uint256 startedAt, uint256 updatedAt, uint80 answeredInRound) =
             oracle.latestRoundData();
+        assertEq(roundId, 1);
+        assertEq(answer, int256(10 ** oracleDecimals));
+        assertEq(startedAt, block.timestamp);
+        assertEq(updatedAt, block.timestamp);
+        assertEq(answeredInRound, 1);
+
+        (roundId, answer, startedAt, updatedAt, answeredInRound) = oracle.getRoundData(1);
         assertEq(roundId, 1);
         assertEq(answer, int256(10 ** oracleDecimals));
         assertEq(startedAt, block.timestamp);
@@ -100,5 +115,28 @@ contract Getters_Setters_MetaMorphoOracleFactory_Unit_Concrete_Test is MetaMorph
         // price should have decreased, below initial price
         assertLt(oracle.getPrice(), 10 ** oracleDecimals);
         assertGt(oracle.getPrice(), 10 ** (oracleDecimals - 1));
+    }
+
+    function test_ERC4626Oracle_Decimals() public {
+        // deploy an oracle with decimals = 0
+        // then the decimals of the oracle should be that of the `asset` of the vault
+        vm.prank(dao);
+        ERC4626Oracle oracle0 = ERC4626Oracle(
+            metaMorphoOracleFactory.createMetaMorphoOracle(
+                address(morphoVaultFactory), address(metaMorphoVault), 0
+            )
+        );
+        assertEq(oracle0.decimals(), baseToken.decimals());
+        // In this case, the price should be exactly equal to the convertToAssets on the vault itself
+        assertEq(oracle0.getPrice(), metaMorphoVault.convertToAssets(10 ** metaMorphoVault.decimals()));
+
+        // deploy an oracle with decimals > underlying.decimals
+        vm.prank(dao);
+        ERC4626Oracle oracle1 = ERC4626Oracle(
+            metaMorphoOracleFactory.createMetaMorphoOracle(
+                address(morphoVaultFactory), address(metaMorphoVault), 19
+            )
+        );
+        assertEq(oracle1.decimals(), 19);
     }
 }

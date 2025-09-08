@@ -123,9 +123,7 @@ contract Getters_Setters_MetaMorphoOracleFactory_Unit_Concrete_Test is MetaMorph
         vm.expectRevert(abi.encodeWithSelector(ERC4626Oracle.LessDecimals.selector));
         vm.prank(dao);
         ERC4626Oracle oracle0 = ERC4626Oracle(
-            metaMorphoOracleFactory.createMetaMorphoOracle(
-                address(morphoVaultFactory), address(metaMorphoVault), baseToken.decimals() - 1
-            )
+            metaMorphoOracleFactory.createMetaMorphoOracle(address(morphoVaultFactory), address(metaMorphoVault), 17)
         );
 
         // deploy an oracle with decimals > underlying.decimals

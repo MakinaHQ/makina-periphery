@@ -118,12 +118,14 @@ contract Getters_Setters_MetaMorphoOracleFactory_Unit_Concrete_Test is MetaMorph
     }
 
     function test_ERC4626Oracle_Decimals() public {
-        // deploy an oracle with decimals = 0
-        // then the decimals of the oracle should be that of the `asset` of the vault
+        // deploy an oracle with decimals < underlying decimals
+        // in this case the deployment should revert with the `ERC4626Oracle.LessDecimals` error.
         vm.expectRevert(abi.encodeWithSelector(ERC4626Oracle.LessDecimals.selector));
         vm.prank(dao);
         ERC4626Oracle oracle0 = ERC4626Oracle(
-            metaMorphoOracleFactory.createMetaMorphoOracle(address(morphoVaultFactory), address(metaMorphoVault), 0)
+            metaMorphoOracleFactory.createMetaMorphoOracle(
+                address(morphoVaultFactory), address(metaMorphoVault), baseToken.decimals() - 1
+            )
         );
 
         // deploy an oracle with decimals > underlying.decimals

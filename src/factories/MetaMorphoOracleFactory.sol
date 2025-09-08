@@ -5,7 +5,6 @@ import {IERC4626} from "@openzeppelin/contracts/interfaces/IERC4626.sol";
 import {AccessManagedUpgradeable} from "@openzeppelin/contracts-upgradeable/access/manager/AccessManagedUpgradeable.sol";
 
 import {ERC4626Oracle} from "../oracles/ERC4626Oracle.sol";
-import {MakinaPeripheryContext} from "../utils/MakinaPeripheryContext.sol";
 import {IMetaMorphoFactory} from "../interfaces/IMetaMorphoFactory.sol";
 import {IMetaMorphoOracleFactory} from "../interfaces/IMetaMorphoOracleFactory.sol";
 

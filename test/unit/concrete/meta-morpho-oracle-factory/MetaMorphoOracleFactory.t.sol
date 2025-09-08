@@ -22,7 +22,7 @@ abstract contract MetaMorphoOracleFactory_Unit_Concrete_Test is Unit_Concrete_Te
         // deploy an oracle through the factory
         morphoVaultFactory = new MockMetaMorphoFactory();
         metaMorphoVault = new MockERC4626("MetaMorphoVault", "MMV", IERC20(baseToken), 0);
-        oracleDecimals = 17;
+        oracleDecimals = 18;
         vm.prank(dao);
         metaMorphoOracleFactory.setMorphoFactory(address(morphoVaultFactory), true);
         vm.prank(dao);

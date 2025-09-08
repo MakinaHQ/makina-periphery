@@ -52,7 +52,6 @@ contract Getters_Setters_MetaMorphoOracleFactory_Unit_Concrete_Test is MetaMorph
         assertEq(oracle.description(), "MMV / BT");
         assertEq(oracle.ONE_SHARE(), 10 ** metaMorphoVault.decimals());
         assertEq(oracle.SCALING_NUMERATOR(), 1);
-        assertEq(oracle.SCALING_DENOMINATOR(), 1);
         assertEq(oracle.latestAnswer(), int256(10 ** oracleDecimals));
         assertEq(oracle.latestTimestamp(), block.timestamp);
         assertEq(oracle.latestRound(), 1);

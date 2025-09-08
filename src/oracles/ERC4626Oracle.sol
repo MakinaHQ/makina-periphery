@@ -3,10 +3,10 @@ pragma solidity 0.8.28;
 
 import {IERC4626} from "@openzeppelin/contracts/interfaces/IERC4626.sol";
 import {IERC20Metadata} from "@openzeppelin/contracts/interfaces/IERC20Metadata.sol";
-import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 import {SafeCast} from "@openzeppelin/contracts/utils/math/SafeCast.sol";
 
 import {AggregatorV2V3Interface} from "@makina-core/interfaces/AggregatorV2V3Interface.sol";
+import {Errors} from "@makina-core/libraries/Errors.sol";
 
 /**
  * @title ERC4626Oracle
@@ -15,10 +15,7 @@ import {AggregatorV2V3Interface} from "@makina-core/interfaces/AggregatorV2V3Int
  *         vault it wraps in terms of its underlying asset (the exchange rate).
  */
 contract ERC4626Oracle is AggregatorV2V3Interface {
-    using Math for uint256;
     using SafeCast for uint256;
-
-    error LessDecimals();
 
     /// @notice The implementation version of this contract.
     uint256 public immutable version = 1;
@@ -41,9 +38,6 @@ contract ERC4626Oracle is AggregatorV2V3Interface {
     /// @notice Scaling factor numerator used to adjust price to the desired decimals.
     uint256 public immutable SCALING_NUMERATOR;
 
-    /// @notice Scaling factor denominator used to adjust price to the desired decimals
-    uint256 public immutable SCALING_DENOMINATOR;
-
     /// @notice Creates a new ERC4626Wrapper for a given ERC4626 vault.
     /// @param _vault The ERC4626 vault.
     /// @param _decimals The decimals to use for the price.
@@ -52,28 +46,24 @@ contract ERC4626Oracle is AggregatorV2V3Interface {
         underlying = IERC20Metadata(_vault.asset());
         uint8 underlyingDecimals = underlying.decimals();
 
-        ONE_SHARE = 10 ** _vault.decimals();
-
-        if (_decimals >= underlyingDecimals) {
-            decimals = _decimals;
-        } else {
-            revert LessDecimals();
+        if (_decimals < underlyingDecimals) {
+            revert Errors.InvalidDecimals();
         }
+        decimals = _decimals;
+
+        ONE_SHARE = 10 ** _vault.decimals();
 
         if (decimals > underlyingDecimals) {
             SCALING_NUMERATOR = 10 ** (decimals - underlyingDecimals);
-            SCALING_DENOMINATOR = 1;
         } else {
             SCALING_NUMERATOR = 1;
-            SCALING_DENOMINATOR = 10 ** (underlyingDecimals - decimals);
         }
 
         description = string.concat(vault.symbol(), " / ", underlying.symbol());
     }
 
     function getPrice() public view returns (uint256) {
-        uint256 price = vault.convertToAssets(ONE_SHARE);
-        return SCALING_NUMERATOR.mulDiv(price, SCALING_DENOMINATOR);
+        return SCALING_NUMERATOR * vault.convertToAssets(ONE_SHARE);
     }
 
     //
@@ -102,15 +92,6 @@ contract ERC4626Oracle is AggregatorV2V3Interface {
     //
     // V3 Interface:
     //
-    function _latestRoundData()
-        internal
-        view
-        returns (uint80 roundId, int256 answer, uint256 startedAt, uint256 updatedAt, uint80 answeredInRound)
-    {
-        uint256 timestamp = block.timestamp;
-        return (1, getPrice().toInt256(), timestamp, timestamp, 1);
-    }
-
     function getRoundData(uint80)
         external
         view
@@ -127,5 +108,14 @@ contract ERC4626Oracle is AggregatorV2V3Interface {
         returns (uint80 roundId, int256 answer, uint256 startedAt, uint256 updatedAt, uint80 answeredInRound)
     {
         return _latestRoundData();
+    }
+
+    function _latestRoundData()
+        internal
+        view
+        returns (uint80 roundId, int256 answer, uint256 startedAt, uint256 updatedAt, uint80 answeredInRound)
+    {
+        uint256 timestamp = block.timestamp;
+        return (1, getPrice().toInt256(), timestamp, timestamp, 1);
     }
 }

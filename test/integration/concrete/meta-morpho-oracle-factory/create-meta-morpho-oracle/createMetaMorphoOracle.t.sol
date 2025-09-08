@@ -7,6 +7,8 @@ import {IMetaMorphoOracleFactory} from "src/interfaces/IMetaMorphoOracleFactory.
 
 import {MetaMorphoOracleFactory_Integration_Concrete_Test} from "../MetaMorphoOracleFactory.t.sol";
 
+import {Errors} from "@makina-core/libraries/Errors.sol";
+
 contract CreateMetaMorphoOracle_Integration_Concrete_Test is MetaMorphoOracleFactory_Integration_Concrete_Test {
     function test_RevertWhen_InvalidAddresses() public {
         vm.expectRevert(abi.encodeWithSelector(IMetaMorphoOracleFactory.NotFactory.selector));
@@ -19,7 +21,7 @@ contract CreateMetaMorphoOracle_Integration_Concrete_Test is MetaMorphoOracleFac
     }
 
     function test_RevertWhen_OracleDecimalsLessThanUnderlyingAsset() public {
-        vm.expectRevert(abi.encodeWithSelector(ERC4626Oracle.LessDecimals.selector));
+        vm.expectRevert(abi.encodeWithSelector(Errors.InvalidDecimals.selector));
         vm.prank(dao);
         metaMorphoOracleFactory.createMetaMorphoOracle(address(morphoVaultFactory), address(metaMorphoVault), 17);
     }

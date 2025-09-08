@@ -53,11 +53,7 @@ contract ERC4626Oracle is AggregatorV2V3Interface {
 
         ONE_SHARE = 10 ** _vault.decimals();
 
-        if (decimals > underlyingDecimals) {
-            SCALING_NUMERATOR = 10 ** (decimals - underlyingDecimals);
-        } else {
-            SCALING_NUMERATOR = 1;
-        }
+        SCALING_NUMERATOR = 10 ** (decimals - underlyingDecimals);
 
         description = string.concat(vault.symbol(), " / ", underlying.symbol());
     }

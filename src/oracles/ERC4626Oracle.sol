@@ -18,6 +18,8 @@ contract ERC4626Oracle is AggregatorV2V3Interface {
     using Math for uint256;
     using SafeCast for uint256;
 
+    error LessDecimals();
+
     /// @notice The implementation version of this contract.
     uint256 public immutable version = 1;
 
@@ -52,10 +54,10 @@ contract ERC4626Oracle is AggregatorV2V3Interface {
 
         ONE_SHARE = 10 ** _vault.decimals();
 
-        if (_decimals == 0) {
-            decimals = underlyingDecimals;
-        } else {
+        if (_decimals >= underlyingDecimals) {
             decimals = _decimals;
+        } else {
+            revert LessDecimals();
         }
 
         if (decimals > underlyingDecimals) {

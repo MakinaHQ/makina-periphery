@@ -33,4 +33,13 @@ contract CreateMetaMorphoOracle_Integration_Concrete_Test is MetaMorphoOracleFac
         );
         assertEq(oracle1.decimals(), 19);
     }
+
+    function test_createMetaMorphoOracle_OracleDecimalsEqualToUnderlyingAsset() public {
+        vm.prank(dao);
+        ERC4626Oracle oracle2 = ERC4626Oracle(
+            metaMorphoOracleFactory.createMetaMorphoOracle(address(morphoVaultFactory), address(metaMorphoVault), 18)
+        );
+        assertEq(oracle2.decimals(), 18);
+        assertEq(oracle2.latestAnswer(), int256(10 ** 18));
+    }
 }

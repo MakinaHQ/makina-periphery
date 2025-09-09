@@ -61,8 +61,10 @@ abstract contract Whitelist is AccessManagedUpgradeable, IWhitelist {
         WhitelistStorage storage $ = _getWhitelistStorage();
         uint256 len = users.length;
         for (uint256 i = 0; i < len; ++i) {
-            $._isWhitelistedUser[users[i]] = whitelisted;
-            emit UserWhitelistingChanged(users[i], whitelisted);
+            if ($._isWhitelistedUser[users[i]] != whitelisted) {
+                $._isWhitelistedUser[users[i]] = whitelisted;
+                emit UserWhitelistingChanged(users[i], whitelisted);
+            }
         }
     }
 }

@@ -14,6 +14,7 @@ library Errors {
     error InvalidFeeSplit();
     error InvalidDepositorImplemId();
     error InvalidFeeManagerImplemId();
+    error InvalidMachinePeriphery();
     error InvalidRedeemerImplemId();
     error InvalidSecurityModule();
     error MachineAlreadySet();
@@ -27,7 +28,6 @@ library Errors {
     error NotFinalized();
     error NotImplemented();
     error NotDepositor();
-    error NotMachinePeriphery();
     error NotRedeemer();
     error NotSecurityModule();
     error SlashingSettlementOngoing();

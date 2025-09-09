@@ -93,11 +93,9 @@ contract HubPeripheryFactory is AccessManagedUpgradeable, MakinaPeripheryContext
     function setMachine(address machinePeriphery, address machine) external override restricted {
         HubPeripheryFactoryStorage storage $ = _getHubPeripheryFactoryStorage();
 
-        if (
-            !$._isDepositor[machinePeriphery] && !$._isRedeemer[machinePeriphery] && !$._isFeeManager[machinePeriphery]
-                && !$._isSecurityModule[machinePeriphery]
-        ) {
-            revert Errors.NotMachinePeriphery();
+        if (!$._isDepositor[machinePeriphery] && !$._isRedeemer[machinePeriphery] && !$._isFeeManager[machinePeriphery])
+        {
+            revert Errors.InvalidMachinePeriphery();
         }
 
         IMachinePeriphery(machinePeriphery).setMachine(machine);

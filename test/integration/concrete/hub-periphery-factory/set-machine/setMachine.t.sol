@@ -14,8 +14,8 @@ contract SetMachine_Integration_Concrete_Test is HubPeripheryFactory_Integration
         hubPeripheryFactory.setMachine(address(0), address(0));
     }
 
-    function test_RevertWhen_NotMachinePeriphery() public {
-        vm.expectRevert(Errors.NotMachinePeriphery.selector);
+    function test_RevertWhen_InvalidMachinePeriphery() public {
+        vm.expectRevert(Errors.InvalidMachinePeriphery.selector);
         vm.prank(dao);
         hubPeripheryFactory.setMachine(address(0), address(0));
     }

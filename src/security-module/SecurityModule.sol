@@ -191,7 +191,7 @@ contract SecurityModule is ERC20Upgradeable, ReentrancyGuardUpgradeable, Machine
         }
 
         delete $._pendingCooldowns[account];
-        _burn(account, shares);
+        _burn(address(this), shares);
         IERC20($._machineShare).safeTransfer(receiver, assets);
 
         emit Redeem(account, receiver, assets, shares);
@@ -203,15 +203,44 @@ contract SecurityModule is ERC20Upgradeable, ReentrancyGuardUpgradeable, Machine
     function startCooldown(uint256 shares) external override nonReentrant returns (uint256) {
         SecurityModuleStorage storage $ = _getSecurityModuleStorage();
 
-        address account = msg.sender;
+        address caller = msg.sender;
+
+        if ($._pendingCooldowns[caller].shares != 0) {
+            revert Errors.CooldownOngoing();
+        }
+
+        if (shares == 0) {
+            revert Errors.ZeroShares();
+        }
+
         uint256 assets = convertToAssets(shares);
         uint256 maturity = block.timestamp + $._cooldownDuration;
 
-        $._pendingCooldowns[account] = PendingCooldown({shares: shares, maxAssets: assets, maturity: maturity});
+        _transfer(caller, address(this), shares);
+        $._pendingCooldowns[caller] = PendingCooldown({shares: shares, maxAssets: assets, maturity: maturity});
 
-        emit Cooldown(account, shares, maturity);
+        emit Cooldown(caller, shares, maturity);
 
         return maturity;
+    }
+
+    /// @inheritdoc ISecurityModule
+    function cancelCooldown() external override nonReentrant returns (uint256) {
+        SecurityModuleStorage storage $ = _getSecurityModuleStorage();
+
+        address caller = msg.sender;
+        uint256 shares = $._pendingCooldowns[caller].shares;
+
+        if (shares == 0) {
+            revert Errors.NoCooldownOngoing();
+        }
+
+        delete $._pendingCooldowns[caller];
+        _transfer(address(this), caller, shares);
+
+        emit CooldownCancelled(caller, shares);
+
+        return shares;
     }
 
     /// @inheritdoc ISecurityModule

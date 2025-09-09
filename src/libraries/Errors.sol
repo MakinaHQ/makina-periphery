@@ -20,6 +20,7 @@ library Errors {
     error MaxBpsValueExceeded();
     error MaxFeeRateValueExceeded();
     error MaxSlashableExceeded();
+    error NoCooldownOngoing();
     error NotEnoughAssets();
     error NotFeeManager();
     error NotFinalized();
@@ -32,4 +33,5 @@ library Errors {
     error SecurityModuleAlreadySet();
     error ZeroMachineAddress();
     error ZeroRequestId();
+    error ZeroShares();
 }

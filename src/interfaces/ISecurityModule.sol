@@ -5,6 +5,7 @@ import {IMachinePeriphery} from "../interfaces/IMachinePeriphery.sol";
 
 interface ISecurityModule is IMachinePeriphery {
     event Cooldown(address indexed account, uint256 shares, uint256 maturity);
+    event CooldownCancelled(address indexed account, uint256 shares);
     event CooldownDurationChanged(uint256 oldCooldownDuration, uint256 newCooldownDuration);
     event MaxSlashableBpsChanged(uint256 oldMaxSlashableBps, uint256 newMaxSlashableBps);
     event MinBalanceAfterSlashChanged(uint256 oldMinBalanceAfterSlash, uint256 newMinBalanceAfterSlash);
@@ -88,9 +89,15 @@ interface ISecurityModule is IMachinePeriphery {
     function redeem(address receiver, uint256 minAssets) external returns (uint256 assets);
 
     /// @notice Requests a cooldown for redeeming security shares.
+    /// @dev Shares are locked in the contract until the cooldown is cancelled or expires.
     /// @param shares Amount of security shares to redeem.
     /// @return maturity Timestamp at which the cooldown period will end and the shares can be redeemed.
     function startCooldown(uint256 shares) external returns (uint256 maturity);
+
+    /// @notice Cancels a pending cooldown.
+    /// Shares for which the cooldown was cancelled are transferred back to caller.
+    /// @return shares Amount of security shares for which the cooldown was cancelled.
+    function cancelCooldown() external returns (uint256 shares);
 
     /// @notice Slashes a specified amount from the total locked amount and triggers the slashing mode.
     /// @param amount Amount to slash from the total locked amount.

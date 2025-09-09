@@ -7,6 +7,11 @@ import {Errors, CoreErrors} from "src/libraries/Errors.sol";
 import {SecurityModule_Integration_Concrete_Test} from "../SecurityModule.t.sol";
 
 contract Redeem_Integration_Concrete_Test is SecurityModule_Integration_Concrete_Test {
+    function test_RevertGiven_NoCooldownOngoing() public {
+        vm.expectRevert(Errors.NoCooldownOngoing.selector);
+        securityModule.redeem(address(0), 0);
+    }
+
     function test_RevertGiven_CooldownOngoing() public {
         uint256 inputAssets1 = 1e18;
 

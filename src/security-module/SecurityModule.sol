@@ -178,6 +178,9 @@ contract SecurityModule is ERC20Upgradeable, ReentrancyGuardUpgradeable, Machine
         address account = msg.sender;
         PendingCooldown memory pc = $._pendingCooldowns[account];
 
+        if (pc.shares == 0) {
+            revert Errors.NoCooldownOngoing();
+        }
         if (block.timestamp < pc.maturity) {
             revert Errors.CooldownOngoing();
         }

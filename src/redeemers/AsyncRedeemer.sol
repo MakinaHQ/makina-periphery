@@ -195,7 +195,7 @@ contract AsyncRedeemer is ERC721Upgradeable, ReentrancyGuardUpgradeable, Machine
     }
 
     /// @inheritdoc IAsyncRedeemer
-    function setFinalizationDelay(uint256 newDelay) external override onlyRiskManager {
+    function setFinalizationDelay(uint256 newDelay) external override onlyRiskManagerTimelock {
         AsyncRedeemerStorage storage $ = _getAsyncRedeemerStorage();
         emit FinalizationDelayChanged($._finalizationDelay, newDelay);
         $._finalizationDelay = newDelay;

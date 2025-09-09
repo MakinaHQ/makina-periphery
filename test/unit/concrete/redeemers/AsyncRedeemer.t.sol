@@ -72,7 +72,7 @@ contract Getters_Setters_AsyncRedeemer_Util_Concrete_Test is
         assertEq(asyncRedeemer.finalizationDelay(), Constants.DEFAULT_FINALIZATION_DELAY);
     }
 
-    function test_SetFinalizationDelay_RevertWhen_NotRM() public withMachine(_machineAddr) {
+    function test_SetFinalizationDelay_RevertWhen_NotRMT() public withMachine(_machineAddr) {
         vm.expectRevert(CoreErrors.UnauthorizedCaller.selector);
         asyncRedeemer.setFinalizationDelay(1 days);
     }
@@ -81,7 +81,7 @@ contract Getters_Setters_AsyncRedeemer_Util_Concrete_Test is
         uint256 newFinalizationDelay = 7 days;
         vm.expectEmit(true, true, false, false, address(asyncRedeemer));
         emit IAsyncRedeemer.FinalizationDelayChanged(Constants.DEFAULT_FINALIZATION_DELAY, newFinalizationDelay);
-        vm.prank(riskManager);
+        vm.prank(riskManagerTimelock);
         asyncRedeemer.setFinalizationDelay(newFinalizationDelay);
         assertEq(asyncRedeemer.finalizationDelay(), newFinalizationDelay);
     }

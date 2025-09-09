@@ -7,9 +7,35 @@ import {ISecurityModule} from "src/interfaces/ISecurityModule.sol";
 import {SecurityModule_Integration_Concrete_Test} from "../SecurityModule.t.sol";
 
 contract CancelCooldown_Integration_Concrete_Test is SecurityModule_Integration_Concrete_Test {
-    function test_RevertWhen_NoCooldownOngoing() public {
-        vm.startPrank(user3);
+    function test_RevertGiven_NoCooldownOngoing() public {
         vm.expectRevert(Errors.NoCooldownOngoing.selector);
+        securityModule.cancelCooldown();
+    }
+
+    function test_RevertGiven_CooldownExpired() public {
+        uint256 inputAssets1 = 1e18;
+
+        // Deposit assets to the machine
+        deal(address(accountingToken), depositorAddr, inputAssets1);
+        vm.startPrank(depositorAddr);
+        accountingToken.approve(address(machine), inputAssets1);
+        uint256 machineShares1 = machine.deposit(inputAssets1, user1, 0);
+        vm.stopPrank();
+
+        // User1 locks machine shares
+        vm.startPrank(user1);
+        machineShare.approve(address(securityModule), machineShares1);
+        uint256 securityShares1 = securityModule.lock(machineShares1, user1, 0);
+
+        uint256 securitySharesToRedeem = securityShares1 / 2;
+        uint256 expectedCDMaturity = block.timestamp + securityModule.cooldownDuration();
+
+        // User1 starts cooldown
+        securityModule.startCooldown(securitySharesToRedeem);
+
+        skip(expectedCDMaturity);
+
+        vm.expectRevert(Errors.CooldownExpired.selector);
         securityModule.cancelCooldown();
     }
 

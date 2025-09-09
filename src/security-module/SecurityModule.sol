@@ -235,6 +235,11 @@ contract SecurityModule is ERC20Upgradeable, ReentrancyGuardUpgradeable, Machine
             revert Errors.NoCooldownOngoing();
         }
 
+        uint256 maturity = $._pendingCooldowns[caller].maturity;
+        if (block.timestamp >= maturity) {
+            revert Errors.CooldownExpired();
+        }
+
         delete $._pendingCooldowns[caller];
         _transfer(address(this), caller, shares);
 

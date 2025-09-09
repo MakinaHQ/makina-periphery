@@ -1,13 +1,13 @@
 /// SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.28;
 
-import {AccessManagedUpgradeable} from "@openzeppelin/contracts-upgradeable/access/manager/AccessManagedUpgradeable.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 import {CoreErrors} from "../libraries/Errors.sol";
 
 import {IWhitelist} from "../interfaces/IWhitelist.sol";
 
-abstract contract Whitelist is AccessManagedUpgradeable, IWhitelist {
+abstract contract Whitelist is Initializable, IWhitelist {
     /// @custom:storage-location erc7201:makina.storage.Whitelist
     struct WhitelistStorage {
         mapping(address user => bool isWhitelisted) _isWhitelistedUser;
@@ -47,8 +47,8 @@ abstract contract Whitelist is AccessManagedUpgradeable, IWhitelist {
         return _getWhitelistStorage()._isWhitelistedUser[user];
     }
 
-    /// @inheritdoc IWhitelist
-    function setWhitelistStatus(bool enabled) external override restricted {
+    /// @dev Internal function to set the whitelist status.
+    function _setWhitelistStatus(bool enabled) internal {
         WhitelistStorage storage $ = _getWhitelistStorage();
         if ($._isWhitelistEnabled != enabled) {
             $._isWhitelistEnabled = enabled;
@@ -56,8 +56,8 @@ abstract contract Whitelist is AccessManagedUpgradeable, IWhitelist {
         }
     }
 
-    /// @inheritdoc IWhitelist
-    function setWhitelistedUsers(address[] calldata users, bool whitelisted) external override restricted {
+    /// @dev Internal function to set the whitelisted users.
+    function _setWhitelistedUsers(address[] calldata users, bool whitelisted) internal {
         WhitelistStorage storage $ = _getWhitelistStorage();
         uint256 len = users.length;
         for (uint256 i = 0; i < len; ++i) {

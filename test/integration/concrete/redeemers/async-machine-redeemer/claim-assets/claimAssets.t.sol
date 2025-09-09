@@ -314,7 +314,7 @@ contract ClaimAssets_Integration_Concrete_Test is AsyncRedeemer_Integration_Conc
         // whitelist User3
         address[] memory users = new address[](1);
         users[0] = user3;
-        vm.prank(dao);
+        vm.prank(riskManager);
         asyncRedeemer.setWhitelistedUsers(users, true);
 
         // User3 claims assets

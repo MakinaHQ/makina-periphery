@@ -1,11 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.28;
 
-import {IAccessManaged} from "@openzeppelin/contracts/access/manager/IAccessManaged.sol";
-
 import {Machine} from "@makina-core/machine/Machine.sol";
 
-import {Errors, CoreErrors} from "src/libraries/Errors.sol";
+import {CoreErrors} from "src/libraries/Errors.sol";
 import {IAsyncRedeemer} from "src/interfaces/IAsyncRedeemer.sol";
 import {IMachinePeriphery} from "src/interfaces/IMachinePeriphery.sol";
 import {IWhitelist} from "src/interfaces/IWhitelist.sol";
@@ -72,15 +70,6 @@ contract Getters_Setters_AsyncRedeemer_Util_Concrete_Test is
         assertEq(asyncRedeemer.nextRequestId(), 1);
         assertEq(asyncRedeemer.lastFinalizedRequestId(), 0);
         assertEq(asyncRedeemer.finalizationDelay(), Constants.DEFAULT_FINALIZATION_DELAY);
-    }
-
-    function test_authority_RevertWhen_MachineNotSet() public {
-        vm.expectRevert(Errors.MachineNotSet.selector);
-        IAccessManaged(address(asyncRedeemer)).authority();
-    }
-
-    function test_authority() public withMachine(_machineAddr) {
-        assertEq(IAccessManaged(address(asyncRedeemer)).authority(), address(accessManager));
     }
 
     function test_SetFinalizationDelay_RevertWhen_NotRM() public withMachine(_machineAddr) {

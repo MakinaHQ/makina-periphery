@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.28;
 
-import {IAccessManaged} from "@openzeppelin/contracts/access/manager/IAccessManaged.sol";
-
+import {CoreErrors} from "src/libraries/Errors.sol";
 import {IWhitelist} from "src/interfaces/IWhitelist.sol";
 
 import {Unit_Concrete_Test} from "../UnitConcrete.t.sol";
@@ -17,8 +16,8 @@ abstract contract Whitelist_Unit_Concrete_Test is Unit_Concrete_Test {
         assertFalse(whitelist.isWhitelistedUser(address(0)));
     }
 
-    function test_SetWhitelistStatus_RevertGiven_CallerWithoutRole() public {
-        vm.expectRevert(abi.encodeWithSelector(IAccessManaged.AccessManagedUnauthorized.selector, address(this)));
+    function test_SetWhitelistStatus_RevertGiven_CallerNotRM() public {
+        vm.expectRevert(CoreErrors.UnauthorizedCaller.selector);
         whitelist.setWhitelistStatus(true);
     }
 
@@ -27,21 +26,21 @@ abstract contract Whitelist_Unit_Concrete_Test is Unit_Concrete_Test {
 
         vm.expectEmit(true, false, false, false, address(whitelist));
         emit IWhitelist.WhitelistStatusChanged(true);
-        vm.prank(dao);
+        vm.prank(riskManager);
         whitelist.setWhitelistStatus(true);
 
         assertTrue(whitelist.isWhitelistEnabled());
 
         vm.expectEmit(true, true, false, false, address(whitelist));
         emit IWhitelist.WhitelistStatusChanged(false);
-        vm.prank(dao);
+        vm.prank(riskManager);
         whitelist.setWhitelistStatus(false);
 
         assertFalse(whitelist.isWhitelistEnabled());
     }
 
-    function test_SetWhitelistedUsers_RevertGiven_CallerWithoutRole() public {
-        vm.expectRevert(abi.encodeWithSelector(IAccessManaged.AccessManagedUnauthorized.selector, address(this)));
+    function test_SetWhitelistedUsers_RevertGiven__CallerNotRM() public {
+        vm.expectRevert(CoreErrors.UnauthorizedCaller.selector);
         whitelist.setWhitelistedUsers(new address[](0), true);
     }
 
@@ -62,7 +61,7 @@ abstract contract Whitelist_Unit_Concrete_Test is Unit_Concrete_Test {
         vm.expectEmit(true, true, false, false, address(whitelist));
         emit IWhitelist.UserWhitelistingChanged(user2, true);
 
-        vm.prank(dao);
+        vm.prank(riskManager);
         whitelist.setWhitelistedUsers(users, true);
 
         assertTrue(whitelist.isWhitelistedUser(user1));
@@ -74,7 +73,7 @@ abstract contract Whitelist_Unit_Concrete_Test is Unit_Concrete_Test {
         vm.expectEmit(true, true, false, false, address(whitelist));
         emit IWhitelist.UserWhitelistingChanged(user2, false);
 
-        vm.prank(dao);
+        vm.prank(riskManager);
         whitelist.setWhitelistedUsers(users, false);
 
         assertFalse(whitelist.isWhitelistedUser(user1));

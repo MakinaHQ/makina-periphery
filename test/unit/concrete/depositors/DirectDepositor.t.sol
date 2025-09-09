@@ -3,7 +3,6 @@ pragma solidity 0.8.28;
 
 import {Machine} from "@makina-core/machine/Machine.sol";
 
-import {Errors} from "src/libraries/Errors.sol";
 import {IMachinePeriphery} from "src/interfaces/IMachinePeriphery.sol";
 import {IWhitelist} from "src/interfaces/IWhitelist.sol";
 import {DirectDepositor} from "src/depositors/DirectDepositor.sol";
@@ -54,17 +53,5 @@ contract Getters_Setters_DirectDepositor_Util_Concrete_Test is
 {
     function setUp() public override(DirectDepositor_Util_Concrete_Test, MachinePeriphery_Util_Concrete_Test) {
         DirectDepositor_Util_Concrete_Test.setUp();
-    }
-
-    function test_authority_RevertWhen_MachineNotSet() public {
-        vm.expectRevert(Errors.MachineNotSet.selector);
-        directDepositor.authority();
-    }
-
-    function test_authority() public {
-        vm.prank(dao);
-        hubPeripheryFactory.setMachine(address(directDepositor), _machineAddr);
-
-        assertEq(directDepositor.authority(), address(accessManager));
     }
 }

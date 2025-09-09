@@ -5,8 +5,6 @@ import {MachineShare} from "@makina-core/machine/MachineShare.sol";
 
 import {AsyncRedeemer} from "src/redeemers/AsyncRedeemer.sol";
 
-import {Constants} from "../../../../utils/Constants.sol";
-
 import {MachinePeriphery_Integration_Concrete_Test} from "../../machine-periphery/MachinePeriphery.t.sol";
 
 contract AsyncRedeemer_Integration_Concrete_Test is MachinePeriphery_Integration_Concrete_Test {
@@ -38,7 +36,7 @@ contract AsyncRedeemer_Integration_Concrete_Test is MachinePeriphery_Integration
     }
 
     modifier withWhitelistEnabled() {
-        vm.prank(dao);
+        vm.prank(riskManager);
         asyncRedeemer.setWhitelistStatus(true);
 
         _;
@@ -48,7 +46,7 @@ contract AsyncRedeemer_Integration_Concrete_Test is MachinePeriphery_Integration
         address[] memory users = new address[](1);
         users[0] = _user;
 
-        vm.prank(dao);
+        vm.prank(riskManager);
         asyncRedeemer.setWhitelistedUsers(users, true);
 
         _;

@@ -32,7 +32,7 @@ contract DirectDepositor_Integration_Concrete_Test is MachinePeriphery_Integrati
     }
 
     modifier withWhitelistEnabled() {
-        vm.prank(dao);
+        vm.prank(riskManager);
         directDepositor.setWhitelistStatus(true);
 
         _;
@@ -42,7 +42,7 @@ contract DirectDepositor_Integration_Concrete_Test is MachinePeriphery_Integrati
         address[] memory users = new address[](1);
         users[0] = _user;
 
-        vm.prank(dao);
+        vm.prank(riskManager);
         directDepositor.setWhitelistedUsers(users, true);
 
         _;

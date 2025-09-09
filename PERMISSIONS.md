@@ -23,18 +23,16 @@ This is the list of role permissions in Makina Periphery contracts. These roles 
 
 ### DirectDepositor
 
-- `STRATEGY_CONFIG_ROLE` (roleId `2`)
+- **Risk Manager**
   - Can activate and deactivate whitelist.
   - Can add or remove users from the whitelist.
 
 ### AsyncRedeemManager
 
-- `STRATEGY_CONFIG_ROLE` (roleId `2`)
-  - Can activate and deactivate whitelist.
-  - Can add or remove users from the whitelist.
-
 - **Risk Manager**
   - Can set the request finalisation delay.
+  - Can activate and deactivate whitelist.
+  - Can add or remove users from the whitelist.
 
 - **Mechanic**
   - Can finalize redemption requests, provided that the requests have reached their finalisation delay and that the machine is not in recovery mode.

@@ -3,7 +3,6 @@ pragma solidity 0.8.28;
 
 import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import {IAccessManaged} from "@openzeppelin/contracts/access/manager/IAccessManaged.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IERC721Errors} from "@openzeppelin/contracts/interfaces/draft-IERC6093.sol";
 import {ERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
@@ -16,6 +15,7 @@ import {MachinePeriphery} from "../utils/MachinePeriphery.sol";
 import {Whitelist} from "../utils/Whitelist.sol";
 import {IAsyncRedeemer} from "../interfaces/IAsyncRedeemer.sol";
 import {IMachinePeriphery} from "../interfaces/IMachinePeriphery.sol";
+import {IWhitelist} from "../interfaces/IWhitelist.sol";
 
 contract AsyncRedeemer is ERC721Upgradeable, ReentrancyGuardUpgradeable, MachinePeriphery, Whitelist, IAsyncRedeemer {
     using Math for uint256;
@@ -52,11 +52,6 @@ contract AsyncRedeemer is ERC721Upgradeable, ReentrancyGuardUpgradeable, Machine
 
         __Whitelist_init(_whitelistStatus);
         __ERC721_init("Makina Redeem Queue NFT", "MakinaRedeemQueueNFT");
-    }
-
-    /// @inheritdoc IAccessManaged
-    function authority() public view override returns (address) {
-        return IAccessManaged(machine()).authority();
     }
 
     /// @inheritdoc IAsyncRedeemer
@@ -204,6 +199,16 @@ contract AsyncRedeemer is ERC721Upgradeable, ReentrancyGuardUpgradeable, Machine
         AsyncRedeemerStorage storage $ = _getAsyncRedeemerStorage();
         emit FinalizationDelayChanged($._finalizationDelay, newDelay);
         $._finalizationDelay = newDelay;
+    }
+
+    /// @inheritdoc IWhitelist
+    function setWhitelistStatus(bool enabled) external override onlyRiskManager {
+        _setWhitelistStatus(enabled);
+    }
+
+    /// @inheritdoc IWhitelist
+    function setWhitelistedUsers(address[] calldata users, bool whitelisted) external override onlyRiskManager {
+        _setWhitelistedUsers(users, whitelisted);
     }
 
     /// @dev Checks that the request exists, is finalized, and has not yet been claimed.

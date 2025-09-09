@@ -1,13 +1,13 @@
 /// SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.28;
 
-import {IAccessManaged} from "@openzeppelin/contracts/access/manager/IAccessManaged.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 import {IMachine} from "@makina-core/interfaces/IMachine.sol";
 
 import {IDirectDepositor} from "../interfaces/IDirectDepositor.sol";
+import {IWhitelist} from "../interfaces/IWhitelist.sol";
 import {MachinePeriphery} from "../utils/MachinePeriphery.sol";
 import {Whitelist} from "../utils/Whitelist.sol";
 
@@ -21,11 +21,7 @@ contract DirectDepositor is MachinePeriphery, Whitelist, IDirectDepositor {
         __Whitelist_init(_whitelistStatus);
     }
 
-    /// @inheritdoc IAccessManaged
-    function authority() public view override returns (address) {
-        return IAccessManaged(machine()).authority();
-    }
-
+    /// @inheritdoc IDirectDepositor
     function deposit(uint256 assets, address receiver, uint256 minShares)
         public
         virtual
@@ -40,5 +36,15 @@ contract DirectDepositor is MachinePeriphery, Whitelist, IDirectDepositor {
         IERC20(asset).forceApprove(_machine, assets);
 
         return IMachine(_machine).deposit(assets, receiver, minShares);
+    }
+
+    /// @inheritdoc IWhitelist
+    function setWhitelistStatus(bool enabled) external override onlyRiskManager {
+        _setWhitelistStatus(enabled);
+    }
+
+    /// @inheritdoc IWhitelist
+    function setWhitelistedUsers(address[] calldata users, bool whitelisted) external override onlyRiskManager {
+        _setWhitelistedUsers(users, whitelisted);
     }
 }

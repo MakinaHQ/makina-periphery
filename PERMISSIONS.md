@@ -52,7 +52,7 @@ This is the list of role permissions in Makina Periphery contracts. These roles 
   - Can slash locked machine shares up to the maximum slashable amount.
   - Can re-enable locking after a slashing event.
 
-- **Risk Manager**
+- **Risk Manager Timelock**
   - Can set the cooldown duration.
   - Can set the maximum slashable ratio of machine share balance in the vault
   - Can set the minimum machine share balance that must remain in the vault after a slashing event.

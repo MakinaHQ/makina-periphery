@@ -273,14 +273,14 @@ contract SecurityModule is ERC20Upgradeable, ReentrancyGuardUpgradeable, Machine
     }
 
     /// @inheritdoc ISecurityModule
-    function setCooldownDuration(uint256 newCooldownDuration) external override onlyRiskManager {
+    function setCooldownDuration(uint256 newCooldownDuration) external override onlyRiskManagerTimelock {
         SecurityModuleStorage storage $ = _getSecurityModuleStorage();
         emit CooldownDurationChanged($._cooldownDuration, newCooldownDuration);
         $._cooldownDuration = newCooldownDuration;
     }
 
     /// @inheritdoc ISecurityModule
-    function setMaxSlashableBps(uint256 newMaxSlashableBps) external override onlyRiskManager {
+    function setMaxSlashableBps(uint256 newMaxSlashableBps) external override onlyRiskManagerTimelock {
         SecurityModuleStorage storage $ = _getSecurityModuleStorage();
         if (newMaxSlashableBps > MAX_BPS) {
             revert Errors.MaxBpsValueExceeded();
@@ -290,7 +290,7 @@ contract SecurityModule is ERC20Upgradeable, ReentrancyGuardUpgradeable, Machine
     }
 
     /// @inheritdoc ISecurityModule
-    function setMinBalanceAfterSlash(uint256 newMinBalanceAfterSlash) external override onlyRiskManager {
+    function setMinBalanceAfterSlash(uint256 newMinBalanceAfterSlash) external override onlyRiskManagerTimelock {
         SecurityModuleStorage storage $ = _getSecurityModuleStorage();
         emit MinBalanceAfterSlashChanged($._minBalanceAfterSlash, newMinBalanceAfterSlash);
         $._minBalanceAfterSlash = newMinBalanceAfterSlash;

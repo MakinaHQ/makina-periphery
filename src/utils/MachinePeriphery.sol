@@ -58,6 +58,13 @@ abstract contract MachinePeriphery is Initializable, MakinaPeripheryContext, IMa
         _;
     }
 
+    modifier onlyRiskManagerTimelock() {
+        if (msg.sender != IMakinaGovernable(machine()).riskManagerTimelock()) {
+            revert CoreErrors.UnauthorizedCaller();
+        }
+        _;
+    }
+
     /// @inheritdoc IMachinePeriphery
     function machine() public view virtual returns (address) {
         address _machine = _getMachinePeripheryStorage()._machine;

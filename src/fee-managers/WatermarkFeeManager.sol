@@ -49,9 +49,7 @@ contract WatermarkFeeManager is MachinePeriphery, AccessManagedUpgradeable, IWat
         }
     }
 
-    constructor(address _registry) MachinePeriphery(_registry) {
-        _disableInitializers();
-    }
+    constructor(address _registry) MachinePeriphery(_registry) {}
 
     /// @inheritdoc IMachinePeriphery
     function initialize(bytes calldata data) external override initializer {

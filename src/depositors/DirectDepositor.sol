@@ -14,9 +14,7 @@ import {Whitelist} from "../utils/Whitelist.sol";
 contract DirectDepositor is MachinePeriphery, Whitelist, IDirectDepositor {
     using SafeERC20 for IERC20;
 
-    constructor(address _registry) MachinePeriphery(_registry) {
-        _disableInitializers();
-    }
+    constructor(address _registry) MachinePeriphery(_registry) {}
 
     function initialize(bytes calldata data) external virtual override initializer {
         (bool _whitelistStatus) = abi.decode(data, (bool));

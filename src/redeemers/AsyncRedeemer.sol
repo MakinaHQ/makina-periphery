@@ -39,9 +39,7 @@ contract AsyncRedeemer is ERC721Upgradeable, ReentrancyGuardUpgradeable, Machine
         }
     }
 
-    constructor(address _registry) MachinePeriphery(_registry) {
-        _disableInitializers();
-    }
+    constructor(address _registry) MachinePeriphery(_registry) {}
 
     /// @inheritdoc IMachinePeriphery
     function initialize(bytes calldata data) external virtual override initializer {

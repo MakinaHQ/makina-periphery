@@ -103,7 +103,7 @@ contract AsyncRedeemer is ERC721Upgradeable, ReentrancyGuardUpgradeable, Machine
     }
 
     /// @inheritdoc IAsyncRedeemer
-    function requestRedeem(uint256 shares, address recipient)
+    function requestRedeem(uint256 shares, address receiver)
         public
         virtual
         override
@@ -121,9 +121,9 @@ contract AsyncRedeemer is ERC721Upgradeable, ReentrancyGuardUpgradeable, Machine
             IAsyncRedeemer.RedeemRequest(shares, IMachine(_machine).convertToAssets(shares), block.timestamp);
 
         IERC20(IMachine(_machine).shareToken()).safeTransferFrom(msg.sender, address(this), shares);
-        _safeMint(recipient, requestId);
+        _safeMint(receiver, requestId);
 
-        emit RedeemRequestCreated(uint256(requestId), shares, recipient);
+        emit RedeemRequestCreated(uint256(requestId), shares, receiver);
 
         return requestId;
     }
@@ -175,10 +175,10 @@ contract AsyncRedeemer is ERC721Upgradeable, ReentrancyGuardUpgradeable, Machine
     function claimAssets(uint256 requestId) external override nonReentrant whitelistCheck returns (uint256) {
         AsyncRedeemerStorage storage $ = _getAsyncRedeemerStorage();
 
-        address recipient = ownerOf(requestId);
+        address receiver = ownerOf(requestId);
 
-        if (msg.sender != recipient) {
-            revert IERC721Errors.ERC721IncorrectOwner(msg.sender, requestId, recipient);
+        if (msg.sender != receiver) {
+            revert IERC721Errors.ERC721IncorrectOwner(msg.sender, requestId, receiver);
         }
 
         uint256 assets = getClaimableAssets(requestId);
@@ -187,9 +187,9 @@ contract AsyncRedeemer is ERC721Upgradeable, ReentrancyGuardUpgradeable, Machine
         _burn(requestId);
         delete $._requests[requestId];
 
-        IERC20(IMachine(machine()).accountingToken()).safeTransfer(recipient, assets);
+        IERC20(IMachine(machine()).accountingToken()).safeTransfer(receiver, assets);
 
-        emit RedeemRequestClaimed(uint256(requestId), shares, assets, recipient);
+        emit RedeemRequestClaimed(uint256(requestId), shares, assets, receiver);
 
         return assets;
     }

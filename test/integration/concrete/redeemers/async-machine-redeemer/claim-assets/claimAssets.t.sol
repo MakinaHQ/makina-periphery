@@ -38,7 +38,7 @@ contract ClaimAssets_Integration_Concrete_Test is AsyncRedeemer_Integration_Conc
         uint256 shares = machine.deposit(assets, user1, 0);
         vm.stopPrank();
 
-        // User1 enters queue, User3 is the recipient
+        // User1 enters queue, User3 is the receiver
         vm.startPrank(user1);
         machineShare.approve(address(asyncRedeemer), shares);
         uint256 requestId = asyncRedeemer.requestRedeem(shares, user3);

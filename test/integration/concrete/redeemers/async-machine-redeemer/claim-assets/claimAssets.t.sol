@@ -25,7 +25,6 @@ contract ClaimAssets_Integration_Concrete_Test is AsyncRedeemer_Integration_Conc
     function test_RevertWhen_NonExistentRequest() public {
         uint256 requestId = 1;
         vm.expectRevert(abi.encodeWithSelector(IERC721Errors.ERC721NonexistentToken.selector, requestId));
-        vm.prank(mechanic);
         asyncRedeemer.claimAssets(requestId);
     }
 

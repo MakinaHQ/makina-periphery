@@ -1,16 +1,20 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.28;
 
+import {IERC20Metadata} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
+
 import {IMachinePeriphery} from "../interfaces/IMachinePeriphery.sol";
 
-interface ISecurityModule is IMachinePeriphery {
-    event Cooldown(address indexed account, uint256 shares, uint256 maturity);
-    event CooldownCancelled(address indexed account, uint256 shares);
+interface ISecurityModule is IERC20Metadata, IMachinePeriphery {
+    event Cooldown(
+        uint256 indexed cooldownId, address indexed account, address indexed receiver, uint256 shares, uint256 maturity
+    );
+    event CooldownCancelled(uint256 indexed cooldownId, address indexed receiver, uint256 shares);
     event CooldownDurationChanged(uint256 oldCooldownDuration, uint256 newCooldownDuration);
     event MaxSlashableBpsChanged(uint256 oldMaxSlashableBps, uint256 newMaxSlashableBps);
     event MinBalanceAfterSlashChanged(uint256 oldMinBalanceAfterSlash, uint256 newMinBalanceAfterSlash);
     event Lock(address indexed account, address indexed receiver, uint256 assets, uint256 shares);
-    event Redeem(address indexed account, address indexed receiver, uint256 assets, uint256 shares);
+    event Redeem(uint256 indexed cooldownId, address indexed receiver, uint256 assets, uint256 shares);
     event Slash(uint256 amount);
     event SlashingSettled();
 
@@ -39,6 +43,9 @@ interface ISecurityModule is IMachinePeriphery {
     /// @notice Address of the machine share token locked in this contract.
     function machineShare() external view returns (address);
 
+    /// @notice Address of the cooldown receipt NFT.
+    function cooldownReceipt() external view returns (address);
+
     /// @notice Cooldown duration in seconds for unlocking.
     function cooldownDuration() external view returns (uint256);
 
@@ -48,8 +55,8 @@ interface ISecurityModule is IMachinePeriphery {
     /// @notice Minimum balance that must remain in the vault after a slash.
     function minBalanceAfterSlash() external view returns (uint256);
 
-    /// @notice Account => Pending cooldown data
-    function pendingCooldown(address account) external view returns (uint256 shares, uint256 maturity);
+    /// @notice Cooldown ID => Pending cooldown data
+    function pendingCooldown(uint256 cooldownId) external view returns (uint256 shares, uint256 maturity);
 
     /// @notice Whether the security module is in slashing mode.
     function slashingMode() external view returns (bool);
@@ -82,22 +89,27 @@ interface ISecurityModule is IMachinePeriphery {
     /// @return shares Amount of security shares minted.
     function lock(uint256 assets, address receiver, uint256 minShares) external returns (uint256 shares);
 
-    /// @notice Redeems security shares and transfers machine shares to the receiver.
-    /// @param receiver Address that will receive the machine shares.
-    /// @param minAssets Minimum amount of machine shares to receive.
-    /// @return assets Amount of machine shares transferred to the receiver.
-    function redeem(address receiver, uint256 minAssets) external returns (uint256 assets);
-
     /// @notice Requests a cooldown for redeeming security shares.
-    /// @dev Shares are locked in the contract until the cooldown is cancelled or expires.
+    ///         Shares are locked in the contract until the cooldown is cancelled or expires.
+    ///         A cooldown receipt NFT is minted to the specified receiver address.
     /// @param shares Amount of security shares to redeem.
+    /// @param receiver Address that will receive the cooldown receipt.
+    /// @return cooldownId ID of the minted cooldown receipt NFT representing the pending cooldown.
     /// @return maturity Timestamp at which the cooldown period will end and the shares can be redeemed.
-    function startCooldown(uint256 shares) external returns (uint256 maturity);
+    function startCooldown(uint256 shares, address receiver) external returns (uint256 cooldownId, uint256 maturity);
 
     /// @notice Cancels a pending cooldown.
-    /// Shares for which the cooldown was cancelled are transferred back to caller.
+    ///         Shares for which the cooldown was cancelled are transferred back to caller.
+    ///         The associated cooldown receipt NFT is burned.
+    /// @param cooldownId ID of the cooldown receipt NFT representing the pending cooldown.
     /// @return shares Amount of security shares for which the cooldown was cancelled.
-    function cancelCooldown() external returns (uint256 shares);
+    function cancelCooldown(uint256 cooldownId) external returns (uint256 shares);
+
+    /// @notice Redeems security shares and transfers machine shares to caller.
+    /// @param cooldownId ID of the cooldown receipt NFT representing the pending cooldown.
+    /// @param minAssets Minimum amount of machine shares to receive.
+    /// @return assets Amount of machine shares transferred to the receiver.
+    function redeem(uint256 cooldownId, uint256 minAssets) external returns (uint256 assets);
 
     /// @notice Slashes a specified amount from the total locked amount and triggers the slashing mode.
     /// @param amount Amount to slash from the total locked amount.

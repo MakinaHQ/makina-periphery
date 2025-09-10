@@ -22,7 +22,6 @@ library Errors {
     error MaxBpsValueExceeded();
     error MaxFeeRateValueExceeded();
     error MaxSlashableExceeded();
-    error NoCooldownOngoing();
     error NotEnoughAssets();
     error NotFeeManager();
     error NotFinalized();

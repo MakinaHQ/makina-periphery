@@ -4,7 +4,7 @@ pragma solidity 0.8.28;
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 interface ISMCooldownReceipt is IERC721 {
-    /// @notice The ID of the next token to be minted.
+    /// @notice ID of the next token to be minted.
     function nextTokenId() external view returns (uint256);
 
     /// @notice Mints a new cooldown receipt NFT to the specified address.

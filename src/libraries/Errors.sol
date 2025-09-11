@@ -11,9 +11,9 @@ library Errors {
     error FinalizationDelayPending();
     error FutureRequest();
     error GreaterThanCurrentWatermark();
-    error InvalidFeeSplit();
     error InvalidDepositorImplemId();
     error InvalidFeeManagerImplemId();
+    error InvalidFeeSplit();
     error InvalidMachinePeriphery();
     error InvalidRedeemerImplemId();
     error InvalidSecurityModule();
@@ -22,15 +22,15 @@ library Errors {
     error MaxBpsValueExceeded();
     error MaxFeeRateValueExceeded();
     error MaxSlashableExceeded();
+    error NotDepositor();
     error NotEnoughAssets();
     error NotFeeManager();
     error NotFinalized();
     error NotImplemented();
-    error NotDepositor();
     error NotRedeemer();
     error NotSecurityModule();
-    error SlashingSettlementOngoing();
     error SecurityModuleAlreadySet();
+    error SlashingSettlementOngoing();
     error ZeroMachineAddress();
     error ZeroRequestId();
     error ZeroShares();

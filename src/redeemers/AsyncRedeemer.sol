@@ -64,6 +64,7 @@ contract AsyncRedeemer is ERC721Upgradeable, ReentrancyGuardUpgradeable, Machine
         return _getAsyncRedeemerStorage()._lastFinalizedRequestId;
     }
 
+    /// @inheritdoc IAsyncRedeemer
     function finalizationDelay() external view override returns (uint256) {
         return _getAsyncRedeemerStorage()._finalizationDelay;
     }

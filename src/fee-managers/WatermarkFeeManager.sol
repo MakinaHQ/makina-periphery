@@ -141,7 +141,10 @@ contract WatermarkFeeManager is MachinePeriphery, AccessManagedUpgradeable, IWat
 
         uint256 twSupply = currentShareSupply * elapsedTime;
 
-        return twSupply.mulDiv($._mgmtFeeRatePerSecond + $._smFeeRatePerSecond, MAX_FEE_RATE);
+        uint256 fixedFeeRatePerSecond =
+            $._securityModule != address(0) ? $._mgmtFeeRatePerSecond + $._smFeeRatePerSecond : $._mgmtFeeRatePerSecond;
+
+        return twSupply.mulDiv(fixedFeeRatePerSecond, MAX_FEE_RATE);
     }
 
     /// @inheritdoc IFeeManager

@@ -33,7 +33,7 @@ abstract contract SMCooldownReceipt_Unit_Concrete_Test is Unit_Concrete_Test {
         cooldownReceipt = SMCooldownReceipt(securityModule.cooldownReceipt());
     }
 
-    function onERC721Received(address, address, uint256, bytes calldata) external returns (bytes4) {
+    function onERC721Received(address, address, uint256, bytes calldata) external pure returns (bytes4) {
         return this.onERC721Received.selector;
     }
 }

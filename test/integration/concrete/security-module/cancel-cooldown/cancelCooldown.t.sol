@@ -33,7 +33,7 @@ contract CancelCooldown_Integration_Concrete_Test is SecurityModule_Integration_
         uint256 securitySharesToRedeem = securityShares / 2;
 
         // User1 starts cooldown and designates user3 as the receiver
-        (uint256 cooldownId,) = securityModule.startCooldown(securitySharesToRedeem, user3);
+        (uint256 cooldownId,,) = securityModule.startCooldown(securitySharesToRedeem, user3);
 
         // User1 tries to claim assets
         vm.expectRevert(abi.encodeWithSelector(IERC721Errors.ERC721IncorrectOwner.selector, user1, cooldownId, user3));
@@ -59,7 +59,7 @@ contract CancelCooldown_Integration_Concrete_Test is SecurityModule_Integration_
         uint256 expectedCDMaturity = block.timestamp + securityModule.cooldownDuration();
 
         // User1 starts cooldown
-        (uint256 cooldownId,) = securityModule.startCooldown(securitySharesToRedeem, user3);
+        (uint256 cooldownId,,) = securityModule.startCooldown(securitySharesToRedeem, user3);
         vm.stopPrank();
 
         skip(expectedCDMaturity);
@@ -87,15 +87,10 @@ contract CancelCooldown_Integration_Concrete_Test is SecurityModule_Integration_
         vm.stopPrank();
 
         uint256 securitySharesToRedeem = securityShares / 2;
-        uint256 expectedCDMaturity = block.timestamp + securityModule.cooldownDuration();
 
         // User3 starts cooldown and designates user4 as the receiver
         vm.prank(user3);
-        (uint256 cooldownId,) = securityModule.startCooldown(securitySharesToRedeem, user4);
-
-        (uint256 securitySharesCD, uint256 maturity) = securityModule.pendingCooldown(cooldownId);
-        assertEq(securitySharesCD, securitySharesToRedeem);
-        assertEq(maturity, expectedCDMaturity);
+        (uint256 cooldownId,,) = securityModule.startCooldown(securitySharesToRedeem, user4);
 
         // User4 cancels cooldown
         vm.prank(user4);
@@ -143,11 +138,11 @@ contract CancelCooldown_Integration_Concrete_Test is SecurityModule_Integration_
 
         // User1 starts cooldown
         vm.prank(user1);
-        (uint256 cooldownId1,) = securityModule.startCooldown(securitySharesToRedeem1, user1);
+        (uint256 cooldownId1,,) = securityModule.startCooldown(securitySharesToRedeem1, user1);
 
         // User2 starts cooldown and designates user4 as the receiver
         vm.prank(user2);
-        (uint256 cooldownId4,) = securityModule.startCooldown(securitySharesToRedeem2, user4);
+        (uint256 cooldownId4, uint256 maxAssets4,) = securityModule.startCooldown(securitySharesToRedeem2, user4);
 
         // User1 cancels cooldown
         vm.prank(user1);
@@ -164,8 +159,10 @@ contract CancelCooldown_Integration_Concrete_Test is SecurityModule_Integration_
         vm.expectRevert(abi.encodeWithSelector(IERC721Errors.ERC721NonexistentToken.selector, cooldownId1));
         securityModule.pendingCooldown(cooldownId1);
 
-        (uint256 securitySharesCD4, uint256 maturity4) = securityModule.pendingCooldown(cooldownId4);
+        (uint256 securitySharesCD4, uint256 currentExpectedAssets4, uint256 maturity4) =
+            securityModule.pendingCooldown(cooldownId4);
         assertEq(securitySharesCD4, securitySharesToRedeem2);
+        assertEq(currentExpectedAssets4, maxAssets4);
         assertEq(maturity4, expectedCDMaturity2);
 
         // User4 cancels cooldown
@@ -181,6 +178,6 @@ contract CancelCooldown_Integration_Concrete_Test is SecurityModule_Integration_
         assertEq(cooldownReceipt.balanceOf(user4), 0);
 
         vm.expectRevert(abi.encodeWithSelector(IERC721Errors.ERC721NonexistentToken.selector, cooldownId4));
-        (securitySharesCD4, maturity4) = securityModule.pendingCooldown(cooldownId4);
+        securityModule.pendingCooldown(cooldownId4);
     }
 }

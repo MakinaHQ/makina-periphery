@@ -33,7 +33,7 @@ interface ISecurityModule is IERC20Metadata, IMachinePeriphery {
     /// @notice Pending cooldown parameters.
     /// @param shares Amount of security shares to be redeemed.
     /// @param maxAssets Maximum amount of machine shares that can be redeemed.
-    /// @param maturity Timestamp when the cooldown period ends.
+    /// @param maturity Timestamp at which the cooldown period will end and the shares can be redeemed.
     struct PendingCooldown {
         uint256 shares;
         uint256 maxAssets;
@@ -55,8 +55,15 @@ interface ISecurityModule is IERC20Metadata, IMachinePeriphery {
     /// @notice Minimum balance that must remain in the vault after a slash.
     function minBalanceAfterSlash() external view returns (uint256);
 
-    /// @notice Cooldown ID => Pending cooldown data
-    function pendingCooldown(uint256 cooldownId) external view returns (uint256 shares, uint256 maturity);
+    /// @notice Returns data of a pending cooldown.
+    /// @param cooldownId ID of the cooldown receipt NFT representing the pending cooldown.
+    /// @return shares Amount of security shares to be redeemed.
+    /// @return currentExpectedAssets Current expected amount of machine shares that can be redeemed.
+    /// @return maturity Timestamp at which the cooldown period will end and the shares can be redeemed.
+    function pendingCooldown(uint256 cooldownId)
+        external
+        view
+        returns (uint256 shares, uint256 currentExpectedAssets, uint256 maturity);
 
     /// @notice Whether the security module is in slashing mode.
     function slashingMode() external view returns (bool);
@@ -95,8 +102,11 @@ interface ISecurityModule is IERC20Metadata, IMachinePeriphery {
     /// @param shares Amount of security shares to redeem.
     /// @param receiver Address that will receive the cooldown receipt.
     /// @return cooldownId ID of the minted cooldown receipt NFT representing the pending cooldown.
+    /// @return maxAssets Maximum amount of machine shares that can be redeemed.
     /// @return maturity Timestamp at which the cooldown period will end and the shares can be redeemed.
-    function startCooldown(uint256 shares, address receiver) external returns (uint256 cooldownId, uint256 maturity);
+    function startCooldown(uint256 shares, address receiver)
+        external
+        returns (uint256 cooldownId, uint256 maxAssets, uint256 maturity);
 
     /// @notice Cancels a pending cooldown.
     ///         Shares for which the cooldown was cancelled are transferred back to caller.

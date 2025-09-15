@@ -33,7 +33,7 @@ contract Redeem_Integration_Concrete_Test is SecurityModule_Integration_Concrete
         uint256 securitySharesToRedeem = securityShares / 2;
 
         // User1 starts cooldown and designates user3 as the receiver
-        (uint256 cooldownId,) = securityModule.startCooldown(securitySharesToRedeem, user3);
+        (uint256 cooldownId,,) = securityModule.startCooldown(securitySharesToRedeem, user3);
 
         skip(securityModule.cooldownDuration());
 
@@ -62,7 +62,7 @@ contract Redeem_Integration_Concrete_Test is SecurityModule_Integration_Concrete
 
         // User3 starts cooldown
         vm.prank(user3);
-        (uint256 cooldownId,) = securityModule.startCooldown(securitySharesToRedeem, user3);
+        (uint256 cooldownId,,) = securityModule.startCooldown(securitySharesToRedeem, user3);
 
         skip(securityModule.cooldownDuration() - 1);
 
@@ -91,7 +91,7 @@ contract Redeem_Integration_Concrete_Test is SecurityModule_Integration_Concrete
 
         // User3 starts cooldown
         vm.prank(user3);
-        (uint256 cooldownId,) = securityModule.startCooldown(securitySharesToRedeem, user3);
+        (uint256 cooldownId,,) = securityModule.startCooldown(securitySharesToRedeem, user3);
 
         skip(securityModule.cooldownDuration());
 
@@ -122,7 +122,7 @@ contract Redeem_Integration_Concrete_Test is SecurityModule_Integration_Concrete
 
         // User3 starts cooldown and designates user4 as the receiver
         vm.prank(user3);
-        (uint256 cooldownId,) = securityModule.startCooldown(securitySharesToRedeem, user4);
+        (uint256 cooldownId,,) = securityModule.startCooldown(securitySharesToRedeem, user4);
 
         skip(securityModule.cooldownDuration());
 
@@ -163,7 +163,7 @@ contract Redeem_Integration_Concrete_Test is SecurityModule_Integration_Concrete
 
         // User3 starts cooldown and designates user4 as the receiver
         vm.prank(user3);
-        (uint256 cooldownId,) = securityModule.startCooldown(securitySharesToRedeem, user4);
+        (uint256 cooldownId,,) = securityModule.startCooldown(securitySharesToRedeem, user4);
 
         skip(securityModule.cooldownDuration());
 
@@ -208,7 +208,7 @@ contract Redeem_Integration_Concrete_Test is SecurityModule_Integration_Concrete
 
         // User3 starts cooldown and designates user4 as the receiver
         vm.prank(user3);
-        (uint256 cooldownId,) = securityModule.startCooldown(securitySharesToRedeem, user4);
+        (uint256 cooldownId,,) = securityModule.startCooldown(securitySharesToRedeem, user4);
 
         skip(securityModule.cooldownDuration());
 
@@ -262,7 +262,7 @@ contract Redeem_Integration_Concrete_Test is SecurityModule_Integration_Concrete
 
         // User1 starts cooldown
         vm.prank(user1);
-        (uint256 cooldownId1,) = securityModule.startCooldown(securityShares1, user1);
+        (uint256 cooldownId1,,) = securityModule.startCooldown(securityShares1, user1);
         uint256 previewRedeem1 = securityModule.previewLock(securityShares1);
 
         skip(usersDelay);
@@ -272,7 +272,7 @@ contract Redeem_Integration_Concrete_Test is SecurityModule_Integration_Concrete
 
         // User2 starts cooldown and designates user4 as the receiver
         vm.prank(user2);
-        (uint256 cooldownId4,) = securityModule.startCooldown(securityShares2, user4);
+        (uint256 cooldownId4,,) = securityModule.startCooldown(securityShares2, user4);
 
         // generate negative yield
         deal(address(machineShare), address(securityModule), machineShares1 + machineShares2);

@@ -114,15 +114,18 @@ contract SecurityModule is ERC20Upgradeable, ReentrancyGuardUpgradeable, Machine
     }
 
     /// @inheritdoc ISecurityModule
-    function pendingCooldown(uint256 cooldownId) external view override returns (uint256 shares, uint256 maturity) {
+    function pendingCooldown(uint256 cooldownId) external view override returns (uint256, uint256, uint256) {
         SecurityModuleStorage storage $ = _getSecurityModuleStorage();
 
         // check that the cooldown receipt exists
         ISMCooldownReceipt($._cooldownReceipt).ownerOf(cooldownId);
 
-        PendingCooldown memory request = $._pendingCooldowns[cooldownId];
+        PendingCooldown memory pc = $._pendingCooldowns[cooldownId];
 
-        return (request.shares, request.maturity);
+        uint256 currentAssets = convertToAssets(pc.shares);
+        currentAssets = currentAssets < pc.maxAssets ? currentAssets : pc.maxAssets;
+
+        return (pc.shares, currentAssets, pc.maturity);
     }
 
     /// @inheritdoc ISecurityModule
@@ -194,7 +197,7 @@ contract SecurityModule is ERC20Upgradeable, ReentrancyGuardUpgradeable, Machine
         external
         override
         nonReentrant
-        returns (uint256, uint256)
+        returns (uint256, uint256, uint256)
     {
         SecurityModuleStorage storage $ = _getSecurityModuleStorage();
 
@@ -213,7 +216,7 @@ contract SecurityModule is ERC20Upgradeable, ReentrancyGuardUpgradeable, Machine
 
         emit Cooldown(cooldownId, caller, receiver, shares, maturity);
 
-        return (cooldownId, maturity);
+        return (cooldownId, assets, maturity);
     }
 
     /// @inheritdoc ISecurityModule

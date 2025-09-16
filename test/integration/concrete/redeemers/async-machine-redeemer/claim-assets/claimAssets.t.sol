@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.28;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -25,7 +25,6 @@ contract ClaimAssets_Integration_Concrete_Test is AsyncRedeemer_Integration_Conc
     function test_RevertWhen_NonExistentRequest() public {
         uint256 requestId = 1;
         vm.expectRevert(abi.encodeWithSelector(IERC721Errors.ERC721NonexistentToken.selector, requestId));
-        vm.prank(mechanic);
         asyncRedeemer.claimAssets(requestId);
     }
 
@@ -39,7 +38,7 @@ contract ClaimAssets_Integration_Concrete_Test is AsyncRedeemer_Integration_Conc
         uint256 shares = machine.deposit(assets, user1, 0);
         vm.stopPrank();
 
-        // User1 enters queue, User3 is the recipient
+        // User1 enters queue, User3 is the receiver
         vm.startPrank(user1);
         machineShare.approve(address(asyncRedeemer), shares);
         uint256 requestId = asyncRedeemer.requestRedeem(shares, user3);
@@ -314,7 +313,7 @@ contract ClaimAssets_Integration_Concrete_Test is AsyncRedeemer_Integration_Conc
         // whitelist User3
         address[] memory users = new address[](1);
         users[0] = user3;
-        vm.prank(dao);
+        vm.prank(riskManager);
         asyncRedeemer.setWhitelistedUsers(users, true);
 
         // User3 claims assets

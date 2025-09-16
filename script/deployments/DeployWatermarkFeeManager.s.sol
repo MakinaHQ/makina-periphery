@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.28;
 
 import {Script} from "forge-std/Script.sol";
@@ -59,6 +59,8 @@ contract DeployWatermarkFeeManager is Base, Script, SortedParams {
 
         uint16 implemId = abi.decode(vm.parseJson(implemIdsInputJson, ".watermarkFeeManagerImplemId"), (uint16));
 
+        address accessManager = abi.decode(vm.parseJson(inputJson, ".accessManager"), (address));
+
         WatermarkFeeManagerInitParamsSorted memory initParams =
             abi.decode(vm.parseJson(inputJson, ".watermarkFeeManagerInitParams"), (WatermarkFeeManagerInitParamsSorted));
 
@@ -87,6 +89,10 @@ contract DeployWatermarkFeeManager is Base, Script, SortedParams {
         );
         if (securityModule != address(0)) {
             IHubPeripheryFactory(_hubPeriphery.hubPeripheryFactory).setSecurityModule(deployedInstance, securityModule);
+        }
+
+        if (accessManager != address(0) && !vm.envOr("SKIP_AM_SETUP", false)) {
+            _setupWatermarkFeeManagerAMFunctionRoles(accessManager, deployedInstance);
         }
 
         vm.stopBroadcast();

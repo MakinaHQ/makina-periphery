@@ -1,11 +1,9 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.28;
-
-import {IAccessManaged} from "@openzeppelin/contracts/access/manager/IAccessManaged.sol";
 
 import {Machine} from "@makina-core/machine/Machine.sol";
 
-import {Errors, CoreErrors} from "src/libraries/Errors.sol";
+import {CoreErrors} from "src/libraries/Errors.sol";
 import {IAsyncRedeemer} from "src/interfaces/IAsyncRedeemer.sol";
 import {IMachinePeriphery} from "src/interfaces/IMachinePeriphery.sol";
 import {IWhitelist} from "src/interfaces/IWhitelist.sol";
@@ -74,16 +72,7 @@ contract Getters_Setters_AsyncRedeemer_Util_Concrete_Test is
         assertEq(asyncRedeemer.finalizationDelay(), Constants.DEFAULT_FINALIZATION_DELAY);
     }
 
-    function test_authority_RevertWhen_MachineNotSet() public {
-        vm.expectRevert(Errors.MachineNotSet.selector);
-        IAccessManaged(address(asyncRedeemer)).authority();
-    }
-
-    function test_authority() public withMachine(_machineAddr) {
-        assertEq(IAccessManaged(address(asyncRedeemer)).authority(), address(accessManager));
-    }
-
-    function test_SetFinalizationDelay_RevertWhen_NotRM() public withMachine(_machineAddr) {
+    function test_SetFinalizationDelay_RevertWhen_NotRMT() public withMachine(_machineAddr) {
         vm.expectRevert(CoreErrors.UnauthorizedCaller.selector);
         asyncRedeemer.setFinalizationDelay(1 days);
     }
@@ -92,7 +81,7 @@ contract Getters_Setters_AsyncRedeemer_Util_Concrete_Test is
         uint256 newFinalizationDelay = 7 days;
         vm.expectEmit(true, true, false, false, address(asyncRedeemer));
         emit IAsyncRedeemer.FinalizationDelayChanged(Constants.DEFAULT_FINALIZATION_DELAY, newFinalizationDelay);
-        vm.prank(riskManager);
+        vm.prank(riskManagerTimelock);
         asyncRedeemer.setFinalizationDelay(newFinalizationDelay);
         assertEq(asyncRedeemer.finalizationDelay(), newFinalizationDelay);
     }

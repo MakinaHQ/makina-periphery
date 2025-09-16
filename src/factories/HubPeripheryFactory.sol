@@ -1,8 +1,10 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.28;
 
 import {AccessManagedUpgradeable} from "@openzeppelin/contracts-upgradeable/access/manager/AccessManagedUpgradeable.sol";
 import {BeaconProxy} from "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
+
+import {IOwnable2Step} from "@makina-core/interfaces/IOwnable2Step.sol";
 
 import {IHubPeripheryFactory} from "../interfaces/IHubPeripheryFactory.sol";
 import {IHubPeripheryRegistry} from "../interfaces/IHubPeripheryRegistry.sol";
@@ -11,6 +13,7 @@ import {IMachinePeriphery} from "../interfaces/IMachinePeriphery.sol";
 import {ISecurityModule} from "../interfaces/ISecurityModule.sol";
 import {Errors} from "../libraries/Errors.sol";
 import {MakinaPeripheryContext} from "../utils/MakinaPeripheryContext.sol";
+import {SMCooldownReceipt} from "../security-module/SMCooldownReceipt.sol";
 
 contract HubPeripheryFactory is AccessManagedUpgradeable, MakinaPeripheryContext, IHubPeripheryFactory {
     /// @custom:storage-location erc7201:makina.storage.HubPeripheryFactory
@@ -93,11 +96,9 @@ contract HubPeripheryFactory is AccessManagedUpgradeable, MakinaPeripheryContext
     function setMachine(address machinePeriphery, address machine) external override restricted {
         HubPeripheryFactoryStorage storage $ = _getHubPeripheryFactoryStorage();
 
-        if (
-            !$._isDepositor[machinePeriphery] && !$._isRedeemer[machinePeriphery] && !$._isFeeManager[machinePeriphery]
-                && !$._isSecurityModule[machinePeriphery]
-        ) {
-            revert Errors.NotMachinePeriphery();
+        if (!$._isDepositor[machinePeriphery] && !$._isRedeemer[machinePeriphery] && !$._isFeeManager[machinePeriphery])
+        {
+            revert Errors.InvalidMachinePeriphery();
         }
 
         IMachinePeriphery(machinePeriphery).setMachine(machine);
@@ -202,12 +203,13 @@ contract HubPeripheryFactory is AccessManagedUpgradeable, MakinaPeripheryContext
     {
         HubPeripheryFactoryStorage storage $ = _getHubPeripheryFactoryStorage();
 
-        address securityModule = address(
-            new BeaconProxy(
-                IHubPeripheryRegistry(peripheryRegistry).securityModuleBeacon(),
-                abi.encodeCall(IMachinePeriphery.initialize, (abi.encode(smParams)))
-            )
-        );
+        address cooldownReceiptNFT = address(new SMCooldownReceipt(address(this)));
+        address securityModule =
+            address(new BeaconProxy(IHubPeripheryRegistry(peripheryRegistry).securityModuleBeacon(), ""));
+
+        IOwnable2Step(cooldownReceiptNFT).transferOwnership(securityModule);
+
+        ISecurityModule(securityModule).initialize(abi.encode(smParams, cooldownReceiptNFT));
 
         $._isSecurityModule[securityModule] = true;
 

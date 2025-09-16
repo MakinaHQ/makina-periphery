@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.28;
 
 import {Test} from "forge-std/Test.sol";
@@ -175,7 +175,8 @@ abstract contract Base_Hub_Test is Base_Test {
                     initialRedeemer: _redeemer,
                     initialFeeManager: _machineFeeManager,
                     initialCaliberStaleThreshold: DEFAULT_MACHINE_CALIBER_STALE_THRESHOLD,
-                    initialMaxFeeAccrualRate: DEFAULT_MACHINE_MAX_FEE_ACCRUAL_RATE,
+                    initialMaxFixedFeeAccrualRate: DEFAULT_MACHINE_MAX_FIXED_FEE_ACCRUAL_RATE,
+                    initialMaxPerfFeeAccrualRate: DEFAULT_MACHINE_MAX_PERF_FEE_ACCRUAL_RATE,
                     initialFeeMintCooldown: DEFAULT_MACHINE_FEE_MINT_COOLDOWN,
                     initialShareLimit: DEFAULT_MACHINE_SHARE_LIMIT
                 }),
@@ -197,7 +198,8 @@ abstract contract Base_Hub_Test is Base_Test {
                 }),
                 _accountingToken,
                 DEFAULT_MACHINE_SHARE_TOKEN_NAME,
-                DEFAULT_MACHINE_SHARE_TOKEN_SYMBOL
+                DEFAULT_MACHINE_SHARE_TOKEN_SYMBOL,
+                TEST_DEPLOYMENT_SALT
             )
         );
         Caliber _caliber = Caliber(_machine.hubCaliber());

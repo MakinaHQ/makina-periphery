@@ -6,7 +6,7 @@ This is the list of role permissions in Makina Periphery contracts. These roles 
 
 ### HubPeripheryRegistry
 
-- `INFRA_CONFIG_ROLE` (roleId `3`)
+- `INFRA_SETUP_ROLE` (roleId `1`)
   - Can set address of HubPeripheryFactory.
   - Can set address of depositor Beacons.
   - Can set address of redeemer Beacons.
@@ -15,7 +15,7 @@ This is the list of role permissions in Makina Periphery contracts. These roles 
 
 ### HubPeripheryFactory
 
-- `STRATEGY_DEPLOYER_ROLE` (roleId `1`)
+- `STRATEGY_DEPLOYMENT_ROLE` (roleId `2`)
   - Can deploy depositors.
   - Can deploy redeemers.
   - Can deploy fee managers.
@@ -23,25 +23,25 @@ This is the list of role permissions in Makina Periphery contracts. These roles 
 
 ### DirectDepositor
 
-- `STRATEGY_CONFIG_ROLE` (roleId `2`)
+- **Risk Manager**
   - Can activate and deactivate whitelist.
   - Can add or remove users from the whitelist.
 
 ### AsyncRedeemManager
 
-- `STRATEGY_CONFIG_ROLE` (roleId `2`)
-  - Can activate and deactivate whitelist.
-  - Can add or remove users from the whitelist.
-
-- **Risk Manager**
-  - Can set the request finalisation delay.
-
 - **Mechanic**
   - Can finalize redemption requests, provided that the requests have reached their finalisation delay and that the machine is not in recovery mode.
 
+- **Risk Manager**
+  - Can activate and deactivate whitelist.
+  - Can add or remove users from the whitelist.
+
+- **Risk Manager Timelock**
+  - Can set the request finalisation delay.
+
 ### WatermarkFeeManager
 
-- `STRATEGY_CONFIG_ROLE` (roleId `2`)
+- `STRATEGY_COMPONENTS_SETUP_ROLE` (roleId `3`)
   - Can reset the share price watermark to a value below the current one.
   - Can set the fee rates.
   - Can define the allocation of fees to different receivers.
@@ -52,7 +52,7 @@ This is the list of role permissions in Makina Periphery contracts. These roles 
   - Can slash locked machine shares up to the maximum slashable amount.
   - Can re-enable locking after a slashing event.
 
-- **Risk Manager**
+- **Risk Manager Timelock**
   - Can set the cooldown duration.
   - Can set the maximum slashable ratio of machine share balance in the vault
   - Can set the minimum machine share balance that must remain in the vault after a slashing event.

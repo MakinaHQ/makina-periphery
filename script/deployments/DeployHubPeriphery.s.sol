@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.28;
 
 import {Script} from "forge-std/Script.sol";
@@ -77,6 +77,10 @@ contract DeployHubPeriphery is Base, Script, SortedParams {
             }),
             dao
         );
+
+        if (!vm.envOr("SKIP_AM_SETUP", false)) {
+            setupHubPeripheryAMFunctionRoles(accessManager, _hubPeriphery);
+        }
     }
 
     function _deploySetupAfter() public {
@@ -92,8 +96,9 @@ contract DeployHubPeriphery is Base, Script, SortedParams {
         vm.serializeAddress(key, "SecurityModuleBeacon", address(_hubPeriphery.securityModuleBeacon));
         vm.serializeAddress(key, "DirectDepositorBeacon", address(_hubPeriphery.directDepositorBeacon));
         vm.serializeAddress(key, "AsyncRedeemerBeacon", address(_hubPeriphery.asyncRedeemerBeacon));
+        vm.serializeAddress(key, "WatermarkFeeManagerBeacon", address(_hubPeriphery.watermarkFeeManagerBeacon));
         vm.writeJson(
-            vm.serializeAddress(key, "WatermarkFeeManagerBeacon", address(_hubPeriphery.watermarkFeeManagerBeacon)),
+            vm.serializeAddress(key, "MetaMorphoOracleFactory", address(_hubPeriphery.metaMorphoOracleFactory)),
             outputPath
         );
     }

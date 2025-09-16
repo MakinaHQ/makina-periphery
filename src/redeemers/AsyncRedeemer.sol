@@ -1,9 +1,8 @@
-/// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.28;
 
 import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import {IAccessManaged} from "@openzeppelin/contracts/access/manager/IAccessManaged.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IERC721Errors} from "@openzeppelin/contracts/interfaces/draft-IERC6093.sol";
 import {ERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
@@ -16,6 +15,7 @@ import {MachinePeriphery} from "../utils/MachinePeriphery.sol";
 import {Whitelist} from "../utils/Whitelist.sol";
 import {IAsyncRedeemer} from "../interfaces/IAsyncRedeemer.sol";
 import {IMachinePeriphery} from "../interfaces/IMachinePeriphery.sol";
+import {IWhitelist} from "../interfaces/IWhitelist.sol";
 
 contract AsyncRedeemer is ERC721Upgradeable, ReentrancyGuardUpgradeable, MachinePeriphery, Whitelist, IAsyncRedeemer {
     using Math for uint256;
@@ -39,9 +39,7 @@ contract AsyncRedeemer is ERC721Upgradeable, ReentrancyGuardUpgradeable, Machine
         }
     }
 
-    constructor(address _registry) MachinePeriphery(_registry) {
-        _disableInitializers();
-    }
+    constructor(address _registry) MachinePeriphery(_registry) {}
 
     /// @inheritdoc IMachinePeriphery
     function initialize(bytes calldata data) external virtual override initializer {
@@ -56,11 +54,6 @@ contract AsyncRedeemer is ERC721Upgradeable, ReentrancyGuardUpgradeable, Machine
         __ERC721_init("Makina Redeem Queue NFT", "MakinaRedeemQueueNFT");
     }
 
-    /// @inheritdoc IAccessManaged
-    function authority() public view override returns (address) {
-        return IAccessManaged(machine()).authority();
-    }
-
     /// @inheritdoc IAsyncRedeemer
     function nextRequestId() external view override returns (uint256) {
         return _getAsyncRedeemerStorage()._nextRequestId;
@@ -71,6 +64,7 @@ contract AsyncRedeemer is ERC721Upgradeable, ReentrancyGuardUpgradeable, Machine
         return _getAsyncRedeemerStorage()._lastFinalizedRequestId;
     }
 
+    /// @inheritdoc IAsyncRedeemer
     function finalizationDelay() external view override returns (uint256) {
         return _getAsyncRedeemerStorage()._finalizationDelay;
     }
@@ -110,7 +104,7 @@ contract AsyncRedeemer is ERC721Upgradeable, ReentrancyGuardUpgradeable, Machine
     }
 
     /// @inheritdoc IAsyncRedeemer
-    function requestRedeem(uint256 shares, address recipient)
+    function requestRedeem(uint256 shares, address receiver)
         public
         virtual
         override
@@ -128,9 +122,9 @@ contract AsyncRedeemer is ERC721Upgradeable, ReentrancyGuardUpgradeable, Machine
             IAsyncRedeemer.RedeemRequest(shares, IMachine(_machine).convertToAssets(shares), block.timestamp);
 
         IERC20(IMachine(_machine).shareToken()).safeTransferFrom(msg.sender, address(this), shares);
-        _safeMint(recipient, requestId);
+        _safeMint(receiver, requestId);
 
-        emit RedeemRequestCreated(uint256(requestId), shares, recipient);
+        emit RedeemRequestCreated(uint256(requestId), shares, receiver);
 
         return requestId;
     }
@@ -182,10 +176,10 @@ contract AsyncRedeemer is ERC721Upgradeable, ReentrancyGuardUpgradeable, Machine
     function claimAssets(uint256 requestId) external override nonReentrant whitelistCheck returns (uint256) {
         AsyncRedeemerStorage storage $ = _getAsyncRedeemerStorage();
 
-        address recipient = ownerOf(requestId);
+        address receiver = ownerOf(requestId);
 
-        if (msg.sender != recipient) {
-            revert IERC721Errors.ERC721IncorrectOwner(msg.sender, requestId, recipient);
+        if (msg.sender != receiver) {
+            revert IERC721Errors.ERC721IncorrectOwner(msg.sender, requestId, receiver);
         }
 
         uint256 assets = getClaimableAssets(requestId);
@@ -194,18 +188,28 @@ contract AsyncRedeemer is ERC721Upgradeable, ReentrancyGuardUpgradeable, Machine
         _burn(requestId);
         delete $._requests[requestId];
 
-        IERC20(IMachine(machine()).accountingToken()).safeTransfer(recipient, assets);
+        IERC20(IMachine(machine()).accountingToken()).safeTransfer(receiver, assets);
 
-        emit RedeemRequestClaimed(uint256(requestId), shares, assets, recipient);
+        emit RedeemRequestClaimed(uint256(requestId), shares, assets, receiver);
 
         return assets;
     }
 
     /// @inheritdoc IAsyncRedeemer
-    function setFinalizationDelay(uint256 newDelay) external override onlyRiskManager {
+    function setFinalizationDelay(uint256 newDelay) external override onlyRiskManagerTimelock {
         AsyncRedeemerStorage storage $ = _getAsyncRedeemerStorage();
         emit FinalizationDelayChanged($._finalizationDelay, newDelay);
         $._finalizationDelay = newDelay;
+    }
+
+    /// @inheritdoc IWhitelist
+    function setWhitelistStatus(bool enabled) external override onlyRiskManager {
+        _setWhitelistStatus(enabled);
+    }
+
+    /// @inheritdoc IWhitelist
+    function setWhitelistedUsers(address[] calldata users, bool whitelisted) external override onlyRiskManager {
+        _setWhitelistedUsers(users, whitelisted);
     }
 
     /// @dev Checks that the request exists, is finalized, and has not yet been claimed.

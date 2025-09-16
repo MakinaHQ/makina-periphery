@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Unlicense
+// SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.28;
 
 abstract contract SortedParams {
@@ -17,6 +17,7 @@ abstract contract SortedParams {
         address flashloanAggregator;
         address hubPeripheryFactory;
         address hubPeripheryRegistry;
+        address metaMorphoOracleFactory;
         address securityModuleBeacon;
         address watermarkFeeManagerBeacon;
     }

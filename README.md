@@ -13,9 +13,10 @@ See `SPECIFICATION.md` and `PERMISSIONS.md` for more details.
 | `DirectDepositor.sol`         | Hub              | Synchronous Machine depositor contract.                                                          |
 | `AsyncRedeemer.sol`           | Hub              | Asynchronous Machine redeemer contract.                                                          |
 | `WatermarkFeeManager.sol`     | Hub              | Fee manager contract with a high-watermark mechanism for performance fee calculation.            |
-| `StakingModule.sol`           | Hub              | Staking module for machine shares.                                                               |
+| `SecurityModule.sol`          | Hub              | Security module for machine shares.                                                              |
+| `SMCooldownReceipt.sol`       | Hub              | Receipt NFT for security module cooldown.                                                        |
 | `FlashloanAggregator.sol`     | Hub + Spoke      | Standalone module used by calibers to execute flashLoan transactions through external protocols. |
-| `MetaMorphoOracleFactory.sol` | Hub + Spoke      | Factory for deploying Morpho vault oracles.                                                      |
+| `MetaMorphoOracleFactory.sol` | Hub              | Factory for deploying Morpho vault oracles.                                                      |
 
 ## Installation
 

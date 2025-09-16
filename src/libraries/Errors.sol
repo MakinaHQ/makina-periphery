@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.28;
 
 import {Errors as CoreErrors} from "@makina-core/libraries/Errors.sol";
@@ -6,13 +6,15 @@ import {Errors as CoreErrors} from "@makina-core/libraries/Errors.sol";
 library Errors {
     error AlreadyClaimed();
     error AlreadyFinalized();
+    error CooldownExpired();
     error CooldownOngoing();
     error FinalizationDelayPending();
     error FutureRequest();
     error GreaterThanCurrentWatermark();
-    error InvalidFeeSplit();
     error InvalidDepositorImplemId();
     error InvalidFeeManagerImplemId();
+    error InvalidFeeSplit();
+    error InvalidMachinePeriphery();
     error InvalidRedeemerImplemId();
     error InvalidSecurityModule();
     error MachineAlreadySet();
@@ -20,16 +22,16 @@ library Errors {
     error MaxBpsValueExceeded();
     error MaxFeeRateValueExceeded();
     error MaxSlashableExceeded();
+    error NotDepositor();
     error NotEnoughAssets();
     error NotFeeManager();
     error NotFinalized();
     error NotImplemented();
-    error NotDepositor();
-    error NotMachinePeriphery();
     error NotRedeemer();
     error NotSecurityModule();
-    error SlashingSettlementOngoing();
     error SecurityModuleAlreadySet();
+    error SlashingSettlementOngoing();
     error ZeroMachineAddress();
     error ZeroRequestId();
+    error ZeroShares();
 }

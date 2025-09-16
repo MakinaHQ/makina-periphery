@@ -1,9 +1,10 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.28;
 
 import {ERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 import {IERC20, IERC20Metadata} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
+import {IERC721Errors} from "@openzeppelin/contracts/interfaces/draft-IERC6093.sol";
 import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
@@ -14,6 +15,7 @@ import {DecimalsUtils} from "@makina-core/libraries/DecimalsUtils.sol";
 import {MachinePeriphery} from "../utils/MachinePeriphery.sol";
 import {IMachinePeriphery} from "../interfaces/IMachinePeriphery.sol";
 import {ISecurityModule} from "../interfaces/ISecurityModule.sol";
+import {ISMCooldownReceipt} from "../interfaces/ISMCooldownReceipt.sol";
 import {Errors, CoreErrors} from "../libraries/Errors.sol";
 
 contract SecurityModule is ERC20Upgradeable, ReentrancyGuardUpgradeable, MachinePeriphery, ISecurityModule {
@@ -26,10 +28,11 @@ contract SecurityModule is ERC20Upgradeable, ReentrancyGuardUpgradeable, Machine
     /// @custom:storage-location erc7201:makina.storage.SecurityModule
     struct SecurityModuleStorage {
         address _machineShare;
+        address _cooldownReceipt;
         uint256 _cooldownDuration;
         uint256 _maxSlashableBps;
         uint256 _minBalanceAfterSlash;
-        mapping(address account => PendingCooldown cooldownData) _pendingCooldowns;
+        mapping(uint256 cooldownId => PendingCooldown cooldownData) _pendingCooldowns;
         bool _slashingMode;
     }
 
@@ -48,7 +51,8 @@ contract SecurityModule is ERC20Upgradeable, ReentrancyGuardUpgradeable, Machine
     function initialize(bytes calldata _data) external virtual initializer {
         SecurityModuleStorage storage $ = _getSecurityModuleStorage();
 
-        (SecurityModuleInitParams memory smParams) = abi.decode(_data, (SecurityModuleInitParams));
+        (SecurityModuleInitParams memory smParams, address _cooldownReceipt) =
+            abi.decode(_data, (SecurityModuleInitParams, address));
 
         $._machineShare = smParams.machineShare;
         $._cooldownDuration = smParams.initialCooldownDuration;
@@ -62,6 +66,9 @@ contract SecurityModule is ERC20Upgradeable, ReentrancyGuardUpgradeable, Machine
             string(abi.encodePacked("Security Module: ", IERC20Metadata(smParams.machineShare).name())),
             string(abi.encodePacked("sm", IERC20Metadata(smParams.machineShare).symbol()))
         );
+
+        IOwnable2Step(_cooldownReceipt).acceptOwnership();
+        $._cooldownReceipt = _cooldownReceipt;
     }
 
     modifier NotSlashingMode() {
@@ -72,7 +79,7 @@ contract SecurityModule is ERC20Upgradeable, ReentrancyGuardUpgradeable, Machine
     }
 
     /// @inheritdoc IERC20Metadata
-    function decimals() public pure override returns (uint8) {
+    function decimals() public pure override(ERC20Upgradeable, IERC20Metadata) returns (uint8) {
         return DecimalsUtils.SHARE_TOKEN_DECIMALS;
     }
 
@@ -84,6 +91,11 @@ contract SecurityModule is ERC20Upgradeable, ReentrancyGuardUpgradeable, Machine
     /// @inheritdoc ISecurityModule
     function machineShare() public view override returns (address) {
         return _getSecurityModuleStorage()._machineShare;
+    }
+
+    /// @inheritdoc ISecurityModule
+    function cooldownReceipt() public view override returns (address) {
+        return _getSecurityModuleStorage()._cooldownReceipt;
     }
 
     /// @inheritdoc ISecurityModule
@@ -102,9 +114,18 @@ contract SecurityModule is ERC20Upgradeable, ReentrancyGuardUpgradeable, Machine
     }
 
     /// @inheritdoc ISecurityModule
-    function pendingCooldown(address account) external view override returns (uint256 shares, uint256 maturity) {
-        PendingCooldown memory request = _getSecurityModuleStorage()._pendingCooldowns[account];
-        return (request.shares, request.maturity);
+    function pendingCooldown(uint256 cooldownId) external view override returns (uint256, uint256, uint256) {
+        SecurityModuleStorage storage $ = _getSecurityModuleStorage();
+
+        // check that the cooldown receipt exists
+        ISMCooldownReceipt($._cooldownReceipt).ownerOf(cooldownId);
+
+        PendingCooldown memory pc = $._pendingCooldowns[cooldownId];
+
+        uint256 currentAssets = convertToAssets(pc.shares);
+        currentAssets = currentAssets < pc.maxAssets ? currentAssets : pc.maxAssets;
+
+        return (pc.shares, currentAssets, pc.maturity);
     }
 
     /// @inheritdoc ISecurityModule
@@ -156,27 +177,78 @@ contract SecurityModule is ERC20Upgradeable, ReentrancyGuardUpgradeable, Machine
         NotSlashingMode
         returns (uint256)
     {
-        address account = msg.sender;
+        address caller = msg.sender;
         uint256 shares = previewLock(assets);
 
         if (shares < minShares) {
             revert CoreErrors.SlippageProtection();
         }
 
-        IERC20(_getSecurityModuleStorage()._machineShare).safeTransferFrom(account, address(this), assets);
+        IERC20(_getSecurityModuleStorage()._machineShare).safeTransferFrom(caller, address(this), assets);
         _mint(receiver, shares);
 
-        emit Lock(account, receiver, assets, shares);
+        emit Lock(caller, receiver, assets, shares);
 
         return shares;
     }
 
     /// @inheritdoc ISecurityModule
-    function redeem(address receiver, uint256 minAssets) external override nonReentrant returns (uint256) {
+    function startCooldown(uint256 shares, address receiver)
+        external
+        override
+        nonReentrant
+        returns (uint256, uint256, uint256)
+    {
         SecurityModuleStorage storage $ = _getSecurityModuleStorage();
 
-        address account = msg.sender;
-        PendingCooldown memory pc = $._pendingCooldowns[account];
+        address caller = msg.sender;
+
+        if (shares == 0) {
+            revert Errors.ZeroShares();
+        }
+
+        uint256 assets = convertToAssets(shares);
+        uint256 maturity = block.timestamp + $._cooldownDuration;
+
+        _transfer(caller, address(this), shares);
+        uint256 cooldownId = ISMCooldownReceipt($._cooldownReceipt).mint(receiver);
+        $._pendingCooldowns[cooldownId] = PendingCooldown({shares: shares, maxAssets: assets, maturity: maturity});
+
+        emit Cooldown(cooldownId, caller, receiver, shares, maturity);
+
+        return (cooldownId, assets, maturity);
+    }
+
+    /// @inheritdoc ISecurityModule
+    function cancelCooldown(uint256 cooldownId) external override nonReentrant returns (uint256) {
+        SecurityModuleStorage storage $ = _getSecurityModuleStorage();
+
+        address receiver = _checkReceiptOwner(cooldownId);
+
+        PendingCooldown memory pc = $._pendingCooldowns[cooldownId];
+
+        if (block.timestamp >= pc.maturity) {
+            revert Errors.CooldownExpired();
+        }
+
+        uint256 shares = pc.shares;
+
+        delete $._pendingCooldowns[cooldownId];
+        _transfer(address(this), receiver, shares);
+        ISMCooldownReceipt($._cooldownReceipt).burn(cooldownId);
+
+        emit CooldownCancelled(cooldownId, receiver, shares);
+
+        return shares;
+    }
+
+    /// @inheritdoc ISecurityModule
+    function redeem(uint256 cooldownId, uint256 minAssets) external override nonReentrant returns (uint256) {
+        SecurityModuleStorage storage $ = _getSecurityModuleStorage();
+
+        address receiver = _checkReceiptOwner(cooldownId);
+
+        PendingCooldown memory pc = $._pendingCooldowns[cooldownId];
 
         if (block.timestamp < pc.maturity) {
             revert Errors.CooldownOngoing();
@@ -190,28 +262,14 @@ contract SecurityModule is ERC20Upgradeable, ReentrancyGuardUpgradeable, Machine
             revert CoreErrors.SlippageProtection();
         }
 
-        delete $._pendingCooldowns[account];
-        _burn(account, shares);
+        delete $._pendingCooldowns[cooldownId];
+        _burn(address(this), shares);
+        ISMCooldownReceipt($._cooldownReceipt).burn(cooldownId);
         IERC20($._machineShare).safeTransfer(receiver, assets);
 
-        emit Redeem(account, receiver, assets, shares);
+        emit Redeem(cooldownId, receiver, assets, shares);
 
         return assets;
-    }
-
-    /// @inheritdoc ISecurityModule
-    function startCooldown(uint256 shares) external override nonReentrant returns (uint256) {
-        SecurityModuleStorage storage $ = _getSecurityModuleStorage();
-
-        address account = msg.sender;
-        uint256 assets = convertToAssets(shares);
-        uint256 maturity = block.timestamp + $._cooldownDuration;
-
-        $._pendingCooldowns[account] = PendingCooldown({shares: shares, maxAssets: assets, maturity: maturity});
-
-        emit Cooldown(account, shares, maturity);
-
-        return maturity;
     }
 
     /// @inheritdoc ISecurityModule
@@ -236,14 +294,14 @@ contract SecurityModule is ERC20Upgradeable, ReentrancyGuardUpgradeable, Machine
     }
 
     /// @inheritdoc ISecurityModule
-    function setCooldownDuration(uint256 newCooldownDuration) external override onlyRiskManager {
+    function setCooldownDuration(uint256 newCooldownDuration) external override onlyRiskManagerTimelock {
         SecurityModuleStorage storage $ = _getSecurityModuleStorage();
         emit CooldownDurationChanged($._cooldownDuration, newCooldownDuration);
         $._cooldownDuration = newCooldownDuration;
     }
 
     /// @inheritdoc ISecurityModule
-    function setMaxSlashableBps(uint256 newMaxSlashableBps) external override onlyRiskManager {
+    function setMaxSlashableBps(uint256 newMaxSlashableBps) external override onlyRiskManagerTimelock {
         SecurityModuleStorage storage $ = _getSecurityModuleStorage();
         if (newMaxSlashableBps > MAX_BPS) {
             revert Errors.MaxBpsValueExceeded();
@@ -253,7 +311,7 @@ contract SecurityModule is ERC20Upgradeable, ReentrancyGuardUpgradeable, Machine
     }
 
     /// @inheritdoc ISecurityModule
-    function setMinBalanceAfterSlash(uint256 newMinBalanceAfterSlash) external override onlyRiskManager {
+    function setMinBalanceAfterSlash(uint256 newMinBalanceAfterSlash) external override onlyRiskManagerTimelock {
         SecurityModuleStorage storage $ = _getSecurityModuleStorage();
         emit MinBalanceAfterSlashChanged($._minBalanceAfterSlash, newMinBalanceAfterSlash);
         $._minBalanceAfterSlash = newMinBalanceAfterSlash;
@@ -262,5 +320,14 @@ contract SecurityModule is ERC20Upgradeable, ReentrancyGuardUpgradeable, Machine
     /// @dev Disables machine setter from parent MachinePeriphery contract.
     function _setMachine(address) internal pure override {
         revert Errors.NotImplemented();
+    }
+
+    /// @dev Checks that caller is the owner of the cooldown receipt NFT.
+    function _checkReceiptOwner(uint256 cooldownId) internal view returns (address) {
+        address receiver = ISMCooldownReceipt(_getSecurityModuleStorage()._cooldownReceipt).ownerOf(cooldownId);
+        if (msg.sender != receiver) {
+            revert IERC721Errors.ERC721IncorrectOwner(msg.sender, cooldownId, receiver);
+        }
+        return receiver;
     }
 }

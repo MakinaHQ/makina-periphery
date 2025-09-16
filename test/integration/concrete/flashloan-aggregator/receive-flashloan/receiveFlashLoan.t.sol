@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.28;
 
 import {IERC20 as BalancerIERC20} from "@balancer-v2-interfaces/solidity-utils/openzeppelin/IERC20.sol";

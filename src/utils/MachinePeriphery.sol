@@ -1,4 +1,4 @@
-/// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.28;
 
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
@@ -53,6 +53,13 @@ abstract contract MachinePeriphery is Initializable, MakinaPeripheryContext, IMa
 
     modifier onlyRiskManager() {
         if (msg.sender != IMakinaGovernable(machine()).riskManager()) {
+            revert CoreErrors.UnauthorizedCaller();
+        }
+        _;
+    }
+
+    modifier onlyRiskManagerTimelock() {
+        if (msg.sender != IMakinaGovernable(machine()).riskManagerTimelock()) {
             revert CoreErrors.UnauthorizedCaller();
         }
         _;

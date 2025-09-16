@@ -1,4 +1,4 @@
-{   
-    "finalizationDelay": 604800,
-    "whitelistStatus": true
+{
+  "finalizationDelay": 604800,
+  "whitelistStatus": true
 }

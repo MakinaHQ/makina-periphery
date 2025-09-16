@@ -1,4 +1,4 @@
-/// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.28;
 
 import {AccessManagedUpgradeable} from "@openzeppelin/contracts-upgradeable/access/manager/AccessManagedUpgradeable.sol";
@@ -49,9 +49,7 @@ contract WatermarkFeeManager is MachinePeriphery, AccessManagedUpgradeable, IWat
         }
     }
 
-    constructor(address _registry) MachinePeriphery(_registry) {
-        _disableInitializers();
-    }
+    constructor(address _registry) MachinePeriphery(_registry) {}
 
     /// @inheritdoc IMachinePeriphery
     function initialize(bytes calldata data) external override initializer {
@@ -143,7 +141,10 @@ contract WatermarkFeeManager is MachinePeriphery, AccessManagedUpgradeable, IWat
 
         uint256 twSupply = currentShareSupply * elapsedTime;
 
-        return twSupply.mulDiv($._mgmtFeeRatePerSecond + $._smFeeRatePerSecond, MAX_FEE_RATE);
+        uint256 fixedFeeRatePerSecond =
+            $._securityModule != address(0) ? $._mgmtFeeRatePerSecond + $._smFeeRatePerSecond : $._mgmtFeeRatePerSecond;
+
+        return twSupply.mulDiv(fixedFeeRatePerSecond, MAX_FEE_RATE);
     }
 
     /// @inheritdoc IFeeManager

@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.28;
 
 import {DecimalsUtils} from "@makina-core/libraries/DecimalsUtils.sol";
@@ -75,7 +75,7 @@ contract Getters_Setters_SecurityModule_Util_Concrete_Test is SecurityModule_Uti
         securityModule.setMachine(address(1));
     }
 
-    function test_SetCooldownDuration_RevertWhen_CallerNotRM() public {
+    function test_SetCooldownDuration_RevertWhen_CallerNotRMT() public {
         vm.expectRevert(CoreErrors.UnauthorizedCaller.selector);
         securityModule.setCooldownDuration(0);
     }
@@ -86,19 +86,19 @@ contract Getters_Setters_SecurityModule_Util_Concrete_Test is SecurityModule_Uti
         vm.expectEmit(false, false, false, true, address(securityModule));
         emit ISecurityModule.CooldownDurationChanged(DEFAULT_COOLDOWN_DURATION, newCooldownDuration);
 
-        vm.prank(riskManager);
+        vm.prank(riskManagerTimelock);
         securityModule.setCooldownDuration(newCooldownDuration);
         assertEq(securityModule.cooldownDuration(), newCooldownDuration);
     }
 
-    function test_SetMaxSlashableBps_RevertWhen_CallerNotRM() public {
+    function test_SetMaxSlashableBps_RevertWhen_CallerNotRMT() public {
         vm.expectRevert(CoreErrors.UnauthorizedCaller.selector);
         securityModule.setMaxSlashableBps(0);
     }
 
     function test_SetMaxSlashableBps_RevertWhen_NewValueTooHigh() public {
         vm.expectRevert(Errors.MaxBpsValueExceeded.selector);
-        vm.prank(riskManager);
+        vm.prank(riskManagerTimelock);
         securityModule.setMaxSlashableBps(10001);
     }
 
@@ -108,12 +108,12 @@ contract Getters_Setters_SecurityModule_Util_Concrete_Test is SecurityModule_Uti
         vm.expectEmit(false, false, false, true, address(securityModule));
         emit ISecurityModule.MaxSlashableBpsChanged(DEFAULT_MAX_SLASHABLE_BPS, newMaxSlashableBps);
 
-        vm.prank(riskManager);
+        vm.prank(riskManagerTimelock);
         securityModule.setMaxSlashableBps(newMaxSlashableBps);
         assertEq(securityModule.maxSlashableBps(), newMaxSlashableBps);
     }
 
-    function test_SetMinBalanceAfterSlash_RevertWhen_CallerNotRM() public {
+    function test_SetMinBalanceAfterSlash_RevertWhen_CallerNotRMT() public {
         vm.expectRevert(CoreErrors.UnauthorizedCaller.selector);
         securityModule.setMinBalanceAfterSlash(0);
     }
@@ -124,7 +124,7 @@ contract Getters_Setters_SecurityModule_Util_Concrete_Test is SecurityModule_Uti
         vm.expectEmit(false, false, false, true, address(securityModule));
         emit ISecurityModule.MinBalanceAfterSlashChanged(DEFAULT_MIN_BALANCE_AFTER_SLASH, newMinBalanceAfterSlash);
 
-        vm.prank(riskManager);
+        vm.prank(riskManagerTimelock);
         securityModule.setMinBalanceAfterSlash(newMinBalanceAfterSlash);
         assertEq(securityModule.minBalanceAfterSlash(), newMinBalanceAfterSlash);
     }

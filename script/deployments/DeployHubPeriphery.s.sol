@@ -77,6 +77,10 @@ contract DeployHubPeriphery is Base, Script, SortedParams {
             }),
             dao
         );
+
+        if (!vm.envOr("SKIP_AM_SETUP", false)) {
+            setupHubPeripheryAMFunctionRoles(accessManager, _hubPeriphery);
+        }
     }
 
     function _deploySetupAfter() public {

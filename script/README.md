@@ -30,7 +30,7 @@ Implementations IDs need to be provided for the various machine periphery module
 forge script script/deployments/DeployHubPeriphery.s.sol --rpc-url <network-alias> --account <keychain-name> --slow --broadcast --verify --etherscan-api-key <your-api-key> -vvvv
 ```
 
-3. Run the following command to run contracts setup. This script needs to be run from an address that has the `INFRA_CONFIG_ROLE` in the `AccessManager` provided at step 1. 
+3. Run the following command to run contracts setup. This script needs to be run from an address that has the `INFRA_SETUP_ROLE` in the `AccessManager` provided at step 1. 
 ```
 forge script script/deployments/SetupHubPeriphery.s.sol --rpc-url <network-alias> --account <keychain-name> --slow --broadcast -vvvv
 ```

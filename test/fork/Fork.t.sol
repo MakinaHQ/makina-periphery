@@ -100,6 +100,7 @@ abstract contract Fork_Test is Base, Test, CoreHelpers {
 
         registerFlashloanAggregator(address(hubCore.hubCoreRegistry), address(flashloanAggregator));
         registerHubPeripheryFactory(address(hubPeripheryRegistry), address(hubPeripheryFactory));
+        setupHubPeripheryAMFunctionRoles(address(accessManager), hubPeriphery);
         _setupAccessManager(accessManager, dao);
     }
 }

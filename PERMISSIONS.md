@@ -6,7 +6,7 @@ This is the list of role permissions in Makina Periphery contracts. These roles 
 
 ### HubPeripheryRegistry
 
-- `INFRA_CONFIG_ROLE` (roleId `3`)
+- `INFRA_SETUP_ROLE` (roleId `1`)
   - Can set address of HubPeripheryFactory.
   - Can set address of depositor Beacons.
   - Can set address of redeemer Beacons.
@@ -15,7 +15,7 @@ This is the list of role permissions in Makina Periphery contracts. These roles 
 
 ### HubPeripheryFactory
 
-- `STRATEGY_DEPLOYER_ROLE` (roleId `1`)
+- `STRATEGY_DEPLOYMENT_ROLE` (roleId `2`)
   - Can deploy depositors.
   - Can deploy redeemers.
   - Can deploy fee managers.
@@ -41,7 +41,7 @@ This is the list of role permissions in Makina Periphery contracts. These roles 
 
 ### WatermarkFeeManager
 
-- `STRATEGY_CONFIG_ROLE` (roleId `2`)
+- `STRATEGY_COMPONENTS_SETUP_ROLE` (roleId `3`)
   - Can reset the share price watermark to a value below the current one.
   - Can set the fee rates.
   - Can define the allocation of fees to different receivers.

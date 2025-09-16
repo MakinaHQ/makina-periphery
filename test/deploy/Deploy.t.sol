@@ -47,6 +47,8 @@ contract Deploy_Scripts_Test is Base_Test {
         vm.setEnv("SPOKE_INPUT_FILENAME", chainInfo.constantsFilename);
         vm.setEnv("SPOKE_OUTPUT_FILENAME", chainInfo.constantsFilename);
 
+        vm.setEnv("SKIP_AM_SETUP", "true");
+
         deployHubPeriphery = new DeployHubPeriphery();
         deploySpokePeriphery = new DeploySpokePeriphery();
 
@@ -65,6 +67,7 @@ contract Deploy_Scripts_Test is Base_Test {
 
         vm.setEnv("HUB_INPUT_FILENAME", chainInfo.constantsFilename);
         vm.setEnv("HUB_OUTPUT_FILENAME", chainInfo.constantsFilename);
+        vm.setEnv("SKIP_AM_SETUP", "true");
 
         // Core deployment
         deployHubPeriphery = new DeployHubPeriphery();
@@ -128,6 +131,7 @@ contract Deploy_Scripts_Test is Base_Test {
 
         vm.setEnv("SPOKE_INPUT_FILENAME", chainInfo.constantsFilename);
         vm.setEnv("SPOKE_OUTPUT_FILENAME", chainInfo.constantsFilename);
+        vm.setEnv("SKIP_AM_SETUP", "true");
 
         // Core deployment
         deploySpokePeriphery = new DeploySpokePeriphery();
@@ -291,6 +295,7 @@ contract Deploy_Scripts_Test is Base_Test {
 
         vm.setEnv("HUB_INPUT_FILENAME", chainInfo.constantsFilename);
         vm.setEnv("HUB_OUTPUT_FILENAME", chainInfo.constantsFilename);
+        vm.setEnv("SKIP_AM_SETUP", "true");
 
         // Core deployment
         deployHubPeriphery = new DeployHubPeriphery();

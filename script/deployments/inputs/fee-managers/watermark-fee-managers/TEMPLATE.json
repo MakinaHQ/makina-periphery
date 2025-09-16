@@ -1,4 +1,5 @@
 {   
+    "accessManager": "0x0000000000000000000000000000000000000000",
     "watermarkFeeManagerInitParams": {
         "initialMgmtFeeRatePerSecond": 0,
         "initialSmFeeRatePerSecond": 0,

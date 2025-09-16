@@ -6,15 +6,16 @@ See `SPECIFICATION.md` and `PERMISSIONS.md` for more details.
 
 ## Contracts Overview
 
-| Filename                   | Deployment chain | Description                                                                                      |
-| -------------------------- | ---------------- | ------------------------------------------------------------------------------------------------ |
-| `HubPeripheryRegistry.sol` | Hub              | Registry of factory and machine periphery module beacons.                                       |
-| `HubPeripheryFactory.sol`  | Hub              | Hub factory for creation of machine periphery modules.                                           |
-| `DirectDepositor.sol`      | Hub              | Synchronous Machine depositor contract.                                                          |
-| `AsyncRedeemer.sol`        | Hub              | Asynchronous Machine redeemer contract.                                                          |
-| `WatermarkFeeManager.sol`  | Hub              | Fee manager contract with a high-watermark mechanism for performance fee calculation.            |
-| `SecurityModule.sol`       | Hub              | Security module for machine shares.                                                               |
-| `FlashloanAggregator.sol`  | Hub + Spoke      | Standalone module used by calibers to execute flashLoan transactions through external protocols. |
+| Filename                      | Deployment chain | Description                                                                                      |
+| ----------------------------- | ---------------- | ------------------------------------------------------------------------------------------------ |
+| `HubPeripheryRegistry.sol`    | Hub              | Registry of factory and machine periphery module beacons.                                        |
+| `HubPeripheryFactory.sol`     | Hub              | Hub factory for creation of machine periphery modules.                                           |
+| `DirectDepositor.sol`         | Hub              | Synchronous Machine depositor contract.                                                          |
+| `AsyncRedeemer.sol`           | Hub              | Asynchronous Machine redeemer contract.                                                          |
+| `WatermarkFeeManager.sol`     | Hub              | Fee manager contract with a high-watermark mechanism for performance fee calculation.            |
+| `StakingModule.sol`           | Hub              | Staking module for machine shares.                                                               |
+| `FlashloanAggregator.sol`     | Hub + Spoke      | Standalone module used by calibers to execute flashLoan transactions through external protocols. |
+| `MetaMorphoOracleFactory.sol` | Hub + Spoke      | Factory for deploying Morpho vault oracles.                                                      |
 
 ## Installation
 

@@ -17,6 +17,7 @@ abstract contract SortedParams {
         address flashloanAggregator;
         address hubPeripheryFactory;
         address hubPeripheryRegistry;
+        address metaMorphoOracleFactory;
         address securityModuleBeacon;
         address watermarkFeeManagerBeacon;
     }

@@ -1,13 +1,19 @@
-{   
-    "accessManager": "0x0000000000000000000000000000000000000000",
-    "watermarkFeeManagerInitParams": {
-        "initialMgmtFeeRatePerSecond": 10000,
-        "initialSmFeeRatePerSecond": 9000,
-        "initialPerfFeeRate": 100000000000000,
-        "initialMgmtFeeSplitBps": [4000, 6000],
-        "initialMgmtFeeReceivers": ["0x0000000000000000000000000000000000000001", "0x0000000000000000000000000000000000000002"],
-        "initialPerfFeeSplitBps": [1000, 9000],
-        "initialPerfFeeReceivers": ["0x0000000000000000000000000000000000000003", "0x0000000000000000000000000000000000000004"]
-    },
-    "securityModule": "0x0000000000000000000000000000000000000000"
+{
+  "accessManager": "0x0000000000000000000000000000000000000000",
+  "watermarkFeeManagerInitParams": {
+    "initialMgmtFeeRatePerSecond": 10000,
+    "initialSmFeeRatePerSecond": 9000,
+    "initialPerfFeeRate": 100000000000000,
+    "initialMgmtFeeSplitBps": [4000, 6000],
+    "initialMgmtFeeReceivers": [
+      "0x0000000000000000000000000000000000000001",
+      "0x0000000000000000000000000000000000000002"
+    ],
+    "initialPerfFeeSplitBps": [1000, 9000],
+    "initialPerfFeeReceivers": [
+      "0x0000000000000000000000000000000000000003",
+      "0x0000000000000000000000000000000000000004"
+    ]
+  },
+  "securityModule": "0x0000000000000000000000000000000000000000"
 }

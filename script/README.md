@@ -6,10 +6,10 @@ This README outlines the steps to deploy the Makina Core contracts.
 
 - Copy `.env.example` to `.env` and fill in the required RPC URLs, Etherscan API URLs, and API keys.
 - Some networks are preconfigured in `foundry.toml` and only require the corresponding environment variables. More networks can be added following similar configuration.
-- In the commands below:
-  - `<keychain-name>` is the name of a Foundry keystore containing the deployer’s private key.<br>
-  - `<network-alias>` must match a network name declared in `foundry.toml`.<br>
-  - `<your-api-key>` is your Etherscan API key for the selected network. While Foundry is supposed to read this from foundry.toml, it often fails to do so reliably.
+- The commands below use a foundry keystore to specify the deployment wallet (`--account <keystore-name>`). For other options, refer to the [Foundry docs](https://getfoundry.sh/forge/reference/script/).
+- Notation used in the commands:
+  - `<keystore-name>` - the name of a Foundry keystore containing the deployer’s private key
+  - `<network-alias>` - must match a network name declared in `foundry.toml`
 
 ## Hub Chain Deployments
 
@@ -30,7 +30,8 @@ Implementations IDs need to be provided for the various machine periphery module
 forge script script/deployments/DeployHubPeriphery.s.sol --rpc-url <network-alias> --account <keychain-name> --slow --broadcast --verify --etherscan-api-key <your-api-key> -vvvv
 ```
 
-3. Run the following command to run contracts setup. This script needs to be run from an address that has the `INFRA_SETUP_ROLE` in the `AccessManager` provided at step 1. 
+3. Run the following command to run contracts setup. This script needs to be run from an address that has the `INFRA_SETUP_ROLE` in the `AccessManager` provided at step 1.
+
 ```
 forge script script/deployments/SetupHubPeriphery.s.sol --rpc-url <network-alias> --account <keychain-name> --slow --broadcast -vvvv
 ```

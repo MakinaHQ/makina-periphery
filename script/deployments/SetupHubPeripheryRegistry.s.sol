@@ -8,14 +8,14 @@ import {SortedParams} from "./utils/SortedParams.sol";
 
 import {Base} from "../../test/base/Base.sol";
 
-contract SetupHubPeriphery is Base, Script, SortedParams {
+contract SetupHubPeripheryRegistry is Base, Script, SortedParams {
     using stdJson for string;
 
+    string public deploymentInputJson;
     string public deploymentOutputJson;
     string public inputJson;
 
-    address public dao;
-
+    address private _accessManager;
     HubPeripherySorted private _hubPeriphery;
 
     uint16[] private mdImplemIds;
@@ -27,10 +27,16 @@ contract SetupHubPeriphery is Base, Script, SortedParams {
     address[] private fmBeacons;
 
     constructor() {
+        string memory deploymentInputFilename = vm.envString("HUB_INPUT_FILENAME");
         string memory deploymentOutputFilename = vm.envString("HUB_OUTPUT_FILENAME");
         string memory inputFilename = vm.envString("HUB_INPUT_FILENAME");
 
         string memory basePath = string.concat(vm.projectRoot(), "/script/deployments/");
+
+        // load deployment input params
+        string memory deploymentInputPath = string.concat(basePath, "inputs/hub-peripheries/");
+        deploymentInputPath = string.concat(deploymentInputPath, deploymentInputFilename);
+        deploymentInputJson = vm.readFile(deploymentInputPath);
 
         // load deployment output params
         string memory deploymentOutputPath = string.concat(basePath, "outputs/hub-peripheries/");
@@ -44,6 +50,7 @@ contract SetupHubPeriphery is Base, Script, SortedParams {
     }
 
     function run() public {
+        _accessManager = abi.decode(vm.parseJson(deploymentInputJson, ".accessManager"), (address));
         _hubPeriphery = abi.decode(vm.parseJson(deploymentOutputJson), (HubPeripherySorted));
 
         mdImplemIds = new uint16[](1);

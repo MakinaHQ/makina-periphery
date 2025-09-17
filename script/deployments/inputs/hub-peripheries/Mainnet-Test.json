@@ -1,5 +1,5 @@
 {
-  "dao": "0xae7f67EE9B8c465ACE4a1ec1138FaA483d93691A",
+  "upgradeAdmin": "0xae7f67EE9B8c465ACE4a1ec1138FaA483d93691A",
   "accessManager": "0x4B3336630e591D36ca81f0c25b798895289dDD30",
   "caliberFactory": "0x0e20cd16D29c3078BBD48Faa7a76EE453635BC63",
   "flashloanProviders": {

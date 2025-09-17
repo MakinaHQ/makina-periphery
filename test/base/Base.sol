@@ -102,6 +102,7 @@ abstract contract Base {
 
     function deployFlashloanAggregator(address caliberFactory, FlashloanProviders memory flProviders)
         public
+        virtual
         returns (FlashloanAggregator)
     {
         return new FlashloanAggregator(
@@ -193,6 +194,14 @@ abstract contract Base {
         hubPeripheryFactorySelectors[5] = HubPeripheryFactory.createSecurityModule.selector;
         IAccessManager(_accessManager).setTargetFunctionRole(
             address(deployment.hubPeripheryFactory), hubPeripheryFactorySelectors, Roles.STRATEGY_DEPLOYMENT_ROLE
+        );
+
+        // MetaMorphoOracleFactory
+        bytes4[] memory metaMorphoOracleFactorySelectors = new bytes4[](2);
+        metaMorphoOracleFactorySelectors[0] = MetaMorphoOracleFactory.setMorphoFactory.selector;
+        metaMorphoOracleFactorySelectors[1] = MetaMorphoOracleFactory.createMetaMorphoOracle.selector;
+        IAccessManager(_accessManager).setTargetFunctionRole(
+            address(deployment.metaMorphoOracleFactory), metaMorphoOracleFactorySelectors, Roles.INFRA_SETUP_ROLE
         );
     }
 

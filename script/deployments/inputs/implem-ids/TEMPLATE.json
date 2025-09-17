@@ -1,5 +1,5 @@
 {
-  "directDepositorImplemId": "0",
-  "asyncRedeemerImplemId": "0",
-  "watermarkFeeManagerImplemId": "0"
+  "directDepositorImplemId": 0,
+  "asyncRedeemerImplemId": 0,
+  "watermarkFeeManagerImplemId": 0
 }

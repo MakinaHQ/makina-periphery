@@ -1,20 +1,14 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.28;
 
-import {Script} from "forge-std/Script.sol";
 import {stdJson} from "forge-std/StdJson.sol";
 
 import {FlashloanAggregator} from "../../src/flashloans/FlashloanAggregator.sol";
 
-import {SortedParams} from "./utils/SortedParams.sol";
+import {DeployPeriphery} from "./DeployPeriphery.s.sol";
 
-import {Base} from "../../test/base/Base.sol";
-
-contract DeploySpokePeriphery is Base, Script, SortedParams {
+contract DeploySpokePeriphery is DeployPeriphery {
     using stdJson for string;
-
-    string public inputJson;
-    string public outputPath;
 
     address public caliberFactory;
     FlashloanProvidersSorted public flProviders;
@@ -37,13 +31,21 @@ contract DeploySpokePeriphery is Base, Script, SortedParams {
         outputPath = string.concat(outputPath, outputFilename);
     }
 
-    function run() public {
+    function deployment() public view returns (FlashloanAggregator) {
+        return deployedInstance;
+    }
+
+    function _deploySetupBefore() public override {
         caliberFactory = abi.decode(vm.parseJson(inputJson, ".caliberFactory"), (address));
         flProviders = abi.decode(vm.parseJson(inputJson, ".flashloanProviders"), (FlashloanProvidersSorted));
 
         // start broadcasting transactions
         vm.startBroadcast();
 
+        (, deployer,) = vm.readCallers();
+    }
+
+    function _coreSetup() public override {
         deployedInstance = deployFlashloanAggregator(
             caliberFactory,
             FlashloanProviders({
@@ -55,15 +57,13 @@ contract DeploySpokePeriphery is Base, Script, SortedParams {
                 dai: flProviders.dai
             })
         );
+    }
 
+    function _deploySetupAfter() public override {
         vm.stopBroadcast();
 
         // Write to file
         string memory key = "key-deploy-spoke-periphery-output-file";
         vm.writeJson(vm.serializeAddress(key, "FlashloanAggregator", address(deployedInstance)), outputPath);
-    }
-
-    function deployment() public view returns (FlashloanAggregator) {
-        return deployedInstance;
     }
 }

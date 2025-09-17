@@ -1,24 +1,16 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.28;
 
-import {Script} from "forge-std/Script.sol";
 import {stdJson} from "forge-std/StdJson.sol";
 
-import {SortedParams} from "./utils/SortedParams.sol";
+import {DeployPeriphery} from "./DeployPeriphery.s.sol";
 
-import {Base} from "../../test/base/Base.sol";
-
-contract DeployHubPeriphery is Base, Script, SortedParams {
+contract DeployHubPeriphery is DeployPeriphery {
     using stdJson for string;
 
-    string public inputJson;
-    string public outputPath;
-
-    address public dao;
-    address public deployer;
+    address public upgradeAdmin;
 
     address public accessManager;
-
     address public caliberFactory;
     FlashloanProvidersSorted public flProviders;
 
@@ -40,20 +32,14 @@ contract DeployHubPeriphery is Base, Script, SortedParams {
         outputPath = string.concat(outputPath, outputFilename);
     }
 
-    function run() public {
-        _deploySetupBefore();
-        _coreSetup();
-        _deploySetupAfter();
-    }
-
     function deployment() public view returns (HubPeriphery memory) {
         return _hubPeriphery;
     }
 
-    function _deploySetupBefore() public {
-        dao = abi.decode(vm.parseJson(inputJson, ".dao"), (address));
-        accessManager = abi.decode(vm.parseJson(inputJson, ".accessManager"), (address));
+    function _deploySetupBefore() public override {
+        upgradeAdmin = abi.decode(vm.parseJson(inputJson, ".upgradeAdmin"), (address));
 
+        accessManager = abi.decode(vm.parseJson(inputJson, ".accessManager"), (address));
         caliberFactory = abi.decode(vm.parseJson(inputJson, ".caliberFactory"), (address));
         flProviders = abi.decode(vm.parseJson(inputJson, ".flashloanProviders"), (FlashloanProvidersSorted));
 
@@ -63,7 +49,7 @@ contract DeployHubPeriphery is Base, Script, SortedParams {
         (, deployer,) = vm.readCallers();
     }
 
-    function _coreSetup() public {
+    function _coreSetup() public override {
         _hubPeriphery = deployHubPeriphery(
             accessManager,
             caliberFactory,
@@ -75,15 +61,11 @@ contract DeployHubPeriphery is Base, Script, SortedParams {
                 aaveV3AddressProvider: flProviders.aaveV3AddressProvider,
                 dai: flProviders.dai
             }),
-            dao
+            upgradeAdmin
         );
-
-        if (!vm.envOr("SKIP_AM_SETUP", false)) {
-            setupHubPeripheryAMFunctionRoles(accessManager, _hubPeriphery);
-        }
     }
 
-    function _deploySetupAfter() public {
+    function _deploySetupAfter() public override {
         // finish broadcasting transactions
         vm.stopBroadcast();
 

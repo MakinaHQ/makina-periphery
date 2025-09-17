@@ -17,23 +17,32 @@ Set the `HUB_INPUT_FILE` and `HUB_OUTPUT_FILE` values in your `.env` file to def
 
 ### Implementations IDs
 
-Implementations IDs need to be provided for the various machine periphery modules implementations.
-
-1. Copy `script/deployments/inputs/implem-ids/TEMPLATE.json` to `script/deployments/inputs/implem-ids/{HUB_INPUT_FILENAME}` and fill in the required variables.
+Implementations IDs need to be provided for the various machine periphery modules implementations. See step 4 below.
 
 ### Shared contracts
 
 1. Copy `script/deployments/inputs/hub-peripheries/TEMPLATE.json` to `script/deployments/inputs/hub-peripheries/{HUB_INPUT_FILENAME}` and fill in the required variables.
+
 2. Run the following command to initiate the deployment. This will generate an output file at `script/deployments/outputs/hub-peripheries/{HUB_OUTPUT_FILENAME}` containing the deployed contract addresses.
 
 ```
-forge script script/deployments/DeployHubPeriphery.s.sol --rpc-url <network-alias> --account <keychain-name> --slow --broadcast --verify --etherscan-api-key <your-api-key> -vvvv
+forge script script/deployments/DeployHubPeriphery.s.sol --rpc-url <network-alias> --account <keychain-name> --slow --broadcast --verify -vvvv
 ```
 
-3. Run the following command to run contracts setup. This script needs to be run from an address that has the `INFRA_SETUP_ROLE` in the `AccessManager` provided at step 1.
+Note: This script performs deterministic deployment based on the deployer wallet address via the [CreateX Factory contract](https://github.com/pcaversaccio/createx).
+
+3. Run the following command to run contracts AccessManager setup. This script needs to be run from an address that has the `ADMIN_ROLE` in the `AccessManager` provided at step 1.
 
 ```
-forge script script/deployments/SetupHubPeriphery.s.sol --rpc-url <network-alias> --account <keychain-name> --slow --broadcast -vvvv
+forge script script/deployments/SetupHubPeripheryAM.s.sol --rpc-url <network-alias> --account <keychain-name> --slow --broadcast -vvvv
+```
+
+4. Copy `script/deployments/inputs/implem-ids/TEMPLATE.json` to `script/deployments/inputs/implem-ids/{HUB_INPUT_FILENAME}` and fill in the required variables.
+
+5. Run the following command to run Registry contract setup. This script needs to be run from an address that has the `INFRA_SETUP_ROLE` in the `AccessManager` provided at step 1.
+
+```
+forge script script/deployments/SetupHubPeripheryRegistry.s.sol --rpc-url <network-alias> --account <keychain-name> --slow --broadcast -vvvv
 ```
 
 ### Security Module instance
@@ -42,7 +51,7 @@ forge script script/deployments/SetupHubPeriphery.s.sol --rpc-url <network-alias
 2. Run the following command to initiate the deployment. This will generate an output file at `script/deployments/outputs/security-modules/{HUB_OUTPUT_FILENAME}` containing the deployed contract address.
 
 ```
-forge script script/deployments/DeploySecurityModule.s.sol --rpc-url <network-alias> --account <keychain-name> --slow --broadcast --verify --etherscan-api-key <your-api-key> -vvvv
+forge script script/deployments/DeploySecurityModule.s.sol --rpc-url <network-alias> --account <keychain-name> --slow --broadcast --verify -vvvv
 ```
 
 ### Direct Depositor instance
@@ -51,7 +60,7 @@ forge script script/deployments/DeploySecurityModule.s.sol --rpc-url <network-al
 2. Run the following command to initiate the deployment. This will generate an output file at `script/deployments/outputs/depositors/direct-depositors/{HUB_OUTPUT_FILENAME}` containing the deployed contract address.
 
 ```
-forge script script/deployments/DeployDirectDepositor.s.sol --rpc-url <network-alias> --account <keychain-name> --slow --broadcast --verify --etherscan-api-key <your-api-key> -vvvv
+forge script script/deployments/DeployDirectDepositor.s.sol --rpc-url <network-alias> --account <keychain-name> --slow --broadcast --verify -vvvv
 ```
 
 ### Async Redeemer instance
@@ -60,7 +69,7 @@ forge script script/deployments/DeployDirectDepositor.s.sol --rpc-url <network-a
 2. Run the following command to initiate the deployment. This will generate an output file at `script/deployments/outputs/redeemers/async-redeemers/{HUB_OUTPUT_FILENAME}` containing the deployed contract address.
 
 ```
-forge script script/deployments/DeployAsyncRedeemer.s.sol --rpc-url <network-alias> --account <keychain-name> --slow --broadcast --verify --etherscan-api-key <your-api-key> -vvvv
+forge script script/deployments/DeployAsyncRedeemer.s.sol --rpc-url <network-alias> --account <keychain-name> --slow --broadcast --verify -vvvv
 ```
 
 ### Watermark Fee Manager instance
@@ -69,7 +78,7 @@ forge script script/deployments/DeployAsyncRedeemer.s.sol --rpc-url <network-ali
 2. Run the following command to initiate the deployment. This will generate an output file at `script/deployments/outputs/fee-managers/watermark-fee-managers/{HUB_OUTPUT_FILENAME}` containing the deployed contract address.
 
 ```
-forge script script/deployments/DeployWatermarkFeeManager.s.sol --rpc-url <network-alias> --account <keychain-name> --slow --broadcast --verify --etherscan-api-key <your-api-key> -vvvv
+forge script script/deployments/DeployWatermarkFeeManager.s.sol --rpc-url <network-alias> --account <keychain-name> --slow --broadcast --verify -vvvv
 ```
 
 ## Spoke Chain Deployments
@@ -80,5 +89,7 @@ forge script script/deployments/DeployWatermarkFeeManager.s.sol --rpc-url <netwo
 2. Run the following command to initiate the deployment. This will generate an output file at `script/deployments/outputs/spoke-peripheries/{SPOKE_OUTPUT_FILENAME}` containing the deployed contract addresses.
 
 ```
-forge script script/deployments/DeploySpokePeriphery.s.sol --rpc-url <network-alias> --account <keychain-name> --slow --broadcast --verify --etherscan-api-key <your-api-key> -vvvv
+forge script script/deployments/DeploySpokePeriphery.s.sol --rpc-url <network-alias> --account <keychain-name> --slow --broadcast --verify -vvvv
 ```
+
+Note: This script performs deterministic deployment based on the deployer wallet address via the [CreateX Factory contract](https://github.com/pcaversaccio/createx).

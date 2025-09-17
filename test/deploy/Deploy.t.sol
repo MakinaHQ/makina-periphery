@@ -18,7 +18,8 @@ import {DeploySecurityModule} from "script/deployments/DeploySecurityModule.s.so
 import {DeployDirectDepositor} from "script/deployments/DeployDirectDepositor.s.sol";
 import {DeployAsyncRedeemer} from "script/deployments/DeployAsyncRedeemer.s.sol";
 import {DeployWatermarkFeeManager} from "script/deployments/DeployWatermarkFeeManager.s.sol";
-import {SetupHubPeriphery} from "script/deployments/SetupHubPeriphery.s.sol";
+import {SetupHubPeripheryAM} from "script/deployments/SetupHubPeripheryAM.s.sol";
+import {SetupHubPeripheryRegistry} from "script/deployments/SetupHubPeripheryRegistry.s.sol";
 import {SortedParams} from "script/deployments/utils/SortedParams.sol";
 
 import {Base_Test} from "../base/Base.t.sol";
@@ -29,7 +30,8 @@ contract Deploy_Scripts_Test is Base_Test {
 
     // Scripts to test
     DeployHubPeriphery public deployHubPeriphery;
-    SetupHubPeriphery public setupHubPeriphery;
+    SetupHubPeripheryAM public setupHubPeripheryAM;
+    SetupHubPeripheryRegistry public setupHubPeripheryRegistry;
     DeploySecurityModule public deploySecurityModule;
     DeployDirectDepositor public deployDirectDepositor;
     DeployAsyncRedeemer public deployAsyncRedeemer;
@@ -52,8 +54,8 @@ contract Deploy_Scripts_Test is Base_Test {
         deployHubPeriphery = new DeployHubPeriphery();
         deploySpokePeriphery = new DeploySpokePeriphery();
 
-        address hubDao = abi.decode(vm.parseJson(deployHubPeriphery.inputJson(), ".dao"), (address));
-        assertTrue(hubDao != address(0));
+        address upgradeAdmin = abi.decode(vm.parseJson(deployHubPeriphery.inputJson(), ".upgradeAdmin"), (address));
+        assertTrue(upgradeAdmin != address(0));
 
         address aaveV3AddressProvider = abi.decode(
             vm.parseJson(deploySpokePeriphery.inputJson(), ".flashloanProviders.aaveV3AddressProvider"), (address)
@@ -67,18 +69,22 @@ contract Deploy_Scripts_Test is Base_Test {
 
         vm.setEnv("HUB_INPUT_FILENAME", chainInfo.constantsFilename);
         vm.setEnv("HUB_OUTPUT_FILENAME", chainInfo.constantsFilename);
-        vm.setEnv("SKIP_AM_SETUP", "true");
 
         // Core deployment
         deployHubPeriphery = new DeployHubPeriphery();
         deployHubPeriphery.run();
 
+        // In provided access manager test instance, upgradeAdmin also has permissions for setup below
         vm.setEnv(
-            "TEST_SENDER", vm.toString(abi.decode(vm.parseJson(deployHubPeriphery.inputJson(), ".dao"), (address)))
+            "TEST_SENDER",
+            vm.toString(abi.decode(vm.parseJson(deployHubPeriphery.inputJson(), ".upgradeAdmin"), (address)))
         );
 
-        setupHubPeriphery = new SetupHubPeriphery();
-        setupHubPeriphery.run();
+        setupHubPeripheryAM = new SetupHubPeripheryAM();
+        setupHubPeripheryAM.run();
+
+        setupHubPeripheryRegistry = new SetupHubPeripheryRegistry();
+        setupHubPeripheryRegistry.run();
 
         (HubPeriphery memory hubPeripheryDeployment) = deployHubPeriphery.deployment();
 
@@ -108,19 +114,21 @@ contract Deploy_Scripts_Test is Base_Test {
         assertEq(
             address(hubPeripheryDeployment.directDepositorBeacon),
             hubPeripheryDeployment.hubPeripheryRegistry.depositorBeacon(
-                abi.decode(vm.parseJson(setupHubPeriphery.inputJson(), ".directDepositorImplemId"), (uint16))
+                abi.decode(vm.parseJson(setupHubPeripheryRegistry.inputJson(), ".directDepositorImplemId"), (uint16))
             )
         );
         assertEq(
             address(hubPeripheryDeployment.asyncRedeemerBeacon),
             hubPeripheryDeployment.hubPeripheryRegistry.redeemerBeacon(
-                abi.decode(vm.parseJson(setupHubPeriphery.inputJson(), ".asyncRedeemerImplemId"), (uint16))
+                abi.decode(vm.parseJson(setupHubPeripheryRegistry.inputJson(), ".asyncRedeemerImplemId"), (uint16))
             )
         );
         assertEq(
             address(hubPeripheryDeployment.watermarkFeeManagerBeacon),
             hubPeripheryDeployment.hubPeripheryRegistry.feeManagerBeacon(
-                abi.decode(vm.parseJson(setupHubPeriphery.inputJson(), ".watermarkFeeManagerImplemId"), (uint16))
+                abi.decode(
+                    vm.parseJson(setupHubPeripheryRegistry.inputJson(), ".watermarkFeeManagerImplemId"), (uint16)
+                )
             )
         );
     }
@@ -301,12 +309,17 @@ contract Deploy_Scripts_Test is Base_Test {
         deployHubPeriphery = new DeployHubPeriphery();
         deployHubPeriphery.run();
 
+        // In provided access manager test instance, upgradeAdmin also has permissions for setup below
         vm.setEnv(
-            "TEST_SENDER", vm.toString(abi.decode(vm.parseJson(deployHubPeriphery.inputJson(), ".dao"), (address)))
+            "TEST_SENDER",
+            vm.toString(abi.decode(vm.parseJson(deployHubPeriphery.inputJson(), ".upgradeAdmin"), (address)))
         );
 
-        setupHubPeriphery = new SetupHubPeriphery();
-        setupHubPeriphery.run();
+        setupHubPeripheryAM = new SetupHubPeripheryAM();
+        setupHubPeripheryAM.run();
+
+        setupHubPeripheryRegistry = new SetupHubPeripheryRegistry();
+        setupHubPeripheryRegistry.run();
 
         return deployHubPeriphery.deployment();
     }

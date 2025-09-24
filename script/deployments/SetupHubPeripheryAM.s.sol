@@ -9,6 +9,7 @@ import {UpgradeableBeacon} from "@openzeppelin/contracts/proxy/beacon/Upgradeabl
 import {FlashloanAggregator} from "../../src/flashloans/FlashloanAggregator.sol";
 import {HubPeripheryFactory} from "../../src/factories/HubPeripheryFactory.sol";
 import {HubPeripheryRegistry} from "../../src/registries/HubPeripheryRegistry.sol";
+import {MachineShareOracleFactory} from "../../src/factories/MachineShareOracleFactory.sol";
 import {MetaMorphoOracleFactory} from "../../src/factories/MetaMorphoOracleFactory.sol";
 
 import {SortedParams} from "./utils/SortedParams.sol";
@@ -62,7 +63,9 @@ contract SetupHubPeripheryAM is Base, Script, SortedParams {
                 asyncRedeemerBeacon: UpgradeableBeacon(_hubPeriphery.asyncRedeemerBeacon),
                 watermarkFeeManagerBeacon: UpgradeableBeacon(_hubPeriphery.watermarkFeeManagerBeacon),
                 securityModuleBeacon: UpgradeableBeacon(_hubPeriphery.securityModuleBeacon),
-                metaMorphoOracleFactory: MetaMorphoOracleFactory(_hubPeriphery.metaMorphoOracleFactory)
+                metaMorphoOracleFactory: MetaMorphoOracleFactory(_hubPeriphery.metaMorphoOracleFactory),
+                machineShareOracleBeacon: UpgradeableBeacon(_hubPeriphery.machineShareOracleBeacon),
+                machineShareOracleFactory: MachineShareOracleFactory(_hubPeriphery.machineShareOracleFactory)
             })
         );
 

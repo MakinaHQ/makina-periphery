@@ -98,27 +98,26 @@ contract MachineShareOracle is MakinaContext, Initializable, IMachineShareOracle
     function getSharePrice() external view override returns (uint256) {
         MachineShareOracleStorage storage $ = _getMachineShareOracleStorage();
 
-        address shareToken = IShareTokenOwner($._shareOwner).shareToken();
-        address accountingToken = IShareTokenOwner($._shareOwner).accountingToken();
+        uint256 stSupply = IERC20Metadata(IShareTokenOwner($._shareOwner).shareToken()).totalSupply();
 
-        uint256 aum;
-        if ($._isShareOwnerPdv) {
-            if (IPreDepositVault($._shareOwner).migrated()) {
-                aum = IMachine(IPreDepositVault($._shareOwner).machine()).lastTotalAum();
-            } else {
-                address depositToken = IPreDepositVault($._shareOwner).depositToken();
-                uint256 dtbal = IERC20Metadata(depositToken).balanceOf($._shareOwner);
-                uint256 price_d_a =
-                    IOracleRegistry(IHubCoreRegistry(registry).oracleRegistry()).getPrice(depositToken, accountingToken);
-                aum = dtbal.mulDiv(price_d_a, 10 ** DecimalsUtils._getDecimals(depositToken));
-            }
+        uint256 sharePrice;
+        if ($._isShareOwnerPdv && !IPreDepositVault($._shareOwner).migrated()) {
+            address depositToken = IPreDepositVault($._shareOwner).depositToken();
+            address accountingToken = IShareTokenOwner($._shareOwner).accountingToken();
+            uint256 price_d_a =
+                IOracleRegistry(IHubCoreRegistry(registry).oracleRegistry()).getPrice(depositToken, accountingToken);
+            uint256 dtUnit = 10 ** DecimalsUtils._getDecimals(depositToken);
+            uint256 dtBal = IERC20Metadata(depositToken).balanceOf($._shareOwner);
+            sharePrice = DecimalsUtils.SHARE_TOKEN_UNIT.mulDiv(
+                (dtBal * price_d_a) + dtUnit, (stSupply + 10 ** $._shareTokenDecimalsOffset) * dtUnit
+            );
         } else {
-            aum = IMachine($._shareOwner).lastTotalAum();
+            address machine = $._isShareOwnerPdv ? IPreDepositVault($._shareOwner).machine() : $._shareOwner;
+            uint256 aum = IMachine(machine).lastTotalAum();
+            sharePrice = MachineUtils.getSharePrice(aum, stSupply, $._shareTokenDecimalsOffset);
         }
 
-        uint256 supply = IERC20Metadata(shareToken).totalSupply();
-
-        return $._scalingNumerator * MachineUtils.getSharePrice(aum, supply, $._shareTokenDecimalsOffset);
+        return $._scalingNumerator * sharePrice;
     }
 
     /// @inheritdoc IMachineShareOracle

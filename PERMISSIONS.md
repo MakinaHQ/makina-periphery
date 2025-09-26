@@ -30,9 +30,11 @@ This is the list of role permissions in Makina Periphery contracts. These roles 
 ### AsyncRedeemManager
 
 - **Mechanic**
+
   - Can finalize redemption requests, provided that the requests have reached their finalisation delay and that the machine is not in recovery mode.
 
 - **Risk Manager**
+
   - Can activate and deactivate whitelist.
   - Can add or remove users from the whitelist.
 
@@ -49,6 +51,7 @@ This is the list of role permissions in Makina Periphery contracts. These roles 
 ### SecurityModule
 
 - **Security Council**
+
   - Can slash locked machine shares up to the maximum slashable amount.
   - Can re-enable locking after a slashing event.
 
@@ -56,3 +59,15 @@ This is the list of role permissions in Makina Periphery contracts. These roles 
   - Can set the cooldown duration.
   - Can set the maximum slashable ratio of machine share balance in the vault
   - Can set the minimum machine share balance that must remain in the vault after a slashing event.
+
+### MachineShareOracleFactory
+
+- `INFRA_SETUP_ROLE` (roleId `1`)
+  - Can register and unregister Morpho factories.
+  - Can deploy an oracle.
+
+### MachineShareOracleFactory
+
+- `INFRA_SETUP_ROLE` (roleId `1`)
+  - Can set the machine share oracle beacon.
+  - Can deploy an oracle.

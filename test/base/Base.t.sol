@@ -11,6 +11,7 @@ import {UpgradeableBeacon} from "@openzeppelin/contracts/proxy/beacon/Upgradeabl
 import {ICaliber} from "@makina-core/interfaces/ICaliber.sol";
 import {IMachine} from "@makina-core/interfaces/IMachine.sol";
 import {IMakinaGovernable} from "@makina-core/interfaces/IMakinaGovernable.sol";
+import {IPreDepositVault} from "@makina-core/interfaces/IPreDepositVault.sol";
 import {MockWormhole} from "@makina-core-test/mocks/MockWormhole.sol";
 import {Caliber} from "@makina-core/caliber/Caliber.sol";
 import {ChainRegistry} from "@makina-core/registries/ChainRegistry.sol";
@@ -18,6 +19,7 @@ import {HubCoreRegistry} from "@makina-core/registries/HubCoreRegistry.sol";
 import {HubCoreFactory} from "@makina-core/factories/HubCoreFactory.sol";
 import {Machine} from "@makina-core/machine/Machine.sol";
 import {OracleRegistry} from "@makina-core/registries/OracleRegistry.sol";
+import {PreDepositVault} from "@makina-core/pre-deposit/PreDepositVault.sol";
 import {SwapModule} from "@makina-core/swap/SwapModule.sol";
 import {TokenRegistry} from "@makina-core/registries/TokenRegistry.sol";
 
@@ -26,6 +28,7 @@ import {CoreHelpers} from "../utils/CoreHelpers.sol";
 import {FlashloanAggregator} from "../../src/flashloans/FlashloanAggregator.sol";
 import {HubPeripheryRegistry} from "../../src/registries/HubPeripheryRegistry.sol";
 import {HubPeripheryFactory} from "../../src/factories/HubPeripheryFactory.sol";
+import {MachineShareOracleFactory} from "../../src/factories/MachineShareOracleFactory.sol";
 import {MetaMorphoOracleFactory} from "../../src/factories/MetaMorphoOracleFactory.sol";
 
 import {Base} from "./Base.sol";
@@ -62,6 +65,10 @@ abstract contract Base_Test is Base, Test, Constants, CoreHelpers {
 
     // MetaMorpho Oracle Factory
     MetaMorphoOracleFactory public metaMorphoOracleFactory;
+
+    // Machine Share Oracle Beacon and Factory
+    UpgradeableBeacon public machineShareOracleBeacon;
+    MachineShareOracleFactory public machineShareOracleFactory;
 
     function setUp() public virtual {
         deployer = address(this);
@@ -118,7 +125,7 @@ abstract contract Base_Hub_Test is Base_Test {
         // Hub Periphery
         HubPeriphery memory hubPeriphery = deployHubPeriphery(
             address(accessManager),
-            address(hubCore.hubCoreFactory),
+            address(hubCoreRegistry),
             FlashloanProviders({
                 balancerV2Pool: balancerV2Pool,
                 balancerV3Pool: balancerV3Pool,
@@ -137,6 +144,8 @@ abstract contract Base_Hub_Test is Base_Test {
         watermarkFeeManagerBeacon = hubPeriphery.watermarkFeeManagerBeacon;
         securityModuleBeacon = hubPeriphery.securityModuleBeacon;
         metaMorphoOracleFactory = hubPeriphery.metaMorphoOracleFactory;
+        machineShareOracleBeacon = hubPeriphery.machineShareOracleBeacon;
+        machineShareOracleFactory = hubPeriphery.machineShareOracleFactory;
 
         registerFlashloanAggregator(address(hubCore.hubCoreRegistry), address(flashloanAggregator));
         registerHubPeripheryFactory(address(hubPeripheryRegistry), address(hubPeripheryFactory));
@@ -161,6 +170,68 @@ abstract contract Base_Hub_Test is Base_Test {
         registerFeeManagerBeacons(address(hubPeripheryRegistry), fmImplemIds, fmBeacons);
 
         _setupAccessManager(accessManager, dao);
+    }
+
+    function _deployPreDepositVault(address _depositToken, address _accountingToken) public returns (PreDepositVault) {
+        vm.prank(dao);
+        PreDepositVault _preDepositVault = PreDepositVault(
+            hubCoreFactory.createPreDepositVault(
+                IPreDepositVault.PreDepositVaultInitParams({
+                    initialShareLimit: DEFAULT_MACHINE_SHARE_LIMIT,
+                    initialWhitelistMode: false,
+                    initialRiskManager: address(0),
+                    initialAuthority: address(accessManager)
+                }),
+                _depositToken,
+                _accountingToken,
+                DEFAULT_MACHINE_SHARE_TOKEN_NAME,
+                DEFAULT_MACHINE_SHARE_TOKEN_SYMBOL
+            )
+        );
+        return _preDepositVault;
+    }
+
+    function _deployMachineFromPreDeposit(
+        address _preDepositVault,
+        address _depositor,
+        address _redeemer,
+        address _machineFeeManager
+    ) public returns (Machine, Caliber) {
+        vm.prank(dao);
+        Machine _machine = Machine(
+            hubCoreFactory.createMachineFromPreDeposit(
+                IMachine.MachineInitParams({
+                    initialDepositor: _depositor,
+                    initialRedeemer: _redeemer,
+                    initialFeeManager: _machineFeeManager,
+                    initialCaliberStaleThreshold: DEFAULT_MACHINE_CALIBER_STALE_THRESHOLD,
+                    initialMaxFixedFeeAccrualRate: DEFAULT_MACHINE_MAX_FIXED_FEE_ACCRUAL_RATE,
+                    initialMaxPerfFeeAccrualRate: DEFAULT_MACHINE_MAX_PERF_FEE_ACCRUAL_RATE,
+                    initialFeeMintCooldown: DEFAULT_MACHINE_FEE_MINT_COOLDOWN,
+                    initialShareLimit: DEFAULT_MACHINE_SHARE_LIMIT
+                }),
+                ICaliber.CaliberInitParams({
+                    initialPositionStaleThreshold: DEFAULT_CALIBER_POS_STALE_THRESHOLD,
+                    initialAllowedInstrRoot: bytes32(0),
+                    initialTimelockDuration: DEFAULT_CALIBER_ROOT_UPDATE_TIMELOCK,
+                    initialMaxPositionIncreaseLossBps: DEFAULT_CALIBER_MAX_POS_INCREASE_LOSS_BPS,
+                    initialMaxPositionDecreaseLossBps: DEFAULT_CALIBER_MAX_POS_DECREASE_LOSS_BPS,
+                    initialMaxSwapLossBps: DEFAULT_CALIBER_MAX_SWAP_LOSS_BPS,
+                    initialCooldownDuration: DEFAULT_CALIBER_COOLDOWN_DURATION
+                }),
+                IMakinaGovernable.MakinaGovernableInitParams({
+                    initialMechanic: mechanic,
+                    initialSecurityCouncil: securityCouncil,
+                    initialRiskManager: riskManager,
+                    initialRiskManagerTimelock: riskManagerTimelock,
+                    initialAuthority: address(accessManager)
+                }),
+                _preDepositVault,
+                TEST_DEPLOYMENT_SALT
+            )
+        );
+        Caliber _caliber = Caliber(_machine.hubCaliber());
+        return (_machine, _caliber);
     }
 
     function _deployMachine(address _accountingToken, address _depositor, address _redeemer, address _machineFeeManager)

@@ -46,8 +46,9 @@ interface IAsyncRedeemer is IMachinePeriphery {
     /// @notice Creates a redeem request and issues an associated NFT to the receiver.
     /// @param shares The amount of shares to redeem.
     /// @param receiver The receiver of the receipt NFT.
+    /// @param minAssets The minimum amount of assets for the request’s entry price.
     /// @return requestId The ID of the redeem request.
-    function requestRedeem(uint256 shares, address receiver) external returns (uint256);
+    function requestRedeem(uint256 shares, address receiver, uint256 minAssets) external returns (uint256);
 
     /// @notice Finalizes redeem requests up to a given request ID.
     /// @dev Can only be called by the operator of the associated machine.

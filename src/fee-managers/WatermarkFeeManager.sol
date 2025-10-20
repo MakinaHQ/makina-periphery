@@ -64,6 +64,9 @@ contract WatermarkFeeManager is MachinePeriphery, AccessManagedUpgradeable, IWat
             revert Errors.MaxFeeRateValueExceeded();
         }
 
+        _checkFeeSplit(params.initialMgmtFeeReceivers, params.initialMgmtFeeSplitBps);
+        _checkFeeSplit(params.initialPerfFeeReceivers, params.initialPerfFeeSplitBps);
+
         $._mgmtFeeRatePerSecond = params.initialMgmtFeeRatePerSecond;
         $._smFeeRatePerSecond = params.initialSmFeeRatePerSecond;
         $._perfFeeRate = params.initialPerfFeeRate;
@@ -310,7 +313,7 @@ contract WatermarkFeeManager is MachinePeriphery, AccessManagedUpgradeable, IWat
     }
 
     /// @notice Checks that the provided fee split setup is valid.
-    function _checkFeeSplit(address[] calldata _feeReceivers, uint256[] calldata _feeSplitBps) internal pure {
+    function _checkFeeSplit(address[] memory _feeReceivers, uint256[] memory _feeSplitBps) internal pure {
         uint256 sLen = _feeSplitBps.length;
         uint256 rLen = _feeReceivers.length;
 

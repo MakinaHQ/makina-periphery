@@ -26,6 +26,7 @@ abstract contract Constants {
 
     // Redeemers
     uint256 public constant DEFAULT_FINALIZATION_DELAY = 1 hours;
+    uint256 public constant DEFAULT_MIN_REDEEM_AMOUNT = 100;
 
     // Fee managers
     uint256 public constant DEFAULT_WATERMARK_FEE_MANAGER_MGMT_FEE_RATE_PER_SECOND = 1e4; // 0.0000000000000001% of supply per second

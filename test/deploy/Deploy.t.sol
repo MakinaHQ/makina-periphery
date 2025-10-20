@@ -216,6 +216,10 @@ contract Deploy_Scripts_Test is Base_Test {
             abi.decode(vm.parseJson(deployAsyncRedeemer.inputJson(), ".finalizationDelay"), (uint256))
         );
         assertEq(
+            asyncRedeemer.minRedeemAmount(),
+            abi.decode(vm.parseJson(deployAsyncRedeemer.inputJson(), ".minRedeemAmount"), (uint256))
+        );
+        assertEq(
             asyncRedeemer.isWhitelistEnabled(),
             abi.decode(vm.parseJson(deployAsyncRedeemer.inputJson(), ".whitelistStatus"), (bool))
         );

@@ -5,6 +5,7 @@ import {IMachinePeriphery} from "./IMachinePeriphery.sol";
 
 interface IAsyncRedeemer is IMachinePeriphery {
     event FinalizationDelayChanged(uint256 indexed oldDelay, uint256 indexed newDelay);
+    event MinRedeemAmountChanged(uint256 indexed oldMinRedeemAmount, uint256 indexed newMinRedeemAmount);
     event RedeemRequestCreated(uint256 indexed requestId, uint256 shares, address indexed receiver);
     event RedeemRequestClaimed(uint256 indexed requestId, uint256 shares, uint256 assets, address indexed receiver);
     event RedeemRequestsFinalized(
@@ -25,6 +26,9 @@ interface IAsyncRedeemer is IMachinePeriphery {
 
     /// @notice Minimum time (in seconds) to be elapsed between request submission and finalization.
     function finalizationDelay() external view returns (uint256);
+
+    /// @notice Minimum amount of shares required to create a redeem request.
+    function minRedeemAmount() external view returns (uint256);
 
     /// @notice Request ID => Shares
     function getShares(uint256 requestId) external view returns (uint256);
@@ -58,4 +62,8 @@ interface IAsyncRedeemer is IMachinePeriphery {
     /// @notice Sets the finalization delay for redeem requests.
     /// @param newDelay The new finalization delay in seconds.
     function setFinalizationDelay(uint256 newDelay) external;
+
+    /// @notice Sets the minimum redeem amount.
+    /// @param newMinRedeemAmount The new minimum redeem amount.
+    function setMinRedeemAmount(uint256 newMinRedeemAmount) external;
 }

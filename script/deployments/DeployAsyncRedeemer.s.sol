@@ -21,6 +21,7 @@ contract DeployAsyncRedeemer is Base, Script, SortedParams {
     HubPeripherySorted private _hubPeriphery;
 
     uint256 public finalizationDelay;
+    uint256 public minRedeemAmount;
     bool public whitelistStatus;
 
     address public deployedInstance;
@@ -59,6 +60,7 @@ contract DeployAsyncRedeemer is Base, Script, SortedParams {
         uint16 implemId = abi.decode(vm.parseJson(implemIdsInputJson, ".asyncRedeemerImplemId"), (uint16));
 
         finalizationDelay = abi.decode(vm.parseJson(inputJson, ".finalizationDelay"), (uint256));
+        minRedeemAmount = abi.decode(vm.parseJson(inputJson, ".minRedeemAmount"), (uint256));
         whitelistStatus = abi.decode(vm.parseJson(inputJson, ".whitelistStatus"), (bool));
 
         address sender = vm.envOr("TEST_SENDER", address(0));
@@ -69,7 +71,7 @@ contract DeployAsyncRedeemer is Base, Script, SortedParams {
         }
 
         deployedInstance = IHubPeripheryFactory(_hubPeriphery.hubPeripheryFactory).createRedeemer(
-            implemId, abi.encode(finalizationDelay, whitelistStatus)
+            implemId, abi.encode(finalizationDelay, minRedeemAmount, whitelistStatus)
         );
 
         vm.stopBroadcast();

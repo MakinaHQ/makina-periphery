@@ -6,6 +6,7 @@ import {Errors as CoreErrors} from "@makina-core/libraries/Errors.sol";
 library Errors {
     error AlreadyClaimed();
     error AlreadyFinalized();
+    error AmountToolow();
     error CooldownExpired();
     error CooldownOngoing();
     error FinalizationDelayPending();

@@ -18,7 +18,8 @@ contract AsyncRedeemer_Integration_Concrete_Test is MachinePeriphery_Integration
         vm.prank(dao);
         asyncRedeemer = AsyncRedeemer(
             hubPeripheryFactory.createRedeemer(
-                ASYNC_REDEEMER_IMPLEM_ID, abi.encode(DEFAULT_FINALIZATION_DELAY, DEFAULT_INITIAL_WHITELIST_STATUS)
+                ASYNC_REDEEMER_IMPLEM_ID,
+                abi.encode(DEFAULT_FINALIZATION_DELAY, DEFAULT_MIN_REDEEM_AMOUNT, DEFAULT_INITIAL_WHITELIST_STATUS)
             )
         );
 

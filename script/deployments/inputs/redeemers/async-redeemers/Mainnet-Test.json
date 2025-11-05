@@ -1,4 +1,5 @@
 {
   "finalizationDelay": 604800,
+  "minRedeemAmount": 100,
   "whitelistStatus": true
 }

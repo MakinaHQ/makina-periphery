@@ -27,6 +27,7 @@ contract AsyncRedeemer is ERC721Upgradeable, ReentrancyGuardUpgradeable, Machine
         uint256 _lastFinalizedRequestId;
         uint256 _finalizationDelay;
         mapping(uint256 requestId => IAsyncRedeemer.RedeemRequest request) _requests;
+        uint256 _minRedeemAmount;
     }
 
     // keccak256(abi.encode(uint256(keccak256("makina.storage.AsyncRedeemer")) - 1)) & ~bytes32(uint256(0xff))
@@ -43,11 +44,13 @@ contract AsyncRedeemer is ERC721Upgradeable, ReentrancyGuardUpgradeable, Machine
 
     /// @inheritdoc IMachinePeriphery
     function initialize(bytes calldata data) external virtual override initializer {
-        (uint256 _finalizationDelay, bool _whitelistStatus) = abi.decode(data, (uint256, bool));
+        (uint256 _finalizationDelay, uint256 _minRedeemAmount, bool _whitelistStatus) =
+            abi.decode(data, (uint256, uint256, bool));
 
         AsyncRedeemerStorage storage $ = _getAsyncRedeemerStorage();
 
         $._finalizationDelay = _finalizationDelay;
+        $._minRedeemAmount = _minRedeemAmount;
         $._nextRequestId = 1;
 
         __Whitelist_init(_whitelistStatus);
@@ -67,6 +70,11 @@ contract AsyncRedeemer is ERC721Upgradeable, ReentrancyGuardUpgradeable, Machine
     /// @inheritdoc IAsyncRedeemer
     function finalizationDelay() external view override returns (uint256) {
         return _getAsyncRedeemerStorage()._finalizationDelay;
+    }
+
+    /// @inheritdoc IAsyncRedeemer
+    function minRedeemAmount() external view override returns (uint256) {
+        return _getAsyncRedeemerStorage()._minRedeemAmount;
     }
 
     /// @inheritdoc IAsyncRedeemer
@@ -117,6 +125,10 @@ contract AsyncRedeemer is ERC721Upgradeable, ReentrancyGuardUpgradeable, Machine
         uint256 requestId = $._nextRequestId++;
 
         address _machine = machine();
+
+        if (shares < $._minRedeemAmount) {
+            revert Errors.AmountToolow();
+        }
 
         $._requests[requestId] =
             IAsyncRedeemer.RedeemRequest(shares, IMachine(_machine).convertToAssets(shares), block.timestamp);
@@ -200,6 +212,13 @@ contract AsyncRedeemer is ERC721Upgradeable, ReentrancyGuardUpgradeable, Machine
         AsyncRedeemerStorage storage $ = _getAsyncRedeemerStorage();
         emit FinalizationDelayChanged($._finalizationDelay, newDelay);
         $._finalizationDelay = newDelay;
+    }
+
+    /// @inheritdoc IAsyncRedeemer
+    function setMinRedeemAmount(uint256 newMinAmount) external override onlyRiskManagerTimelock {
+        AsyncRedeemerStorage storage $ = _getAsyncRedeemerStorage();
+        emit MinRedeemAmountChanged($._minRedeemAmount, newMinAmount);
+        $._minRedeemAmount = newMinAmount;
     }
 
     /// @inheritdoc IWhitelist

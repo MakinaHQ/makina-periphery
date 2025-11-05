@@ -37,6 +37,96 @@ contract Initialize_Integration_Concrete_Test is WatermarkFeeManager_Integration
         );
     }
 
+    function test_RevertWhen_InvalidMgmtFeeSplit() public {
+        IWatermarkFeeManager.WatermarkFeeManagerInitParams memory initParams = _getWatermarkFeeManagerInitParams();
+
+        initParams.initialMgmtFeeReceivers = new address[](0);
+        initParams.initialMgmtFeeSplitBps = new uint256[](0);
+
+        vm.startPrank(dao);
+
+        // Empty fee split
+        vm.expectRevert(Errors.InvalidFeeSplit.selector);
+        new BeaconProxy(
+            address(watermarkFeeManagerBeacon), abi.encodeCall(IMachinePeriphery.initialize, (abi.encode(initParams)))
+        );
+
+        initParams.initialMgmtFeeSplitBps = new uint256[](1);
+
+        // Length mismatch between bps split and receivers
+        vm.expectRevert(Errors.InvalidFeeSplit.selector);
+        new BeaconProxy(
+            address(watermarkFeeManagerBeacon), abi.encodeCall(IMachinePeriphery.initialize, (abi.encode(initParams)))
+        );
+
+        initParams.initialMgmtFeeReceivers = new address[](2);
+        initParams.initialMgmtFeeReceivers[0] = address(0x123);
+        initParams.initialMgmtFeeReceivers[1] = address(0x456);
+
+        initParams.initialMgmtFeeSplitBps = new uint256[](2);
+        initParams.initialMgmtFeeSplitBps[0] = 3_500;
+        initParams.initialMgmtFeeSplitBps[1] = 6_000;
+
+        // total bps smaller than 10_000
+        vm.expectRevert(Errors.InvalidFeeSplit.selector);
+        new BeaconProxy(
+            address(watermarkFeeManagerBeacon), abi.encodeCall(IMachinePeriphery.initialize, (abi.encode(initParams)))
+        );
+
+        initParams.initialMgmtFeeSplitBps[1] = 7_000;
+
+        // total bps greater than 10_000
+        vm.expectRevert(Errors.InvalidFeeSplit.selector);
+        new BeaconProxy(
+            address(watermarkFeeManagerBeacon), abi.encodeCall(IMachinePeriphery.initialize, (abi.encode(initParams)))
+        );
+    }
+
+    function test_RevertWhen_InvalidPerfFeeSplit() public {
+        IWatermarkFeeManager.WatermarkFeeManagerInitParams memory initParams = _getWatermarkFeeManagerInitParams();
+
+        initParams.initialPerfFeeReceivers = new address[](0);
+        initParams.initialPerfFeeSplitBps = new uint256[](0);
+
+        vm.startPrank(dao);
+
+        // Empty fee split
+        vm.expectRevert(Errors.InvalidFeeSplit.selector);
+        new BeaconProxy(
+            address(watermarkFeeManagerBeacon), abi.encodeCall(IMachinePeriphery.initialize, (abi.encode(initParams)))
+        );
+
+        initParams.initialPerfFeeSplitBps = new uint256[](1);
+
+        // Length mismatch between bps split and receivers
+        vm.expectRevert(Errors.InvalidFeeSplit.selector);
+        new BeaconProxy(
+            address(watermarkFeeManagerBeacon), abi.encodeCall(IMachinePeriphery.initialize, (abi.encode(initParams)))
+        );
+
+        initParams.initialPerfFeeReceivers = new address[](2);
+        initParams.initialPerfFeeReceivers[0] = address(0x123);
+        initParams.initialPerfFeeReceivers[1] = address(0x456);
+
+        initParams.initialPerfFeeSplitBps = new uint256[](2);
+        initParams.initialPerfFeeSplitBps[0] = 3_500;
+        initParams.initialPerfFeeSplitBps[1] = 6_000;
+
+        // total bps smaller than 10_000
+        vm.expectRevert(Errors.InvalidFeeSplit.selector);
+        new BeaconProxy(
+            address(watermarkFeeManagerBeacon), abi.encodeCall(IMachinePeriphery.initialize, (abi.encode(initParams)))
+        );
+
+        initParams.initialPerfFeeSplitBps[1] = 7_000;
+
+        // total bps greater than 10_000
+        vm.expectRevert(Errors.InvalidFeeSplit.selector);
+        new BeaconProxy(
+            address(watermarkFeeManagerBeacon), abi.encodeCall(IMachinePeriphery.initialize, (abi.encode(initParams)))
+        );
+    }
+
     function _getWatermarkFeeManagerInitParams()
         internal
         view

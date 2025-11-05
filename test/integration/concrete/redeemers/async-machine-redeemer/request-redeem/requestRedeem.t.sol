@@ -23,6 +23,11 @@ contract RequestRedeem_Integration_Concrete_Test is AsyncRedeemer_Integration_Co
         asyncRedeemer.requestRedeem(0, address(0));
     }
 
+    function test_RevertWhen_AmountToolow() public withMachine(address(machine)) {
+        vm.expectRevert(Errors.AmountToolow.selector);
+        asyncRedeemer.requestRedeem(DEFAULT_MIN_REDEEM_AMOUNT - 1, address(0));
+    }
+
     function test_RequestRedeem() public withMachine(address(machine)) {
         uint256 assets1 = 1e18;
         uint256 assets2 = 2e18;

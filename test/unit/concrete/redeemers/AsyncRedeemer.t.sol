@@ -27,7 +27,8 @@ abstract contract AsyncRedeemer_Util_Concrete_Test is MachinePeriphery_Util_Conc
         vm.prank(dao);
         asyncRedeemer = AsyncRedeemer(
             hubPeripheryFactory.createRedeemer(
-                ASYNC_REDEEMER_IMPLEM_ID, abi.encode(DEFAULT_FINALIZATION_DELAY, DEFAULT_INITIAL_WHITELIST_STATUS)
+                ASYNC_REDEEMER_IMPLEM_ID,
+                abi.encode(DEFAULT_FINALIZATION_DELAY, DEFAULT_MIN_REDEEM_AMOUNT, DEFAULT_INITIAL_WHITELIST_STATUS)
             )
         );
 
@@ -84,5 +85,19 @@ contract Getters_Setters_AsyncRedeemer_Util_Concrete_Test is
         vm.prank(riskManagerTimelock);
         asyncRedeemer.setFinalizationDelay(newFinalizationDelay);
         assertEq(asyncRedeemer.finalizationDelay(), newFinalizationDelay);
+    }
+
+    function test_SetMinRedeemAmount_RevertWhen_NotRMT() public withMachine(_machineAddr) {
+        vm.expectRevert(CoreErrors.UnauthorizedCaller.selector);
+        asyncRedeemer.setMinRedeemAmount(10);
+    }
+
+    function test_SetMinRedeemAmount() public withMachine(_machineAddr) {
+        uint256 newMinRedeemAmount = 10;
+        vm.expectEmit(true, true, false, false, address(asyncRedeemer));
+        emit IAsyncRedeemer.MinRedeemAmountChanged(Constants.DEFAULT_MIN_REDEEM_AMOUNT, newMinRedeemAmount);
+        vm.prank(riskManagerTimelock);
+        asyncRedeemer.setMinRedeemAmount(newMinRedeemAmount);
+        assertEq(asyncRedeemer.minRedeemAmount(), newMinRedeemAmount);
     }
 }

@@ -10,7 +10,7 @@ import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/ut
 
 import {IMachine} from "@makina-core/interfaces/IMachine.sol";
 
-import {Errors} from "../libraries/Errors.sol";
+import {Errors, CoreErrors} from "../libraries/Errors.sol";
 import {MachinePeriphery} from "../utils/MachinePeriphery.sol";
 import {Whitelist} from "../utils/Whitelist.sol";
 import {IAsyncRedeemer} from "../interfaces/IAsyncRedeemer.sol";
@@ -112,7 +112,7 @@ contract AsyncRedeemer is ERC721Upgradeable, ReentrancyGuardUpgradeable, Machine
     }
 
     /// @inheritdoc IAsyncRedeemer
-    function requestRedeem(uint256 shares, address receiver)
+    function requestRedeem(uint256 shares, address receiver, uint256 minAssets)
         public
         virtual
         override
@@ -130,8 +130,13 @@ contract AsyncRedeemer is ERC721Upgradeable, ReentrancyGuardUpgradeable, Machine
             revert Errors.AmountToolow();
         }
 
-        $._requests[requestId] =
-            IAsyncRedeemer.RedeemRequest(shares, IMachine(_machine).convertToAssets(shares), block.timestamp);
+        uint256 assets = IMachine(_machine).convertToAssets(shares);
+
+        if (assets < minAssets) {
+            revert CoreErrors.SlippageProtection();
+        }
+
+        $._requests[requestId] = IAsyncRedeemer.RedeemRequest(shares, assets, block.timestamp);
 
         IERC20(IMachine(_machine).shareToken()).safeTransferFrom(msg.sender, address(this), shares);
         _safeMint(receiver, requestId);

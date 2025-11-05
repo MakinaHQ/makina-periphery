@@ -41,7 +41,7 @@ contract ClaimAssets_Integration_Concrete_Test is AsyncRedeemer_Integration_Conc
         // User1 enters queue, User3 is the receiver
         vm.startPrank(user1);
         machineShare.approve(address(asyncRedeemer), shares);
-        uint256 requestId = asyncRedeemer.requestRedeem(shares, user3);
+        uint256 requestId = asyncRedeemer.requestRedeem(shares, user3, 0);
 
         // User1 tries to claim assets
         vm.expectRevert(abi.encodeWithSelector(IERC721Errors.ERC721IncorrectOwner.selector, user1, requestId, user3));
@@ -61,7 +61,7 @@ contract ClaimAssets_Integration_Concrete_Test is AsyncRedeemer_Integration_Conc
         // User1 enters queue
         vm.startPrank(user1);
         machineShare.approve(address(asyncRedeemer), shares);
-        uint256 requestId = asyncRedeemer.requestRedeem(shares, user3);
+        uint256 requestId = asyncRedeemer.requestRedeem(shares, user3, 0);
         vm.stopPrank();
 
         vm.expectRevert(Errors.NotFinalized.selector);
@@ -84,7 +84,7 @@ contract ClaimAssets_Integration_Concrete_Test is AsyncRedeemer_Integration_Conc
         uint256 assetsToWithdraw1 = machine.convertToAssets(sharesToRedeem1);
         vm.startPrank(user1);
         machineShare.approve(address(asyncRedeemer), sharesToRedeem1);
-        uint256 requestId1 = asyncRedeemer.requestRedeem(sharesToRedeem1, user3);
+        uint256 requestId1 = asyncRedeemer.requestRedeem(sharesToRedeem1, user3, 0);
         vm.stopPrank();
 
         skip(asyncRedeemer.finalizationDelay());
@@ -110,7 +110,7 @@ contract ClaimAssets_Integration_Concrete_Test is AsyncRedeemer_Integration_Conc
         uint256 sharesToRedeem2 = mintedShares1 - sharesToRedeem1;
         vm.startPrank(user1);
         machineShare.approve(address(asyncRedeemer), sharesToRedeem2);
-        uint256 requestId2 = asyncRedeemer.requestRedeem(sharesToRedeem2, user4);
+        uint256 requestId2 = asyncRedeemer.requestRedeem(sharesToRedeem2, user4, 0);
         vm.stopPrank();
 
         skip(asyncRedeemer.finalizationDelay());
@@ -152,7 +152,7 @@ contract ClaimAssets_Integration_Concrete_Test is AsyncRedeemer_Integration_Conc
         uint256 assetsToWithdraw1 = machine.convertToAssets(sharesToRedeem1);
         vm.startPrank(user1);
         machineShare.approve(address(asyncRedeemer), sharesToRedeem1);
-        uint256 requestId1 = asyncRedeemer.requestRedeem(sharesToRedeem1, user3);
+        uint256 requestId1 = asyncRedeemer.requestRedeem(sharesToRedeem1, user3, 0);
         vm.stopPrank();
 
         // Generate some positive yield in machine
@@ -163,7 +163,7 @@ contract ClaimAssets_Integration_Concrete_Test is AsyncRedeemer_Integration_Conc
         uint256 sharesToRedeem2 = mintedShares1 - sharesToRedeem1; // User1 redeems rest of their shares
         vm.startPrank(user1);
         machineShare.approve(address(asyncRedeemer), sharesToRedeem2);
-        uint256 requestId2 = asyncRedeemer.requestRedeem(sharesToRedeem2, user4);
+        uint256 requestId2 = asyncRedeemer.requestRedeem(sharesToRedeem2, user4, 0);
         vm.stopPrank();
 
         skip(asyncRedeemer.finalizationDelay());
@@ -215,7 +215,7 @@ contract ClaimAssets_Integration_Concrete_Test is AsyncRedeemer_Integration_Conc
         uint256 assetsToWithdraw1 = machine.convertToAssets(sharesToRedeem1);
         vm.startPrank(user1);
         machineShare.approve(address(asyncRedeemer), sharesToRedeem1);
-        uint256 requestId1 = asyncRedeemer.requestRedeem(sharesToRedeem1, user3);
+        uint256 requestId1 = asyncRedeemer.requestRedeem(sharesToRedeem1, user3, 0);
         vm.stopPrank();
 
         // Generate some positive yield in machine
@@ -226,7 +226,7 @@ contract ClaimAssets_Integration_Concrete_Test is AsyncRedeemer_Integration_Conc
         uint256 sharesToRedeem2 = mintedShares2; // User2 redeems all of their shares
         vm.startPrank(user2);
         machineShare.approve(address(asyncRedeemer), sharesToRedeem2);
-        uint256 requestId2 = asyncRedeemer.requestRedeem(sharesToRedeem2, user4);
+        uint256 requestId2 = asyncRedeemer.requestRedeem(sharesToRedeem2, user4, 0);
         vm.stopPrank();
 
         skip(asyncRedeemer.finalizationDelay());
@@ -239,7 +239,7 @@ contract ClaimAssets_Integration_Concrete_Test is AsyncRedeemer_Integration_Conc
         uint256 sharesToRedeem3 = mintedShares1 - sharesToRedeem1; // User1 redeems rest of their shares
         vm.startPrank(user1);
         machineShare.approve(address(asyncRedeemer), sharesToRedeem3);
-        uint256 requestId3 = asyncRedeemer.requestRedeem(sharesToRedeem3, user3);
+        uint256 requestId3 = asyncRedeemer.requestRedeem(sharesToRedeem3, user3, 0);
         vm.stopPrank();
 
         skip(asyncRedeemer.finalizationDelay());
@@ -296,7 +296,7 @@ contract ClaimAssets_Integration_Concrete_Test is AsyncRedeemer_Integration_Conc
         // User1 enters queue
         vm.startPrank(user1);
         machineShare.approve(address(asyncRedeemer), shares);
-        uint256 requestId = asyncRedeemer.requestRedeem(shares, user3);
+        uint256 requestId = asyncRedeemer.requestRedeem(shares, user3, 0);
         vm.stopPrank();
 
         skip(asyncRedeemer.finalizationDelay());

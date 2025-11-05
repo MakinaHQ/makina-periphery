@@ -11,7 +11,7 @@ import {AsyncRedeemer_Integration_Concrete_Test} from "../AsyncRedeemer.t.sol";
 contract RequestRedeem_Integration_Concrete_Test is AsyncRedeemer_Integration_Concrete_Test {
     function test_RevertGiven_MachineNotSet() public {
         vm.expectRevert(Errors.MachineNotSet.selector);
-        asyncRedeemer.requestRedeem(0, address(0));
+        asyncRedeemer.requestRedeem(0, address(0), 0);
     }
 
     function test_RevertWhen_UnauthorizedCaller_WithWhitelistEnabled()
@@ -20,12 +20,20 @@ contract RequestRedeem_Integration_Concrete_Test is AsyncRedeemer_Integration_Co
         withWhitelistEnabled
     {
         vm.expectRevert(CoreErrors.UnauthorizedCaller.selector);
-        asyncRedeemer.requestRedeem(0, address(0));
+        asyncRedeemer.requestRedeem(0, address(0), 0);
     }
 
     function test_RevertWhen_AmountToolow() public withMachine(address(machine)) {
         vm.expectRevert(Errors.AmountToolow.selector);
-        asyncRedeemer.requestRedeem(DEFAULT_MIN_REDEEM_AMOUNT - 1, address(0));
+        asyncRedeemer.requestRedeem(DEFAULT_MIN_REDEEM_AMOUNT - 1, address(0), 0);
+    }
+
+    function test_RevertGiven_SlippageProtectionTriggered() public withMachine(address(machine)) {
+        uint256 shares = 1e18;
+        uint256 assets = machine.convertToAssets(shares);
+
+        vm.expectRevert(CoreErrors.SlippageProtection.selector);
+        asyncRedeemer.requestRedeem(shares, address(0), assets + 1);
     }
 
     function test_RequestRedeem() public withMachine(address(machine)) {
@@ -47,7 +55,7 @@ contract RequestRedeem_Integration_Concrete_Test is AsyncRedeemer_Integration_Co
         machineShare.approve(address(asyncRedeemer), shares1);
         vm.expectEmit(true, true, true, true, address(asyncRedeemer));
         emit IAsyncRedeemer.RedeemRequestCreated(_nextRequestId, shares1, user3);
-        uint256 requestId1 = asyncRedeemer.requestRedeem(shares1, user3);
+        uint256 requestId1 = asyncRedeemer.requestRedeem(shares1, user3, 0);
         vm.stopPrank();
 
         assertEq(asyncRedeemer.getShares(requestId1), shares1);
@@ -65,7 +73,7 @@ contract RequestRedeem_Integration_Concrete_Test is AsyncRedeemer_Integration_Co
         machineShare.approve(address(asyncRedeemer), shares2);
         vm.expectEmit(true, true, true, true, address(asyncRedeemer));
         emit IAsyncRedeemer.RedeemRequestCreated(_nextRequestId, shares2, user4);
-        uint256 requestId2 = asyncRedeemer.requestRedeem(shares2, user4);
+        uint256 requestId2 = asyncRedeemer.requestRedeem(shares2, user4, 0);
         vm.stopPrank();
 
         assertEq(requestId2, _nextRequestId);
@@ -108,7 +116,7 @@ contract RequestRedeem_Integration_Concrete_Test is AsyncRedeemer_Integration_Co
         machineShare.approve(address(asyncRedeemer), shares1);
         vm.expectEmit(true, true, true, true, address(asyncRedeemer));
         emit IAsyncRedeemer.RedeemRequestCreated(_nextRequestId, shares1, user3);
-        uint256 requestId1 = asyncRedeemer.requestRedeem(shares1, user3);
+        uint256 requestId1 = asyncRedeemer.requestRedeem(shares1, user3, 0);
         vm.stopPrank();
 
         assertEq(asyncRedeemer.getShares(requestId1), shares1);
@@ -126,7 +134,7 @@ contract RequestRedeem_Integration_Concrete_Test is AsyncRedeemer_Integration_Co
         machineShare.approve(address(asyncRedeemer), shares2);
         vm.expectEmit(true, true, true, true, address(asyncRedeemer));
         emit IAsyncRedeemer.RedeemRequestCreated(_nextRequestId, shares2, user4);
-        uint256 requestId2 = asyncRedeemer.requestRedeem(shares2, user4);
+        uint256 requestId2 = asyncRedeemer.requestRedeem(shares2, user4, 0);
         vm.stopPrank();
 
         assertEq(requestId2, _nextRequestId);

@@ -3,6 +3,8 @@ pragma solidity 0.8.28;
 
 import {stdJson} from "forge-std/StdJson.sol";
 
+import {ICoreRegistry} from "@makina-core/interfaces/ICoreRegistry.sol";
+
 import {FlashloanAggregator} from "../../src/flashloans/FlashloanAggregator.sol";
 
 import {DeployPeriphery} from "./DeployPeriphery.s.sol";
@@ -10,7 +12,7 @@ import {DeployPeriphery} from "./DeployPeriphery.s.sol";
 contract DeploySpokePeriphery is DeployPeriphery {
     using stdJson for string;
 
-    address public caliberFactory;
+    address public spokeCoreRegistry;
     FlashloanProvidersSorted public flProviders;
 
     FlashloanAggregator private deployedInstance;
@@ -36,7 +38,7 @@ contract DeploySpokePeriphery is DeployPeriphery {
     }
 
     function _deploySetupBefore() public override {
-        caliberFactory = abi.decode(vm.parseJson(inputJson, ".caliberFactory"), (address));
+        spokeCoreRegistry = abi.decode(vm.parseJson(inputJson, ".spokeCoreRegistry"), (address));
         flProviders = abi.decode(vm.parseJson(inputJson, ".flashloanProviders"), (FlashloanProvidersSorted));
 
         // start broadcasting transactions
@@ -46,6 +48,7 @@ contract DeploySpokePeriphery is DeployPeriphery {
     }
 
     function _coreSetup() public override {
+        address caliberFactory = ICoreRegistry(spokeCoreRegistry).coreFactory();
         deployedInstance = deployFlashloanAggregator(
             caliberFactory,
             FlashloanProviders({

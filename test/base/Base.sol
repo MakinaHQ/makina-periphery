@@ -18,6 +18,8 @@ import {WatermarkFeeManager} from "../../src/fee-managers/WatermarkFeeManager.so
 import {DirectDepositor} from "../../src/depositors/DirectDepositor.sol";
 import {AsyncRedeemer} from "../../src/redeemers/AsyncRedeemer.sol";
 import {SecurityModule} from "../../src/security-module/SecurityModule.sol";
+import {MachineShareOracle} from "../../src/oracles/MachineShareOracle.sol";
+import {MachineShareOracleFactory} from "../../src/factories/MachineShareOracleFactory.sol";
 import {MetaMorphoOracleFactory} from "../../src/factories/MetaMorphoOracleFactory.sol";
 
 abstract contract Base {
@@ -30,6 +32,8 @@ abstract contract Base {
         UpgradeableBeacon watermarkFeeManagerBeacon;
         UpgradeableBeacon securityModuleBeacon;
         MetaMorphoOracleFactory metaMorphoOracleFactory;
+        UpgradeableBeacon machineShareOracleBeacon;
+        MachineShareOracleFactory machineShareOracleFactory;
     }
 
     struct FlashloanProviders {
@@ -47,57 +51,93 @@ abstract contract Base {
 
     function deployHubPeriphery(
         address accessManager,
-        address caliberFactory,
+        address hubCoreRegistry,
         FlashloanProviders memory flProviders,
         address dao
     ) public returns (HubPeriphery memory deployment) {
-        deployment.flashloanAggregator = deployFlashloanAggregator(caliberFactory, flProviders);
+        {
+            address caliberFactory = ICoreRegistry(hubCoreRegistry).coreFactory();
+            deployment.flashloanAggregator = deployFlashloanAggregator(caliberFactory, flProviders);
+        }
 
-        address hubPeripheryRegistryImplemAddr = address(new HubPeripheryRegistry());
-        deployment.hubPeripheryRegistry = HubPeripheryRegistry(
-            address(
-                new TransparentUpgradeableProxy(
-                    hubPeripheryRegistryImplemAddr,
-                    dao,
-                    abi.encodeCall(HubPeripheryRegistry.initialize, (address(accessManager)))
+        {
+            address hubPeripheryRegistryImplemAddr = address(new HubPeripheryRegistry());
+            deployment.hubPeripheryRegistry = HubPeripheryRegistry(
+                address(
+                    new TransparentUpgradeableProxy(
+                        hubPeripheryRegistryImplemAddr,
+                        dao,
+                        abi.encodeCall(HubPeripheryRegistry.initialize, (address(accessManager)))
+                    )
                 )
-            )
-        );
+            );
+        }
 
-        address hubPeripheryFactoryImplemAddr =
-            address(new HubPeripheryFactory(address(deployment.hubPeripheryRegistry)));
-        deployment.hubPeripheryFactory = HubPeripheryFactory(
-            address(
-                new TransparentUpgradeableProxy(
-                    hubPeripheryFactoryImplemAddr,
-                    dao,
-                    abi.encodeCall(HubPeripheryFactory.initialize, (address(accessManager)))
+        {
+            address hubPeripheryFactoryImplemAddr =
+                address(new HubPeripheryFactory(address(deployment.hubPeripheryRegistry)));
+            deployment.hubPeripheryFactory = HubPeripheryFactory(
+                address(
+                    new TransparentUpgradeableProxy(
+                        hubPeripheryFactoryImplemAddr,
+                        dao,
+                        abi.encodeCall(HubPeripheryFactory.initialize, (address(accessManager)))
+                    )
                 )
-            )
-        );
-        address directDepositorImplemAddr = address(new DirectDepositor(address(deployment.hubPeripheryRegistry)));
-        deployment.directDepositorBeacon = new UpgradeableBeacon(directDepositorImplemAddr, dao);
+            );
+        }
 
-        address asyncRedeemerImplemAddr = address(new AsyncRedeemer(address(deployment.hubPeripheryRegistry)));
-        deployment.asyncRedeemerBeacon = new UpgradeableBeacon(asyncRedeemerImplemAddr, dao);
+        {
+            address directDepositorImplemAddr = address(new DirectDepositor(address(deployment.hubPeripheryRegistry)));
+            deployment.directDepositorBeacon = new UpgradeableBeacon(directDepositorImplemAddr, dao);
+        }
 
-        address watermarkFeeManagerImplemAddr =
-            address(new WatermarkFeeManager(address(deployment.hubPeripheryRegistry)));
-        deployment.watermarkFeeManagerBeacon = new UpgradeableBeacon(watermarkFeeManagerImplemAddr, dao);
+        {
+            address asyncRedeemerImplemAddr = address(new AsyncRedeemer(address(deployment.hubPeripheryRegistry)));
+            deployment.asyncRedeemerBeacon = new UpgradeableBeacon(asyncRedeemerImplemAddr, dao);
+        }
 
-        address securityModuleImplemAddr = address(new SecurityModule(address(deployment.hubPeripheryRegistry)));
-        deployment.securityModuleBeacon = new UpgradeableBeacon(securityModuleImplemAddr, dao);
+        {
+            address watermarkFeeManagerImplemAddr =
+                address(new WatermarkFeeManager(address(deployment.hubPeripheryRegistry)));
+            deployment.watermarkFeeManagerBeacon = new UpgradeableBeacon(watermarkFeeManagerImplemAddr, dao);
+        }
 
-        address metaMorphoOracleFactoryImplemAddr = address(new MetaMorphoOracleFactory());
-        deployment.metaMorphoOracleFactory = MetaMorphoOracleFactory(
-            address(
-                new TransparentUpgradeableProxy(
-                    metaMorphoOracleFactoryImplemAddr,
-                    dao,
-                    abi.encodeCall(MetaMorphoOracleFactory.initialize, (address(accessManager)))
+        {
+            address securityModuleImplemAddr = address(new SecurityModule(address(deployment.hubPeripheryRegistry)));
+            deployment.securityModuleBeacon = new UpgradeableBeacon(securityModuleImplemAddr, dao);
+        }
+
+        {
+            address metaMorphoOracleFactoryImplemAddr = address(new MetaMorphoOracleFactory());
+            deployment.metaMorphoOracleFactory = MetaMorphoOracleFactory(
+                address(
+                    new TransparentUpgradeableProxy(
+                        metaMorphoOracleFactoryImplemAddr,
+                        dao,
+                        abi.encodeCall(MetaMorphoOracleFactory.initialize, (address(accessManager)))
+                    )
                 )
-            )
-        );
+            );
+        }
+
+        {
+            address machineOracleImplemAddr = address(new MachineShareOracle(hubCoreRegistry));
+            deployment.machineShareOracleBeacon = new UpgradeableBeacon(machineOracleImplemAddr, dao);
+            address machineOracleFactoryImplemAddr = address(new MachineShareOracleFactory());
+            deployment.machineShareOracleFactory = MachineShareOracleFactory(
+                address(
+                    new TransparentUpgradeableProxy(
+                        machineOracleFactoryImplemAddr,
+                        dao,
+                        abi.encodeCall(
+                            MachineShareOracleFactory.initialize,
+                            (address(deployment.machineShareOracleBeacon), address(accessManager))
+                        )
+                    )
+                )
+            );
+        }
     }
 
     function deployFlashloanAggregator(address caliberFactory, FlashloanProviders memory flProviders)
@@ -202,6 +242,14 @@ abstract contract Base {
         metaMorphoOracleFactorySelectors[1] = MetaMorphoOracleFactory.createMetaMorphoOracle.selector;
         IAccessManager(_accessManager).setTargetFunctionRole(
             address(deployment.metaMorphoOracleFactory), metaMorphoOracleFactorySelectors, Roles.INFRA_SETUP_ROLE
+        );
+
+        // MachineShareOracleFactory
+        bytes4[] memory machineShareOracleFactorySelectors = new bytes4[](2);
+        machineShareOracleFactorySelectors[0] = MachineShareOracleFactory.setMachineShareOracleBeacon.selector;
+        machineShareOracleFactorySelectors[1] = MachineShareOracleFactory.createMachineShareOracle.selector;
+        IAccessManager(_accessManager).setTargetFunctionRole(
+            address(deployment.machineShareOracleFactory), machineShareOracleFactorySelectors, Roles.INFRA_SETUP_ROLE
         );
     }
 

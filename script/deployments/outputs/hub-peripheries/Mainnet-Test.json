@@ -4,6 +4,8 @@
   "FlashloanAggregator": "0x84C6E39B39980C60ADE1A0fEb18347a6D08B7Cae",
   "HubPeripheryFactory": "0xDB8cFf278adCCF9E9b5da745B44E754fC4EE3C76",
   "HubPeripheryRegistry": "0xA8452Ec99ce0C64f20701dB7dD3abDb607c00496",
+  "MachineShareOracleBeacon": "0x0c8b5822b6e02CDa722174F19A1439A7495a3fA6",
+  "MachineShareOracleFactory": "0xDeF3bca8c80064589E6787477FFa7Dd616B5574F",
   "MetaMorphoOracleFactory": "0x8B71b41D4dBEb2b6821d44692d3fACAAf77480Bb",
   "SecurityModuleBeacon": "0x4C52a6277b1B84121b3072C0c92b6Be0b7CC10F1",
   "WatermarkFeeManagerBeacon": "0x416C42991d05b31E9A6dC209e91AD22b79D87Ae6"

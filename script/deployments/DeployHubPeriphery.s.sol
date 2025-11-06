@@ -11,7 +11,7 @@ contract DeployHubPeriphery is DeployPeriphery {
     address public upgradeAdmin;
 
     address public accessManager;
-    address public caliberFactory;
+    address public hubCoreRegistry;
     FlashloanProvidersSorted public flProviders;
 
     HubPeriphery private _hubPeriphery;
@@ -40,7 +40,7 @@ contract DeployHubPeriphery is DeployPeriphery {
         upgradeAdmin = abi.decode(vm.parseJson(inputJson, ".upgradeAdmin"), (address));
 
         accessManager = abi.decode(vm.parseJson(inputJson, ".accessManager"), (address));
-        caliberFactory = abi.decode(vm.parseJson(inputJson, ".caliberFactory"), (address));
+        hubCoreRegistry = abi.decode(vm.parseJson(inputJson, ".hubCoreRegistry"), (address));
         flProviders = abi.decode(vm.parseJson(inputJson, ".flashloanProviders"), (FlashloanProvidersSorted));
 
         // start broadcasting transactions
@@ -52,7 +52,7 @@ contract DeployHubPeriphery is DeployPeriphery {
     function _coreSetup() public override {
         _hubPeriphery = deployHubPeriphery(
             accessManager,
-            caliberFactory,
+            hubCoreRegistry,
             FlashloanProviders({
                 balancerV2Pool: flProviders.balancerV2Pool,
                 balancerV3Pool: flProviders.balancerV3Pool,
@@ -79,6 +79,8 @@ contract DeployHubPeriphery is DeployPeriphery {
         vm.serializeAddress(key, "DirectDepositorBeacon", address(_hubPeriphery.directDepositorBeacon));
         vm.serializeAddress(key, "AsyncRedeemerBeacon", address(_hubPeriphery.asyncRedeemerBeacon));
         vm.serializeAddress(key, "WatermarkFeeManagerBeacon", address(_hubPeriphery.watermarkFeeManagerBeacon));
+        vm.serializeAddress(key, "MachineShareOracleBeacon", address(_hubPeriphery.machineShareOracleBeacon));
+        vm.serializeAddress(key, "MachineShareOracleFactory", address(_hubPeriphery.machineShareOracleFactory));
         vm.writeJson(
             vm.serializeAddress(key, "MetaMorphoOracleFactory", address(_hubPeriphery.metaMorphoOracleFactory)),
             outputPath

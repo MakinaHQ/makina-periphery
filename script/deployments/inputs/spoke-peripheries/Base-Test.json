@@ -1,5 +1,5 @@
 {
-  "caliberFactory": "0x39F84a71F9D9b11cD28176624f0c460DE372214f",
+  "spokeCoreRegistry": "0xCcbd8e08Ef2b722e9D3e29863399c99dc2fDD797",
   "flashloanProviders": {
     "aaveV3AddressProvider": "0xe20fCBdBfFC4Dd138cE8b2E6FBb6CB49777ad64D",
     "balancerV2Pool": "0xBA12222222228d8Ba445958a75a0704d566BF2C8",

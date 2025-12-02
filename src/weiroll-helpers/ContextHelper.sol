@@ -12,6 +12,11 @@ contract ContextHelper {
         return block.number;
     }
 
+    /// @notice Returns the msg.sender.
+    function msgSender() external view returns (address) {
+        return msg.sender;
+    }
+
     /// @notice Returns the balance of an account.
     function balance(address account) external view returns (uint256) {
         return account.balance;

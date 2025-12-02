@@ -24,6 +24,11 @@ contract ContextHelper_Unit_concrete_Test is Unit_Concrete_Test {
         assertEq(number, block.number);
     }
 
+    function test_MsgSender() public view {
+        address sender = contextHelper.msgSender();
+        assertEq(sender, address(this));
+    }
+
     function test_Balance() public {
         uint256 bal = 12 ether;
         deal(address(this), bal);

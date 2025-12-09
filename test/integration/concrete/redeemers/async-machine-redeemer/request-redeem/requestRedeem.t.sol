@@ -46,8 +46,8 @@ contract RequestRedeem_Integration_Concrete_Test is AsyncRedeemer_Integration_Co
         deal(address(accountingToken), depositorAddr, assets1 + assets2);
         vm.startPrank(depositorAddr);
         IERC20(accountingToken).approve(address(machine), assets1 + assets2);
-        uint256 shares1 = machine.deposit(assets1, user1, 0);
-        uint256 shares2 = machine.deposit(assets2, user2, 0);
+        uint256 shares1 = machine.deposit(assets1, user1, 0, 0);
+        uint256 shares2 = machine.deposit(assets2, user2, 0, 0);
         vm.stopPrank();
 
         // User1 enters queue
@@ -107,8 +107,8 @@ contract RequestRedeem_Integration_Concrete_Test is AsyncRedeemer_Integration_Co
         deal(address(accountingToken), depositorAddr, assets1 + assets2);
         vm.startPrank(depositorAddr);
         IERC20(accountingToken).approve(address(machine), assets1 + assets2);
-        uint256 shares1 = machine.deposit(assets1, user1, 0);
-        uint256 shares2 = machine.deposit(assets2, user2, 0);
+        uint256 shares1 = machine.deposit(assets1, user1, 0, 0);
+        uint256 shares2 = machine.deposit(assets2, user2, 0, 0);
         vm.stopPrank();
 
         // User1 enters queue

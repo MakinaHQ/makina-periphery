@@ -22,7 +22,7 @@ contract Redeem_Integration_Concrete_Test is SecurityModule_Integration_Concrete
         deal(address(accountingToken), depositorAddr, inputAssets);
         vm.startPrank(depositorAddr);
         accountingToken.approve(address(machine), inputAssets);
-        uint256 machineShares = machine.deposit(inputAssets, user1, 0);
+        uint256 machineShares = machine.deposit(inputAssets, user1, 0, 0);
         vm.stopPrank();
 
         // User1 locks machine shares
@@ -49,7 +49,7 @@ contract Redeem_Integration_Concrete_Test is SecurityModule_Integration_Concrete
         deal(address(accountingToken), depositorAddr, inputAssets1);
         vm.startPrank(depositorAddr);
         accountingToken.approve(address(machine), inputAssets1);
-        uint256 machineShares1 = machine.deposit(inputAssets1, user1, 0);
+        uint256 machineShares1 = machine.deposit(inputAssets1, user1, 0, 0);
         vm.stopPrank();
 
         // User1 locks machine shares
@@ -78,7 +78,7 @@ contract Redeem_Integration_Concrete_Test is SecurityModule_Integration_Concrete
         deal(address(accountingToken), depositorAddr, inputAssets1);
         vm.startPrank(depositorAddr);
         accountingToken.approve(address(machine), inputAssets1);
-        uint256 machineShares1 = machine.deposit(inputAssets1, user1, 0);
+        uint256 machineShares1 = machine.deposit(inputAssets1, user1, 0, 0);
         vm.stopPrank();
 
         // User1 locks machine shares
@@ -109,7 +109,7 @@ contract Redeem_Integration_Concrete_Test is SecurityModule_Integration_Concrete
         deal(address(accountingToken), depositorAddr, inputAssets1);
         vm.startPrank(depositorAddr);
         accountingToken.approve(address(machine), inputAssets1);
-        uint256 machineShares1 = machine.deposit(inputAssets1, user1, 0);
+        uint256 machineShares1 = machine.deposit(inputAssets1, user1, 0, 0);
         vm.stopPrank();
 
         // User1 locks machine shares
@@ -150,7 +150,7 @@ contract Redeem_Integration_Concrete_Test is SecurityModule_Integration_Concrete
         deal(address(accountingToken), depositorAddr, inputAssets1);
         vm.startPrank(depositorAddr);
         accountingToken.approve(address(machine), inputAssets1);
-        uint256 machineShares1 = machine.deposit(inputAssets1, user1, 0);
+        uint256 machineShares1 = machine.deposit(inputAssets1, user1, 0, 0);
         vm.stopPrank();
 
         // User1 locks machine shares
@@ -195,7 +195,7 @@ contract Redeem_Integration_Concrete_Test is SecurityModule_Integration_Concrete
         deal(address(accountingToken), depositorAddr, inputAssets1);
         vm.startPrank(depositorAddr);
         accountingToken.approve(address(machine), inputAssets1);
-        uint256 machineShares1 = machine.deposit(inputAssets1, user1, 0);
+        uint256 machineShares1 = machine.deposit(inputAssets1, user1, 0, 0);
         vm.stopPrank();
 
         // User1 locks machine shares
@@ -244,8 +244,8 @@ contract Redeem_Integration_Concrete_Test is SecurityModule_Integration_Concrete
         deal(address(accountingToken), depositorAddr, inputAssets1 + inputAssets2);
         vm.startPrank(depositorAddr);
         accountingToken.approve(address(machine), inputAssets1 + inputAssets2);
-        uint256 machineShares1 = machine.deposit(inputAssets1, user1, 0);
-        uint256 machineShares2 = machine.deposit(inputAssets2, user2, 0);
+        uint256 machineShares1 = machine.deposit(inputAssets1, user1, 0, 0);
+        uint256 machineShares2 = machine.deposit(inputAssets2, user2, 0, 0);
         vm.stopPrank();
 
         // User1 locks machine shares

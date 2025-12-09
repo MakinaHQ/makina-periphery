@@ -22,7 +22,7 @@ contract Lock_Integration_Concrete_Test is SecurityModule_Integration_Concrete_T
         deal(address(accountingToken), depositorAddr, inputAssets1);
         vm.startPrank(depositorAddr);
         accountingToken.approve(address(machine), inputAssets1);
-        uint256 shares1 = machine.deposit(inputAssets1, user1, 0);
+        uint256 shares1 = machine.deposit(inputAssets1, user1, 0, 0);
         vm.stopPrank();
 
         uint256 previewLock = securityModule.previewLock(shares1);
@@ -41,7 +41,7 @@ contract Lock_Integration_Concrete_Test is SecurityModule_Integration_Concrete_T
         deal(address(accountingToken), depositorAddr, inputAssets1);
         vm.startPrank(depositorAddr);
         accountingToken.approve(address(machine), inputAssets1);
-        uint256 machineShares1 = machine.deposit(inputAssets1, user1, 0);
+        uint256 machineShares1 = machine.deposit(inputAssets1, user1, 0, 0);
         vm.stopPrank();
 
         uint256 previewLock = securityModule.previewLock(machineShares1);

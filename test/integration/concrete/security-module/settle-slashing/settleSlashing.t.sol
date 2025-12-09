@@ -17,7 +17,7 @@ contract SettleSlashing_Integration_Concrete_Test is SecurityModule_Integration_
         deal(address(accountingToken), depositorAddr, inputAssets);
         vm.startPrank(depositorAddr);
         accountingToken.approve(address(machine), inputAssets);
-        machineShares = machine.deposit(inputAssets, user1, 0);
+        machineShares = machine.deposit(inputAssets, user1, 0, 0);
         vm.stopPrank();
     }
 

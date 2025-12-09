@@ -26,7 +26,7 @@ contract GetSharePrice_Integration_Concrete_Test is MachineShareOracle_Integrati
         uint256 depositAmount = 1e20;
         deal(address(baseToken), address(this), depositAmount);
         baseToken.approve(address(preDepositVault), depositAmount);
-        preDepositVault.deposit(depositAmount, address(this), 0);
+        preDepositVault.deposit(depositAmount, address(this), 0, 0);
         _;
     }
 

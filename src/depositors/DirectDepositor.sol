@@ -22,7 +22,7 @@ contract DirectDepositor is MachinePeriphery, Whitelist, IDirectDepositor {
     }
 
     /// @inheritdoc IDirectDepositor
-    function deposit(uint256 assets, address receiver, uint256 minShares)
+    function deposit(uint256 assets, address receiver, uint256 minShares, bytes32 referralKey)
         public
         virtual
         override
@@ -35,7 +35,7 @@ contract DirectDepositor is MachinePeriphery, Whitelist, IDirectDepositor {
         IERC20(asset).safeTransferFrom(msg.sender, address(this), assets);
         IERC20(asset).forceApprove(_machine, assets);
 
-        return IMachine(_machine).deposit(assets, receiver, minShares);
+        return IMachine(_machine).deposit(assets, receiver, minShares, referralKey);
     }
 
     /// @inheritdoc IWhitelist

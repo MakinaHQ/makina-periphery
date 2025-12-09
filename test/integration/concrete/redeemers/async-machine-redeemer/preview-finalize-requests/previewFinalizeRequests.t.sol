@@ -30,7 +30,7 @@ contract PreviewFinalizeRequests_Integration_Concrete_Test is AsyncRedeemer_Inte
         deal(address(accountingToken), depositorAddr, assets);
         vm.startPrank(depositorAddr);
         IERC20(accountingToken).approve(address(machine), assets);
-        uint256 shares = machine.deposit(assets, user1, 0);
+        uint256 shares = machine.deposit(assets, user1, 0, 0);
         vm.stopPrank();
 
         // User1 enters queue
@@ -51,7 +51,7 @@ contract PreviewFinalizeRequests_Integration_Concrete_Test is AsyncRedeemer_Inte
         deal(address(accountingToken), depositorAddr, assets);
         vm.startPrank(depositorAddr);
         IERC20(accountingToken).approve(address(machine), assets);
-        uint256 shares = machine.deposit(assets, user1, 0);
+        uint256 shares = machine.deposit(assets, user1, 0, 0);
         vm.stopPrank();
 
         // User1 enters queue
@@ -79,7 +79,7 @@ contract PreviewFinalizeRequests_Integration_Concrete_Test is AsyncRedeemer_Inte
         deal(address(accountingToken), depositorAddr, inputAssets1);
         vm.startPrank(depositorAddr);
         IERC20(accountingToken).approve(address(machine), inputAssets1);
-        uint256 mintedShares1 = machine.deposit(inputAssets1, user1, 0);
+        uint256 mintedShares1 = machine.deposit(inputAssets1, user1, 0, 0);
         vm.stopPrank();
 
         // User1 enters queue
@@ -143,7 +143,7 @@ contract PreviewFinalizeRequests_Integration_Concrete_Test is AsyncRedeemer_Inte
         deal(address(accountingToken), depositorAddr, inputAssets1);
         vm.startPrank(depositorAddr);
         IERC20(accountingToken).approve(address(machine), inputAssets1);
-        uint256 mintedShares1 = machine.deposit(inputAssets1, user1, 0);
+        uint256 mintedShares1 = machine.deposit(inputAssets1, user1, 0, 0);
         vm.stopPrank();
 
         // User1 enters queue
@@ -211,8 +211,8 @@ contract PreviewFinalizeRequests_Integration_Concrete_Test is AsyncRedeemer_Inte
         deal(address(accountingToken), depositorAddr, inputAssets1 + inputAssets2);
         vm.startPrank(depositorAddr);
         IERC20(accountingToken).approve(address(machine), inputAssets1 + inputAssets2);
-        uint256 mintedShares1 = machine.deposit(inputAssets1, user1, 0);
-        uint256 mintedShares2 = machine.deposit(inputAssets2, user2, 0);
+        uint256 mintedShares1 = machine.deposit(inputAssets1, user1, 0, 0);
+        uint256 mintedShares2 = machine.deposit(inputAssets2, user2, 0, 0);
         vm.stopPrank();
 
         // User1 enters queue

@@ -83,7 +83,7 @@ contract GetSharePrice_Integration_Fuzz_Test is Base_Hub_Test {
         data.assetsToDeposit = bound(data.assetsToDeposit, (10 ** data.dDecimals), 1e25);
         depositToken.mint(address(this), data.assetsToDeposit);
         depositToken.approve(address(preDepositVault), data.assetsToDeposit);
-        uint256 mintedShares = preDepositVault.deposit(data.assetsToDeposit, address(this), 0);
+        uint256 mintedShares = preDepositVault.deposit(data.assetsToDeposit, address(this), 0, 0);
 
         _checkSharePrice_PDV(data);
 
@@ -125,7 +125,7 @@ contract GetSharePrice_Integration_Fuzz_Test is Base_Hub_Test {
         data.assetsToDeposit = bound(data.assetsToDeposit, 0, 1e30);
         accountingToken.mint(address(this), data.assetsToDeposit);
         accountingToken.approve(address(machine), data.assetsToDeposit);
-        uint256 mintedShares = machine.deposit(data.assetsToDeposit, address(this), 0);
+        uint256 mintedShares = machine.deposit(data.assetsToDeposit, address(this), 0, 0);
 
         _checkSharePrice_Machine(data);
 
@@ -170,7 +170,7 @@ contract GetSharePrice_Integration_Fuzz_Test is Base_Hub_Test {
         data.assetsToDeposit = bound(data.assetsToDeposit, 0, 1e30);
         accountingToken.mint(address(this), data.assetsToDeposit);
         accountingToken.approve(address(machine), data.assetsToDeposit);
-        uint256 mintedShares = machine.deposit(data.assetsToDeposit, address(this), 0);
+        uint256 mintedShares = machine.deposit(data.assetsToDeposit, address(this), 0, 0);
 
         _checkSharePrice_Machine(data);
 

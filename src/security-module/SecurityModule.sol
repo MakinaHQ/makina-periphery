@@ -2,7 +2,7 @@
 pragma solidity 0.8.28;
 
 import {ERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
-import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
+import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import {IERC20, IERC20Metadata} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import {IERC721Errors} from "@openzeppelin/contracts/interfaces/draft-IERC6093.sol";
 import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
@@ -18,7 +18,7 @@ import {ISecurityModule} from "../interfaces/ISecurityModule.sol";
 import {ISMCooldownReceipt} from "../interfaces/ISMCooldownReceipt.sol";
 import {Errors, CoreErrors} from "../libraries/Errors.sol";
 
-contract SecurityModule is ERC20Upgradeable, ReentrancyGuardUpgradeable, MachinePeriphery, ISecurityModule {
+contract SecurityModule is ERC20Upgradeable, ReentrancyGuard, MachinePeriphery, ISecurityModule {
     using Math for uint256;
     using SafeERC20 for IERC20;
 

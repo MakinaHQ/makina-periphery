@@ -6,7 +6,7 @@ import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IERC721Errors} from "@openzeppelin/contracts/interfaces/draft-IERC6093.sol";
 import {ERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
-import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
+import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 import {IMachine} from "@makina-core/interfaces/IMachine.sol";
 
@@ -17,7 +17,7 @@ import {IAsyncRedeemer} from "../interfaces/IAsyncRedeemer.sol";
 import {IMachinePeriphery} from "../interfaces/IMachinePeriphery.sol";
 import {IWhitelist} from "../interfaces/IWhitelist.sol";
 
-contract AsyncRedeemer is ERC721Upgradeable, ReentrancyGuardUpgradeable, MachinePeriphery, Whitelist, IAsyncRedeemer {
+contract AsyncRedeemer is ERC721Upgradeable, ReentrancyGuard, MachinePeriphery, Whitelist, IAsyncRedeemer {
     using Math for uint256;
     using SafeERC20 for IERC20;
 

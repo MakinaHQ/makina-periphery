@@ -138,6 +138,8 @@ contract GetSharePrice_Integration_Fuzz_Test is Base_Hub_Test {
             accountingToken.burn(address(machine), data.yield);
         }
 
+        skip(1);
+
         machine.updateTotalAum();
 
         _checkSharePrice_Machine(data);
@@ -182,6 +184,8 @@ contract GetSharePrice_Integration_Fuzz_Test is Base_Hub_Test {
             data.yield = bound(data.yield, 0, data.assetsToDeposit);
             accountingToken.burn(address(machine), data.yield);
         }
+
+        skip(1);
 
         machine.updateTotalAum();
 

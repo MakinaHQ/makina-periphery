@@ -1,11 +1,10 @@
 {
   "name": "makina-periphery",
-  "version": "1.0.0",
+  "version": "v1.1.0",
   "description": "Makina periphery contracts",
-  "main": "index.js",
   "repository": "https://github.com/MakinaHQ/makina-periphery.git",
   "author": "MakinaHQ",
-  "license": "Unlicense",
+  "license": "SEE LICENSE IN LICENSE",
   "devDependencies": {
     "prettier": "3.3.3",
     "solhint": "5.0.5"

@@ -208,7 +208,8 @@ abstract contract Base_Hub_Test is Base_Test {
                     initialMaxFixedFeeAccrualRate: DEFAULT_MACHINE_MAX_FIXED_FEE_ACCRUAL_RATE,
                     initialMaxPerfFeeAccrualRate: DEFAULT_MACHINE_MAX_PERF_FEE_ACCRUAL_RATE,
                     initialFeeMintCooldown: DEFAULT_MACHINE_FEE_MINT_COOLDOWN,
-                    initialShareLimit: DEFAULT_MACHINE_SHARE_LIMIT
+                    initialShareLimit: DEFAULT_MACHINE_SHARE_LIMIT,
+                    initialMaxSharePriceChangeRate: DEFAULT_MACHINE_MAX_SHARE_PRICE_CHANGE_RATE
                 }),
                 ICaliber.CaliberInitParams({
                     initialPositionStaleThreshold: DEFAULT_CALIBER_POS_STALE_THRESHOLD,
@@ -224,7 +225,8 @@ abstract contract Base_Hub_Test is Base_Test {
                     initialSecurityCouncil: securityCouncil,
                     initialRiskManager: riskManager,
                     initialRiskManagerTimelock: riskManagerTimelock,
-                    initialAuthority: address(accessManager)
+                    initialAuthority: address(accessManager),
+                    initialRestrictedAccountingMode: false
                 }),
                 _preDepositVault,
                 TEST_DEPLOYMENT_SALT
@@ -249,7 +251,8 @@ abstract contract Base_Hub_Test is Base_Test {
                     initialMaxFixedFeeAccrualRate: DEFAULT_MACHINE_MAX_FIXED_FEE_ACCRUAL_RATE,
                     initialMaxPerfFeeAccrualRate: DEFAULT_MACHINE_MAX_PERF_FEE_ACCRUAL_RATE,
                     initialFeeMintCooldown: DEFAULT_MACHINE_FEE_MINT_COOLDOWN,
-                    initialShareLimit: DEFAULT_MACHINE_SHARE_LIMIT
+                    initialShareLimit: DEFAULT_MACHINE_SHARE_LIMIT,
+                    initialMaxSharePriceChangeRate: DEFAULT_MACHINE_MAX_SHARE_PRICE_CHANGE_RATE
                 }),
                 ICaliber.CaliberInitParams({
                     initialPositionStaleThreshold: DEFAULT_CALIBER_POS_STALE_THRESHOLD,
@@ -265,7 +268,8 @@ abstract contract Base_Hub_Test is Base_Test {
                     initialSecurityCouncil: securityCouncil,
                     initialRiskManager: riskManager,
                     initialRiskManagerTimelock: riskManagerTimelock,
-                    initialAuthority: address(accessManager)
+                    initialAuthority: address(accessManager),
+                    initialRestrictedAccountingMode: false
                 }),
                 _accountingToken,
                 DEFAULT_MACHINE_SHARE_TOKEN_NAME,

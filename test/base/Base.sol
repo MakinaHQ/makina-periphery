@@ -6,8 +6,7 @@ import {TransparentUpgradeableProxy} from "@openzeppelin/contracts/proxy/transpa
 import {UpgradeableBeacon} from "@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol";
 
 import {ICoreRegistry} from "@makina-core/interfaces/ICoreRegistry.sol";
-
-import {Roles} from "@makina-core-test/utils/Roles.sol";
+import {Roles} from "@makina-core/libraries/Roles.sol";
 
 import {IHubPeripheryRegistry} from "../../src/interfaces/IHubPeripheryRegistry.sol";
 import {IWatermarkFeeManager} from "../../src/interfaces/IWatermarkFeeManager.sol";
@@ -221,7 +220,7 @@ abstract contract Base {
         hubPeripheryRegistrySelectors[3] = IHubPeripheryRegistry.setFeeManagerBeacon.selector;
         hubPeripheryRegistrySelectors[4] = IHubPeripheryRegistry.setSecurityModuleBeacon.selector;
         IAccessManager(_accessManager).setTargetFunctionRole(
-            address(deployment.hubPeripheryRegistry), hubPeripheryRegistrySelectors, Roles.INFRA_SETUP_ROLE
+            address(deployment.hubPeripheryRegistry), hubPeripheryRegistrySelectors, Roles.INFRA_CONFIG_ROLE
         );
 
         // HubPeripheryFactory
@@ -241,7 +240,7 @@ abstract contract Base {
         metaMorphoOracleFactorySelectors[0] = MetaMorphoOracleFactory.setMorphoFactory.selector;
         metaMorphoOracleFactorySelectors[1] = MetaMorphoOracleFactory.createMetaMorphoOracle.selector;
         IAccessManager(_accessManager).setTargetFunctionRole(
-            address(deployment.metaMorphoOracleFactory), metaMorphoOracleFactorySelectors, Roles.INFRA_SETUP_ROLE
+            address(deployment.metaMorphoOracleFactory), metaMorphoOracleFactorySelectors, Roles.INFRA_CONFIG_ROLE
         );
 
         // MachineShareOracleFactory
@@ -249,7 +248,7 @@ abstract contract Base {
         machineShareOracleFactorySelectors[0] = MachineShareOracleFactory.setMachineShareOracleBeacon.selector;
         machineShareOracleFactorySelectors[1] = MachineShareOracleFactory.createMachineShareOracle.selector;
         IAccessManager(_accessManager).setTargetFunctionRole(
-            address(deployment.machineShareOracleFactory), machineShareOracleFactorySelectors, Roles.INFRA_SETUP_ROLE
+            address(deployment.machineShareOracleFactory), machineShareOracleFactorySelectors, Roles.INFRA_CONFIG_ROLE
         );
     }
 
@@ -266,7 +265,7 @@ abstract contract Base {
         fmSelectors[4] = IWatermarkFeeManager.setMgmtFeeSplit.selector;
         fmSelectors[5] = IWatermarkFeeManager.setPerfFeeSplit.selector;
         IAccessManager(_accessManager).setTargetFunctionRole(
-            _watermarkFeeManager, fmSelectors, Roles.STRATEGY_MANAGEMENT_SETUP_ROLE
+            _watermarkFeeManager, fmSelectors, Roles.STRATEGY_MANAGEMENT_CONFIG_ROLE
         );
     }
 }

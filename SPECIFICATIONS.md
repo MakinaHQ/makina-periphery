@@ -42,6 +42,6 @@ Similarly to Makina Core contracts, contracts in this repository implement the [
 Roles used in makina periphery contracts are defined as follows:
 
 - `ADMIN_ROLE` - roleId `0` - the Access Manager super admin. Can grant and revoke any role. Set by default in the Access Manager constructor.
-- `INFRA_SETUP_ROLE` - roleId `1` - the address allowed to perform setup and maintenance on shared periphery contracts.
+- `INFRA_CONFIG_ROLE` - roleId `1` - the address allowed to perform setup and maintenance on shared periphery contracts.
 - `STRATEGY_DEPLOYMENT_ROLE` - roleId `2` - the address allowed to deploy new periphery modules.
 - `STRATEGY_COMPONENTS_SETUP_ROLE` - roleId `3` - the address allowed to manage fees setup in fee managers.

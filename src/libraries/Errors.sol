@@ -28,6 +28,7 @@ library Errors {
     error NotFeeManager();
     error NotFinalized();
     error NotImplemented();
+    error NotMachine();
     error NotRedeemer();
     error NotSecurityModule();
     error SecurityModuleAlreadySet();

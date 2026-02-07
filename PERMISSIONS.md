@@ -6,7 +6,7 @@ This is the list of role permissions in Makina Periphery contracts. These roles 
 
 ### HubPeripheryRegistry
 
-- `INFRA_SETUP_ROLE` (roleId `1`)
+- `INFRA_CONFIG_ROLE` (roleId `1`)
   - Can set address of HubPeripheryFactory.
   - Can set address of depositor Beacons.
   - Can set address of redeemer Beacons.
@@ -62,12 +62,12 @@ This is the list of role permissions in Makina Periphery contracts. These roles 
 
 ### MachineShareOracleFactory
 
-- `INFRA_SETUP_ROLE` (roleId `1`)
+- `INFRA_CONFIG_ROLE` (roleId `1`)
   - Can register and unregister Morpho factories.
   - Can deploy an oracle.
 
 ### MachineShareOracleFactory
 
-- `INFRA_SETUP_ROLE` (roleId `1`)
+- `INFRA_CONFIG_ROLE` (roleId `1`)
   - Can set the machine share oracle beacon.
   - Can deploy an oracle.

@@ -13,7 +13,7 @@ import {IMachine} from "@makina-core/interfaces/IMachine.sol";
 import {IWatermarkFeeManager} from "../interfaces/IWatermarkFeeManager.sol";
 import {IMachinePeriphery} from "../interfaces/IMachinePeriphery.sol";
 import {ISecurityModuleReference} from "../interfaces/ISecurityModuleReference.sol";
-import {Errors, CoreErrors} from "../libraries/Errors.sol";
+import {Errors} from "../libraries/Errors.sol";
 import {MachinePeriphery} from "../utils/MachinePeriphery.sol";
 
 contract WatermarkFeeManager is MachinePeriphery, AccessManagedUpgradeable, IWatermarkFeeManager {
@@ -78,7 +78,7 @@ contract WatermarkFeeManager is MachinePeriphery, AccessManagedUpgradeable, IWat
 
     modifier onlyMachine() {
         if (msg.sender != machine()) {
-            revert CoreErrors.NotMachine();
+            revert Errors.NotMachine();
         }
         _;
     }
@@ -131,6 +131,11 @@ contract WatermarkFeeManager is MachinePeriphery, AccessManagedUpgradeable, IWat
     /// @inheritdoc IWatermarkFeeManager
     function sharePriceWatermark() external view override returns (uint256) {
         return _getWatermarkFeeManagerStorage()._sharePriceWatermark;
+    }
+
+    /// @inheritdoc IFeeManager
+    function getRestrictedFeeConfigSelectors() external pure override returns (bytes4[] memory) {
+        return new bytes4[](0);
     }
 
     /// @inheritdoc IFeeManager

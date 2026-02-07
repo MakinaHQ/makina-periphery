@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.28;
 
-import {CoreErrors} from "src/libraries/Errors.sol";
+import {Errors} from "src/libraries/Errors.sol";
 
 import {WatermarkFeeManager_Integration_Concrete_Test} from "../WatermarkFeeManager.t.sol";
 
@@ -14,7 +14,7 @@ contract CalculatePerformanceFee_Integration_Concrete_Test is WatermarkFeeManage
     }
 
     function test_RevertWhen_CallerNotMachine() public {
-        vm.expectRevert(CoreErrors.NotMachine.selector);
+        vm.expectRevert(Errors.NotMachine.selector);
         watermarkFeeManager.calculatePerformanceFee(0, 0, 0, 0);
     }
 

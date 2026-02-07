@@ -8,6 +8,7 @@ import "@makina-core-test/base/Base.sol" as Core_base;
 import {AccessManagerUpgradeable} from "@openzeppelin/contracts-upgradeable/access/manager/AccessManagerUpgradeable.sol";
 import {UpgradeableBeacon} from "@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol";
 
+import {IBridgeAdapterFactory} from "@makina-core/interfaces/IBridgeAdapterFactory.sol";
 import {ICaliber} from "@makina-core/interfaces/ICaliber.sol";
 import {IMachine} from "@makina-core/interfaces/IMachine.sol";
 import {IMakinaGovernable} from "@makina-core/interfaces/IMakinaGovernable.sol";
@@ -185,7 +186,8 @@ abstract contract Base_Hub_Test is Base_Test {
                 _depositToken,
                 _accountingToken,
                 DEFAULT_MACHINE_SHARE_TOKEN_NAME,
-                DEFAULT_MACHINE_SHARE_TOKEN_SYMBOL
+                DEFAULT_MACHINE_SHARE_TOKEN_SYMBOL,
+                true
             )
         );
         return _preDepositVault;
@@ -218,7 +220,8 @@ abstract contract Base_Hub_Test is Base_Test {
                     initialMaxPositionIncreaseLossBps: DEFAULT_CALIBER_MAX_POS_INCREASE_LOSS_BPS,
                     initialMaxPositionDecreaseLossBps: DEFAULT_CALIBER_MAX_POS_DECREASE_LOSS_BPS,
                     initialMaxSwapLossBps: DEFAULT_CALIBER_MAX_SWAP_LOSS_BPS,
-                    initialCooldownDuration: DEFAULT_CALIBER_COOLDOWN_DURATION
+                    initialCooldownDuration: DEFAULT_CALIBER_COOLDOWN_DURATION,
+                    initialBaseTokens: new address[](0)
                 }),
                 IMakinaGovernable.MakinaGovernableInitParams({
                     initialMechanic: mechanic,
@@ -226,10 +229,13 @@ abstract contract Base_Hub_Test is Base_Test {
                     initialRiskManager: riskManager,
                     initialRiskManagerTimelock: riskManagerTimelock,
                     initialAuthority: address(accessManager),
-                    initialRestrictedAccountingMode: false
+                    initialRestrictedAccountingMode: false,
+                    initialAccountingAgents: new address[](0)
                 }),
+                new IBridgeAdapterFactory.BridgeAdapterInitParams[](0),
                 _preDepositVault,
-                TEST_DEPLOYMENT_SALT
+                TEST_DEPLOYMENT_SALT,
+                true
             )
         );
         Caliber _caliber = Caliber(_machine.hubCaliber());
@@ -261,7 +267,8 @@ abstract contract Base_Hub_Test is Base_Test {
                     initialMaxPositionIncreaseLossBps: DEFAULT_CALIBER_MAX_POS_INCREASE_LOSS_BPS,
                     initialMaxPositionDecreaseLossBps: DEFAULT_CALIBER_MAX_POS_DECREASE_LOSS_BPS,
                     initialMaxSwapLossBps: DEFAULT_CALIBER_MAX_SWAP_LOSS_BPS,
-                    initialCooldownDuration: DEFAULT_CALIBER_COOLDOWN_DURATION
+                    initialCooldownDuration: DEFAULT_CALIBER_COOLDOWN_DURATION,
+                    initialBaseTokens: new address[](0)
                 }),
                 IMakinaGovernable.MakinaGovernableInitParams({
                     initialMechanic: mechanic,
@@ -269,12 +276,15 @@ abstract contract Base_Hub_Test is Base_Test {
                     initialRiskManager: riskManager,
                     initialRiskManagerTimelock: riskManagerTimelock,
                     initialAuthority: address(accessManager),
-                    initialRestrictedAccountingMode: false
+                    initialRestrictedAccountingMode: false,
+                    initialAccountingAgents: new address[](0)
                 }),
+                new IBridgeAdapterFactory.BridgeAdapterInitParams[](0),
                 _accountingToken,
                 DEFAULT_MACHINE_SHARE_TOKEN_NAME,
                 DEFAULT_MACHINE_SHARE_TOKEN_SYMBOL,
-                TEST_DEPLOYMENT_SALT
+                TEST_DEPLOYMENT_SALT,
+                true
             )
         );
         Caliber _caliber = Caliber(_machine.hubCaliber());

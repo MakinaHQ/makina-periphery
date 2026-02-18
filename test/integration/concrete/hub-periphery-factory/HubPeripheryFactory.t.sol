@@ -13,7 +13,8 @@ abstract contract HubPeripheryFactory_Integration_Concrete_Test is Integration_C
 
         // Deploy and set up dummy machine manager implementation
         address mockMachinePeripheryImplem = address(new MockMachinePeriphery());
-        address mockMachinePeripheryBeacon = address(new UpgradeableBeacon(mockMachinePeripheryImplem, dao));
+        address mockMachinePeripheryBeacon =
+            address(new UpgradeableBeacon(mockMachinePeripheryImplem, address(accessManager)));
         vm.startPrank(dao);
         hubPeripheryRegistry.setDepositorBeacon(DUMMY_MANAGER_IMPLEM_ID, mockMachinePeripheryBeacon);
         hubPeripheryRegistry.setRedeemerBeacon(DUMMY_MANAGER_IMPLEM_ID, mockMachinePeripheryBeacon);

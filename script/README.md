@@ -39,7 +39,7 @@ forge script script/deployments/SetupHubPeripheryAM.s.sol --rpc-url <network-ali
 
 4. Copy `script/deployments/inputs/implem-ids/TEMPLATE.json` to `script/deployments/inputs/implem-ids/{HUB_INPUT_FILENAME}` and fill in the required variables.
 
-5. Run the following command to run Registry contract setup. This script needs to be run from an address that has the `INFRA_SETUP_ROLE` in the `AccessManager` provided at step 1.
+5. Run the following command to run Registry contract setup. This script needs to be run from an address that has the `INFRA_CONFIG_ROLE` in the `AccessManager` provided at step 1.
 
 ```
 forge script script/deployments/SetupHubPeripheryRegistry.s.sol --rpc-url <network-alias> --account <keychain-name> --slow --broadcast -vvvv

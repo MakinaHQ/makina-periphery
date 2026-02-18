@@ -1,5 +1,4 @@
 {
-  "upgradeAdmin": "0xae7f67EE9B8c465ACE4a1ec1138FaA483d93691A",
   "accessManager": "0x4B3336630e591D36ca81f0c25b798895289dDD30",
   "hubCoreRegistry": "0x41EeA04d79F276ba2CbeCaCEaebf5A9F20Aa0662",
   "flashloanProviders": {

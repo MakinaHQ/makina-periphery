@@ -3,7 +3,8 @@ pragma solidity 0.8.28;
 
 import {Test} from "forge-std/Test.sol";
 
-import "@makina-core-test/base/Base.sol" as Core_base;
+import "@makina-core-test/base/Base.sol" as Core_Base;
+import "@makina-core-test/utils/Constants.sol" as Core_Constants;
 
 import {AccessManagerUpgradeable} from "@openzeppelin/contracts-upgradeable/access/manager/AccessManagerUpgradeable.sol";
 import {UpgradeableBeacon} from "@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol";
@@ -13,7 +14,6 @@ import {ICaliber} from "@makina-core/interfaces/ICaliber.sol";
 import {IMachine} from "@makina-core/interfaces/IMachine.sol";
 import {IMakinaGovernable} from "@makina-core/interfaces/IMakinaGovernable.sol";
 import {IPreDepositVault} from "@makina-core/interfaces/IPreDepositVault.sol";
-import {MockWormhole} from "@makina-core-test/mocks/MockWormhole.sol";
 import {Caliber} from "@makina-core/caliber/Caliber.sol";
 import {ChainRegistry} from "@makina-core/registries/ChainRegistry.sol";
 import {HubCoreRegistry} from "@makina-core/registries/HubCoreRegistry.sol";
@@ -21,11 +21,11 @@ import {HubCoreFactory} from "@makina-core/factories/HubCoreFactory.sol";
 import {Machine} from "@makina-core/machine/Machine.sol";
 import {OracleRegistry} from "@makina-core/registries/OracleRegistry.sol";
 import {PreDepositVault} from "@makina-core/pre-deposit/PreDepositVault.sol";
+import {Roles} from "@makina-core/libraries/Roles.sol";
 import {SwapModule} from "@makina-core/swap/SwapModule.sol";
 import {TokenRegistry} from "@makina-core/registries/TokenRegistry.sol";
 
 import {Constants} from "../utils/Constants.sol";
-import {CoreHelpers} from "../utils/CoreHelpers.sol";
 import {FlashloanAggregator} from "../../src/flashloans/FlashloanAggregator.sol";
 import {HubPeripheryRegistry} from "../../src/registries/HubPeripheryRegistry.sol";
 import {HubPeripheryFactory} from "../../src/factories/HubPeripheryFactory.sol";
@@ -34,7 +34,7 @@ import {MetaMorphoOracleFactory} from "../../src/factories/MetaMorphoOracleFacto
 
 import {Base} from "./Base.sol";
 
-abstract contract Base_Test is Base, Test, Constants, CoreHelpers {
+abstract contract Base_Test is Base, Test, Constants, Core_Base.Base, Core_Constants.Constants {
     address public deployer;
 
     uint256 public hubChainId;
@@ -44,6 +44,14 @@ abstract contract Base_Test is Base, Test, Constants, CoreHelpers {
     address public securityCouncil;
     address public riskManager;
     address public riskManagerTimelock;
+
+    // Core contracts
+    AccessManagerUpgradeable public accessManager;
+    OracleRegistry public oracleRegistry;
+    TokenRegistry public tokenRegistry;
+    SwapModule public swapModule;
+
+    address internal coreFactory;
 
     // Flashloan Aggregator
     FlashloanAggregator public flashloanAggregator;
@@ -79,11 +87,33 @@ abstract contract Base_Test is Base, Test, Constants, CoreHelpers {
         riskManager = makeAddr("RiskManager");
         riskManagerTimelock = makeAddr("RiskManagerTimelock");
     }
+
+    function setupAccessManagerRoles() internal {
+        // Grant roles to the relevant accounts
+        accessManager.grantRole(accessManager.ADMIN_ROLE(), dao, 0);
+        accessManager.grantRole(accessManager.ADMIN_ROLE(), coreFactory, 0);
+        accessManager.grantRole(Roles.INFRA_CONFIG_ROLE, dao, 0);
+        accessManager.grantRole(Roles.STRATEGY_DEPLOYMENT_ROLE, dao, 0);
+        accessManager.grantRole(Roles.STRATEGY_COMPONENTS_SETUP_ROLE, dao, 0);
+        accessManager.grantRole(Roles.STRATEGY_MANAGEMENT_CONFIG_ROLE, dao, 0);
+        accessManager.grantRole(Roles.INFRA_UPGRADE_ROLE, dao, 0);
+        accessManager.grantRole(Roles.GUARDIAN_ROLE, securityCouncil, 0);
+
+        // Revoke roles from the deployer
+        accessManager.revokeRole(accessManager.ADMIN_ROLE(), address(deployer));
+    }
+
+    function setupAccessManagerRolesAndOwnership() internal {
+        setupAccessManagerRoles();
+        transferAccessManagerOwnership(accessManager);
+    }
+
+    function _deployWeirollVM() internal pure override returns (address) {
+        return address(0);
+    }
 }
 
 abstract contract Base_Hub_Test is Base_Test {
-    MockWormhole public wormhole;
-
     address public balancerV2Pool;
     address public balancerV3Pool;
     address public morphoPool;
@@ -92,10 +122,6 @@ abstract contract Base_Hub_Test is Base_Test {
     address public dai;
 
     // Hub Core
-    AccessManagerUpgradeable public accessManager;
-    OracleRegistry public oracleRegistry;
-    TokenRegistry public tokenRegistry;
-    SwapModule public swapModule;
     HubCoreRegistry public hubCoreRegistry;
     ChainRegistry public chainRegistry;
     HubCoreFactory public hubCoreFactory;
@@ -103,8 +129,6 @@ abstract contract Base_Hub_Test is Base_Test {
     function setUp() public virtual override {
         Base_Test.setUp();
         hubChainId = block.chainid;
-
-        wormhole = _deployWormhole(WORMHOLE_HUB_CHAIN_ID, hubChainId);
 
         balancerV2Pool = makeAddr("BalancerV2Pool");
         balancerV3Pool = makeAddr("BalancerV3Pool");
@@ -114,17 +138,19 @@ abstract contract Base_Hub_Test is Base_Test {
         dai = makeAddr("DAI");
 
         // Hub Core
-        Core_base.Base.HubCore memory hubCore = _deployHubCore(deployer, dao, address(wormhole));
-        accessManager = hubCore.accessManager;
-        oracleRegistry = hubCore.oracleRegistry;
-        swapModule = hubCore.swapModule;
-        hubCoreRegistry = hubCore.hubCoreRegistry;
-        tokenRegistry = hubCore.tokenRegistry;
-        chainRegistry = hubCore.chainRegistry;
-        hubCoreFactory = hubCore.hubCoreFactory;
+        Core_Base.Base.HubCore memory coreDeployment = deployHubCore(deployer, address(0));
+        accessManager = coreDeployment.accessManager;
+        oracleRegistry = coreDeployment.oracleRegistry;
+        swapModule = coreDeployment.swapModule;
+        hubCoreRegistry = coreDeployment.hubCoreRegistry;
+        tokenRegistry = coreDeployment.tokenRegistry;
+        chainRegistry = coreDeployment.chainRegistry;
+        hubCoreFactory = coreDeployment.hubCoreFactory;
+
+        setupHubCoreRegistry(coreDeployment);
 
         // Hub Periphery
-        HubPeriphery memory hubPeriphery = deployHubPeriphery(
+        HubPeriphery memory peripheryDeployment = deployHubPeriphery(
             address(accessManager),
             address(hubCoreRegistry),
             FlashloanProviders({
@@ -134,43 +160,46 @@ abstract contract Base_Hub_Test is Base_Test {
                 dssFlash: dssFlash,
                 aaveV3AddressProvider: aaveV3AddressProvider,
                 dai: dai
-            }),
-            dao
+            })
         );
-        flashloanAggregator = hubPeriphery.flashloanAggregator;
-        hubPeripheryRegistry = hubPeriphery.hubPeripheryRegistry;
-        hubPeripheryFactory = hubPeriphery.hubPeripheryFactory;
-        directDepositorBeacon = hubPeriphery.directDepositorBeacon;
-        asyncRedeemerBeacon = hubPeriphery.asyncRedeemerBeacon;
-        watermarkFeeManagerBeacon = hubPeriphery.watermarkFeeManagerBeacon;
-        securityModuleBeacon = hubPeriphery.securityModuleBeacon;
-        metaMorphoOracleFactory = hubPeriphery.metaMorphoOracleFactory;
-        machineShareOracleBeacon = hubPeriphery.machineShareOracleBeacon;
-        machineShareOracleFactory = hubPeriphery.machineShareOracleFactory;
+        flashloanAggregator = peripheryDeployment.flashloanAggregator;
+        hubPeripheryRegistry = peripheryDeployment.hubPeripheryRegistry;
+        hubPeripheryFactory = peripheryDeployment.hubPeripheryFactory;
+        directDepositorBeacon = peripheryDeployment.directDepositorBeacon;
+        asyncRedeemerBeacon = peripheryDeployment.asyncRedeemerBeacon;
+        watermarkFeeManagerBeacon = peripheryDeployment.watermarkFeeManagerBeacon;
+        securityModuleBeacon = peripheryDeployment.securityModuleBeacon;
+        metaMorphoOracleFactory = peripheryDeployment.metaMorphoOracleFactory;
+        machineShareOracleBeacon = peripheryDeployment.machineShareOracleBeacon;
+        machineShareOracleFactory = peripheryDeployment.machineShareOracleFactory;
 
-        registerFlashloanAggregator(address(hubCore.hubCoreRegistry), address(flashloanAggregator));
+        registerFlashloanAggregator(address(coreDeployment.hubCoreRegistry), address(flashloanAggregator));
         registerHubPeripheryFactory(address(hubPeripheryRegistry), address(hubPeripheryFactory));
         registerSecurityModuleBeacon(address(hubPeripheryRegistry), address(securityModuleBeacon));
 
         uint16[] memory mdImplemIds = new uint16[](1);
         mdImplemIds[0] = DIRECT_DEPOSITOR_IMPLEM_ID;
         address[] memory mdBeacons = new address[](1);
-        mdBeacons[0] = address(hubPeriphery.directDepositorBeacon);
+        mdBeacons[0] = address(peripheryDeployment.directDepositorBeacon);
         registerDepositorBeacons(address(hubPeripheryRegistry), mdImplemIds, mdBeacons);
 
         uint16[] memory mrImplemIds = new uint16[](1);
         mrImplemIds[0] = ASYNC_REDEEMER_IMPLEM_ID;
         address[] memory mrBeacons = new address[](1);
-        mrBeacons[0] = address(hubPeriphery.asyncRedeemerBeacon);
+        mrBeacons[0] = address(peripheryDeployment.asyncRedeemerBeacon);
         registerRedeemerBeacons(address(hubPeripheryRegistry), mrImplemIds, mrBeacons);
 
         uint16[] memory fmImplemIds = new uint16[](1);
         fmImplemIds[0] = WATERMARK_FEE_MANAGER_IMPLEM_ID;
         address[] memory fmBeacons = new address[](1);
-        fmBeacons[0] = address(hubPeriphery.watermarkFeeManagerBeacon);
+        fmBeacons[0] = address(peripheryDeployment.watermarkFeeManagerBeacon);
         registerFeeManagerBeacons(address(hubPeripheryRegistry), fmImplemIds, fmBeacons);
 
-        _setupAccessManager(accessManager, dao);
+        setupHubCoreAMFunctionRoles(coreDeployment);
+        setupHubPeripheryAMFunctionRoles(address(accessManager), peripheryDeployment);
+
+        coreFactory = address(hubCoreFactory);
+        setupAccessManagerRolesAndOwnership();
     }
 
     function _deployPreDepositVault(address _depositToken, address _accountingToken) public returns (PreDepositVault) {
@@ -197,7 +226,7 @@ abstract contract Base_Hub_Test is Base_Test {
         address _preDepositVault,
         address _depositor,
         address _redeemer,
-        address _machineFeeManager
+        address _feeManager
     ) public returns (Machine, Caliber) {
         vm.prank(dao);
         Machine _machine = Machine(
@@ -205,7 +234,7 @@ abstract contract Base_Hub_Test is Base_Test {
                 IMachine.MachineInitParams({
                     initialDepositor: _depositor,
                     initialRedeemer: _redeemer,
-                    initialFeeManager: _machineFeeManager,
+                    initialFeeManager: _feeManager,
                     initialCaliberStaleThreshold: DEFAULT_MACHINE_CALIBER_STALE_THRESHOLD,
                     initialMaxFixedFeeAccrualRate: DEFAULT_MACHINE_MAX_FIXED_FEE_ACCRUAL_RATE,
                     initialMaxPerfFeeAccrualRate: DEFAULT_MACHINE_MAX_PERF_FEE_ACCRUAL_RATE,
@@ -242,7 +271,7 @@ abstract contract Base_Hub_Test is Base_Test {
         return (_machine, _caliber);
     }
 
-    function _deployMachine(address _accountingToken, address _depositor, address _redeemer, address _machineFeeManager)
+    function _deployMachine(address _accountingToken, address _depositor, address _redeemer, address _feeManager)
         public
         returns (Machine, Caliber)
     {
@@ -252,7 +281,7 @@ abstract contract Base_Hub_Test is Base_Test {
                 IMachine.MachineInitParams({
                     initialDepositor: _depositor,
                     initialRedeemer: _redeemer,
-                    initialFeeManager: _machineFeeManager,
+                    initialFeeManager: _feeManager,
                     initialCaliberStaleThreshold: DEFAULT_MACHINE_CALIBER_STALE_THRESHOLD,
                     initialMaxFixedFeeAccrualRate: DEFAULT_MACHINE_MAX_FIXED_FEE_ACCRUAL_RATE,
                     initialMaxPerfFeeAccrualRate: DEFAULT_MACHINE_MAX_PERF_FEE_ACCRUAL_RATE,

@@ -37,18 +37,26 @@ contract Deploy_Scripts_Test is Base_Test {
 
     DeploySpokePeriphery public deploySpokePeriphery;
 
-    function test_LoadedState() public {
-        ChainsInfo.ChainInfo memory chainInfo = ChainsInfo.getChainInfo(ChainsInfo.CHAIN_ID_ETHEREUM);
+    function setUp() public override {
+        vm.setEnv("TEST_ENV", "true");
 
-        vm.setEnv("HUB_INPUT_FILENAME", chainInfo.constantsFilename);
-        vm.setEnv("HUB_OUTPUT_FILENAME", chainInfo.constantsFilename);
+        ChainsInfo.ChainInfo memory chainInfo = ChainsInfo.getChainInfo(ChainsInfo.CHAIN_ID_ETHEREUM);
+        vm.setEnv("HUB_PERIPHERY_INPUT_FILENAME", chainInfo.constantsFilename);
+        vm.setEnv("HUB_PERIPHERY_OUTPUT_FILENAME", chainInfo.constantsFilename);
+
+        vm.setEnv("HUB_STRAT_INPUT_FILENAME", chainInfo.constantsFilename);
+        vm.setEnv("HUB_STRAT_OUTPUT_FILENAME", chainInfo.constantsFilename);
 
         chainInfo = ChainsInfo.getChainInfo(ChainsInfo.CHAIN_ID_BASE);
-        vm.setEnv("SPOKE_INPUT_FILENAME", chainInfo.constantsFilename);
-        vm.setEnv("SPOKE_OUTPUT_FILENAME", chainInfo.constantsFilename);
+        vm.setEnv("SPOKE_PERIPHERY_INPUT_FILENAME", chainInfo.constantsFilename);
+        vm.setEnv("SPOKE_PERIPHERY_OUTPUT_FILENAME", chainInfo.constantsFilename);
 
-        vm.setEnv("SKIP_AM_SETUP", "true");
+        // In provided access manager test instance, admin has permissions for setup below
+        address admin = 0xae7f67EE9B8c465ACE4a1ec1138FaA483d93691A;
+        vm.setEnv("TEST_SENDER", vm.toString(admin));
+    }
 
+    function test_LoadedState() public {
         deployHubPeriphery = new DeployHubPeriphery();
         deploySpokePeriphery = new DeploySpokePeriphery();
 
@@ -63,13 +71,9 @@ contract Deploy_Scripts_Test is Base_Test {
     }
 
     function testScript_DeployHubPeriphery() public {
-        ChainsInfo.ChainInfo memory chainInfo = ChainsInfo.getChainInfo(ChainsInfo.CHAIN_ID_ETHEREUM);
-        vm.createSelectFork({urlOrAlias: chainInfo.foundryAlias});
+        vm.createSelectFork({urlOrAlias: ChainsInfo.getChainInfo(ChainsInfo.CHAIN_ID_ETHEREUM).foundryAlias});
 
-        vm.setEnv("HUB_INPUT_FILENAME", chainInfo.constantsFilename);
-        vm.setEnv("HUB_OUTPUT_FILENAME", chainInfo.constantsFilename);
-
-        // Core deployment
+        // Periphery deployment
         deployHubPeriphery = new DeployHubPeriphery();
         deployHubPeriphery.run();
 
@@ -128,14 +132,9 @@ contract Deploy_Scripts_Test is Base_Test {
     }
 
     function testScript_DeploySpokePeriphery() public {
-        ChainsInfo.ChainInfo memory chainInfo = ChainsInfo.getChainInfo(ChainsInfo.CHAIN_ID_BASE);
-        vm.createSelectFork({urlOrAlias: chainInfo.foundryAlias});
+        vm.createSelectFork({urlOrAlias: ChainsInfo.getChainInfo(ChainsInfo.CHAIN_ID_BASE).foundryAlias});
 
-        vm.setEnv("SPOKE_INPUT_FILENAME", chainInfo.constantsFilename);
-        vm.setEnv("SPOKE_OUTPUT_FILENAME", chainInfo.constantsFilename);
-        vm.setEnv("SKIP_AM_SETUP", "true");
-
-        // Core deployment
+        // Periphery deployment
         deploySpokePeriphery = new DeploySpokePeriphery();
         deploySpokePeriphery.run();
 
@@ -155,6 +154,8 @@ contract Deploy_Scripts_Test is Base_Test {
     }
 
     function testScript_DeploySecurityModule() public {
+        vm.createSelectFork({urlOrAlias: ChainsInfo.getChainInfo(ChainsInfo.CHAIN_ID_ETHEREUM).foundryAlias});
+
         HubPeriphery memory hubPeripheryDeployment = _deployHubPeriphery();
 
         // Depositor deployment
@@ -182,6 +183,8 @@ contract Deploy_Scripts_Test is Base_Test {
     }
 
     function testScript_DeployDirectDepositor() public {
+        vm.createSelectFork({urlOrAlias: ChainsInfo.getChainInfo(ChainsInfo.CHAIN_ID_ETHEREUM).foundryAlias});
+
         HubPeriphery memory hubPeripheryDeployment = _deployHubPeriphery();
 
         // Depositor deployment
@@ -197,6 +200,8 @@ contract Deploy_Scripts_Test is Base_Test {
     }
 
     function testScript_AsyncRedeemer() public {
+        vm.createSelectFork({urlOrAlias: ChainsInfo.getChainInfo(ChainsInfo.CHAIN_ID_ETHEREUM).foundryAlias});
+
         HubPeriphery memory hubPeripheryDeployment = _deployHubPeriphery();
 
         // Redeemer deployment
@@ -220,6 +225,8 @@ contract Deploy_Scripts_Test is Base_Test {
     }
 
     function testScript_WatermarkFeeManager() public {
+        vm.createSelectFork({urlOrAlias: ChainsInfo.getChainInfo(ChainsInfo.CHAIN_ID_ETHEREUM).foundryAlias});
+
         HubPeriphery memory hubPeripheryDeployment = _deployHubPeriphery();
 
         // FeeManager deployment
@@ -296,14 +303,7 @@ contract Deploy_Scripts_Test is Base_Test {
     }
 
     function _deployHubPeriphery() internal returns (HubPeriphery memory hubPeripheryDeployment) {
-        ChainsInfo.ChainInfo memory chainInfo = ChainsInfo.getChainInfo(ChainsInfo.CHAIN_ID_ETHEREUM);
-        vm.createSelectFork({urlOrAlias: chainInfo.foundryAlias});
-
-        vm.setEnv("HUB_INPUT_FILENAME", chainInfo.constantsFilename);
-        vm.setEnv("HUB_OUTPUT_FILENAME", chainInfo.constantsFilename);
-        vm.setEnv("SKIP_AM_SETUP", "true");
-
-        // Core deployment
+        // Periphery deployment
         deployHubPeriphery = new DeployHubPeriphery();
         deployHubPeriphery.run();
 

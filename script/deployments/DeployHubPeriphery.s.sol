@@ -15,8 +15,8 @@ contract DeployHubPeriphery is DeployPeriphery {
     HubPeriphery private _hubPeriphery;
 
     constructor() {
-        string memory inputFilename = vm.envString("HUB_INPUT_FILENAME");
-        string memory outputFilename = vm.envString("HUB_OUTPUT_FILENAME");
+        string memory inputFilename = vm.envString("HUB_PERIPHERY_INPUT_FILENAME");
+        string memory outputFilename = vm.envString("HUB_PERIPHERY_OUTPUT_FILENAME");
 
         string memory basePath = string.concat(vm.projectRoot(), "/script/deployments/");
 

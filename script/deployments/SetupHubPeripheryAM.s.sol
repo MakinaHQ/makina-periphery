@@ -26,8 +26,8 @@ contract SetupHubPeripheryAM is Base, Script, SortedParams {
     HubPeripherySorted private _hubPeriphery;
 
     constructor() {
-        string memory deploymentInputFilename = vm.envString("HUB_INPUT_FILENAME");
-        string memory deploymentOutputFilename = vm.envString("HUB_OUTPUT_FILENAME");
+        string memory deploymentInputFilename = vm.envString("HUB_PERIPHERY_INPUT_FILENAME");
+        string memory deploymentOutputFilename = vm.envString("HUB_PERIPHERY_OUTPUT_FILENAME");
 
         string memory basePath = string.concat(vm.projectRoot(), "/script/deployments/");
 

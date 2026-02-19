@@ -8,7 +8,7 @@ import {DirectDepositor} from "src/depositors/DirectDepositor.sol";
 import {MachinePeriphery_Integration_Concrete_Test} from "../../machine-periphery/MachinePeriphery.t.sol";
 
 contract DirectDepositor_Integration_Concrete_Test is MachinePeriphery_Integration_Concrete_Test {
-    DirectDepositor public directDepositor;
+    DirectDepositor internal directDepositor;
 
     function setUp() public virtual override {
         MachinePeriphery_Integration_Concrete_Test.setUp();

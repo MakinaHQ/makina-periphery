@@ -21,32 +21,32 @@ import {HubPeripheryFactory} from "../../src/factories/HubPeripheryFactory.sol";
 import {Base} from "../base/Base.sol";
 
 abstract contract Fork_Test is Base, Test, Core_Base.Base {
-    address public deployer;
+    address internal deployer;
 
-    uint256 public chainId;
+    uint256 internal chainId;
 
-    address public usdc;
-    address public weth;
+    address internal usdc;
+    address internal weth;
 
-    address public dao;
-    address public mechanic;
-    address public securityCouncil;
+    address internal dao;
+    address internal mechanic;
+    address internal securityCouncil;
 
-    FlashloanProviders public flashloanProviders;
+    FlashloanProviders internal flashloanProviders;
 
     // Hub Core
-    AccessManagerUpgradeable public accessManager;
-    OracleRegistry public oracleRegistry;
-    TokenRegistry public tokenRegistry;
-    SwapModule public swapModule;
-    HubCoreRegistry public hubCoreRegistry;
-    ChainRegistry public chainRegistry;
-    HubCoreFactory public hubCoreFactory;
+    AccessManagerUpgradeable internal accessManager;
+    OracleRegistry internal oracleRegistry;
+    TokenRegistry internal tokenRegistry;
+    SwapModule internal swapModule;
+    HubCoreRegistry internal hubCoreRegistry;
+    ChainRegistry internal chainRegistry;
+    HubCoreFactory internal hubCoreFactory;
 
     // Hub Periphery
-    FlashloanAggregator public flashloanAggregator;
-    HubPeripheryRegistry public hubPeripheryRegistry;
-    HubPeripheryFactory public hubPeripheryFactory;
+    FlashloanAggregator internal flashloanAggregator;
+    HubPeripheryRegistry internal hubPeripheryRegistry;
+    HubPeripheryFactory internal hubPeripheryFactory;
 
     function setUp() public virtual {
         chainId = ChainsInfo.CHAIN_ID_ETHEREUM;

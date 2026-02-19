@@ -12,8 +12,8 @@ import {DeployPeriphery} from "./DeployPeriphery.s.sol";
 contract DeploySpokePeriphery is DeployPeriphery {
     using stdJson for string;
 
-    address public spokeCoreRegistry;
-    FlashloanProvidersSorted public flProviders;
+    address internal spokeCoreRegistry;
+    FlashloanProvidersSorted internal flProviders;
 
     FlashloanAggregator private deployedInstance;
 

@@ -9,7 +9,7 @@ import {MockCaliber} from "../../mocks/MockCaliber.sol";
 import {Fork_Test} from "../Fork.t.sol";
 
 abstract contract FlashloanAggregator_Fork_Test is Fork_Test {
-    MockCaliber public mockCaliber;
+    MockCaliber internal mockCaliber;
 
     function setUp() public override {
         Fork_Test.setUp();

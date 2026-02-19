@@ -7,8 +7,8 @@ import {MockPriceFeed} from "@makina-core-test/mocks/MockPriceFeed.sol";
 import {Base_Hub_Test} from "test/base/Base.t.sol";
 
 abstract contract Unit_Concrete_Test is Base_Hub_Test {
-    MockERC20 public accountingToken;
-    MockERC20 public baseToken;
+    MockERC20 internal accountingToken;
+    MockERC20 internal baseToken;
 
     MockPriceFeed internal aPriceFeed1;
     MockPriceFeed internal bPriceFeed1;

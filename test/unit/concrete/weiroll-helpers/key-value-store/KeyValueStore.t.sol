@@ -6,9 +6,9 @@ import {KeyValueStore} from "src/weiroll-helpers/KeyValueStore.sol";
 import {Unit_Concrete_Test} from "../../UnitConcrete.t.sol";
 
 contract KeyValueStore_Unit_concrete_Test is Unit_Concrete_Test {
-    KeyValueStore public keyValueStore;
+    KeyValueStore internal keyValueStore;
 
-    address public caliberAddr;
+    address internal caliberAddr;
 
     function setUp() public virtual override {
         Unit_Concrete_Test.setUp();

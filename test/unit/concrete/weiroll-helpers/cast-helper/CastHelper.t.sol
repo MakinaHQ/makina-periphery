@@ -6,7 +6,7 @@ import {CastHelper} from "src/weiroll-helpers/CastHelper.sol";
 import {Unit_Concrete_Test} from "../../UnitConcrete.t.sol";
 
 contract CastHelper_Unit_concrete_Test is Unit_Concrete_Test {
-    CastHelper public castHelper;
+    CastHelper internal castHelper;
 
     function setUp() public virtual override {
         Unit_Concrete_Test.setUp();

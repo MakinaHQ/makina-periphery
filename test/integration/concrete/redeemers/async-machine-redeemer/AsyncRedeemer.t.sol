@@ -8,9 +8,9 @@ import {AsyncRedeemer} from "src/redeemers/AsyncRedeemer.sol";
 import {MachinePeriphery_Integration_Concrete_Test} from "../../machine-periphery/MachinePeriphery.t.sol";
 
 contract AsyncRedeemer_Integration_Concrete_Test is MachinePeriphery_Integration_Concrete_Test {
-    AsyncRedeemer public asyncRedeemer;
+    AsyncRedeemer internal asyncRedeemer;
 
-    address public depositorAddr;
+    address internal depositorAddr;
 
     function setUp() public virtual override {
         MachinePeriphery_Integration_Concrete_Test.setUp();

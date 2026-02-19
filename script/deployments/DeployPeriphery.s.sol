@@ -27,7 +27,7 @@ contract DeployPeriphery is Base, Script, SortedParams, CreateXUtils {
     }
 
     function deployFlashloanAggregator(address _caliberFactory, FlashloanProviders memory _flProviders)
-        public
+        internal
         override
         returns (FlashloanAggregator)
     {

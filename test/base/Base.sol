@@ -52,7 +52,7 @@ abstract contract Base is ProxyUtils {
     ///
 
     function deployHubPeriphery(address accessManager, address hubCoreRegistry, FlashloanProviders memory flProviders)
-        public
+        internal
         returns (HubPeriphery memory deployment)
     {
         {
@@ -141,7 +141,7 @@ abstract contract Base is ProxyUtils {
     }
 
     function deployFlashloanAggregator(address caliberFactory, FlashloanProviders memory flProviders)
-        public
+        internal
         virtual
         returns (FlashloanAggregator)
     {
@@ -160,15 +160,15 @@ abstract contract Base is ProxyUtils {
     /// REGISTRIES SETUP
     ///
 
-    function registerFlashloanAggregator(address coreRegistry, address flashloanAggregator) public {
+    function registerFlashloanAggregator(address coreRegistry, address flashloanAggregator) internal {
         ICoreRegistry(coreRegistry).setFlashLoanModule(flashloanAggregator);
     }
 
-    function registerHubPeripheryFactory(address hubPeripheryRegistry, address hubPeripheryFactory) public {
+    function registerHubPeripheryFactory(address hubPeripheryRegistry, address hubPeripheryFactory) internal {
         IHubPeripheryRegistry(hubPeripheryRegistry).setPeripheryFactory(hubPeripheryFactory);
     }
 
-    function registerSecurityModuleBeacon(address hubPeripheryRegistry, address securityModuleBeacon) public {
+    function registerSecurityModuleBeacon(address hubPeripheryRegistry, address securityModuleBeacon) internal {
         IHubPeripheryRegistry(hubPeripheryRegistry).setSecurityModuleBeacon(securityModuleBeacon);
     }
 
@@ -176,7 +176,7 @@ abstract contract Base is ProxyUtils {
         address hubPeripheryRegistry,
         uint16[] memory implemIds,
         address[] memory depositorBeacons
-    ) public {
+    ) internal {
         require(implemIds.length == depositorBeacons.length, "Mismatched lengths");
 
         for (uint256 i; i < implemIds.length; ++i) {
@@ -188,7 +188,7 @@ abstract contract Base is ProxyUtils {
         address hubPeripheryRegistry,
         uint16[] memory implemIds,
         address[] memory redeemerBeacons
-    ) public {
+    ) internal {
         require(implemIds.length == redeemerBeacons.length, "Mismatched lengths");
 
         for (uint256 i; i < implemIds.length; ++i) {
@@ -200,7 +200,7 @@ abstract contract Base is ProxyUtils {
         address hubPeripheryRegistry,
         uint16[] memory implemIds,
         address[] memory feeManagerBeacons
-    ) public {
+    ) internal {
         require(implemIds.length == feeManagerBeacons.length, "Mismatched lengths");
 
         for (uint256 i; i < implemIds.length; ++i) {
@@ -212,7 +212,7 @@ abstract contract Base is ProxyUtils {
     /// ACCESS MANAGER SETUP
     ///
 
-    function setupHubPeripheryAMFunctionRoles(address accessManager, HubPeriphery memory deployment) public {
+    function setupHubPeripheryAMFunctionRoles(address accessManager, HubPeriphery memory deployment) internal {
         // Transparent Proxy Admins
         bytes4[] memory proxyAdminSelectors = new bytes4[](1);
         proxyAdminSelectors[0] = ProxyAdmin.upgradeAndCall.selector;

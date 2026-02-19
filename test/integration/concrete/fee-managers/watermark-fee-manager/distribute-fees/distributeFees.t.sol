@@ -6,19 +6,19 @@ import {Errors} from "src/libraries/Errors.sol";
 import {WatermarkFeeManager_Integration_Concrete_Test} from "../WatermarkFeeManager.t.sol";
 
 contract DistributeFees_Integration_Concrete_Test is WatermarkFeeManager_Integration_Concrete_Test {
-    address public mgmtReceiver1;
-    address public mgmtReceiver2;
-    address public mgmtReceiver3;
+    address internal mgmtReceiver1;
+    address internal mgmtReceiver2;
+    address internal mgmtReceiver3;
 
-    uint256 public mgmtSplitBps1;
-    uint256 public mgmtSplitBps2;
-    uint256 public mgmtSplitBps3;
+    uint256 internal mgmtSplitBps1;
+    uint256 internal mgmtSplitBps2;
+    uint256 internal mgmtSplitBps3;
 
-    address public perfReceiver1;
-    address public perfReceiver2;
+    address internal perfReceiver1;
+    address internal perfReceiver2;
 
-    uint256 public perfSplitBps1;
-    uint256 public perfSplitBps2;
+    uint256 internal perfSplitBps1;
+    uint256 internal perfSplitBps2;
 
     function setUp() public override {
         WatermarkFeeManager_Integration_Concrete_Test.setUp();

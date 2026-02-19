@@ -11,9 +11,9 @@ import {IMachineShareOracleFactory} from "src/interfaces/IMachineShareOracleFact
 import {Unit_Concrete_Test} from "../UnitConcrete.t.sol";
 
 abstract contract MachineShareOracleFactory_Unit_Concrete_Test is Unit_Concrete_Test {
-    MockFeeManager public feeManager;
+    MockFeeManager internal feeManager;
 
-    Machine public machine;
+    Machine internal machine;
 
     function setUp() public virtual override {
         Unit_Concrete_Test.setUp();

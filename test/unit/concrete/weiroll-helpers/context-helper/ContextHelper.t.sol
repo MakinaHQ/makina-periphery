@@ -6,7 +6,7 @@ import {ContextHelper} from "src/weiroll-helpers/ContextHelper.sol";
 import {Unit_Concrete_Test} from "../../UnitConcrete.t.sol";
 
 contract ContextHelper_Unit_concrete_Test is Unit_Concrete_Test {
-    ContextHelper public contextHelper;
+    ContextHelper internal contextHelper;
 
     function setUp() public virtual override {
         Unit_Concrete_Test.setUp();

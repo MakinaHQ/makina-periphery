@@ -8,9 +8,9 @@ import {DeployPeriphery} from "./DeployPeriphery.s.sol";
 contract DeployHubPeriphery is DeployPeriphery {
     using stdJson for string;
 
-    address public accessManager;
-    address public hubCoreRegistry;
-    FlashloanProvidersSorted public flProviders;
+    address internal accessManager;
+    address internal hubCoreRegistry;
+    FlashloanProvidersSorted internal flProviders;
 
     HubPeriphery private _hubPeriphery;
 

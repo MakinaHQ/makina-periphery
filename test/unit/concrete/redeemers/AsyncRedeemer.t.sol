@@ -19,7 +19,8 @@ import {Whitelist_Unit_Concrete_Test} from "../whitelist/Whitelist.t.sol";
 import {Unit_Concrete_Test} from "../UnitConcrete.t.sol";
 
 abstract contract AsyncRedeemer_Util_Concrete_Test is MachinePeriphery_Util_Concrete_Test {
-    IAsyncRedeemer public asyncRedeemer;
+    IAsyncRedeemer internal asyncRedeemer;
+    Machine internal machine;
 
     function setUp() public virtual override {
         Unit_Concrete_Test.setUp();
@@ -34,8 +35,7 @@ abstract contract AsyncRedeemer_Util_Concrete_Test is MachinePeriphery_Util_Conc
 
         machinePeriphery = IMachinePeriphery(address(asyncRedeemer));
 
-        (Machine machine,) = _deployMachine(address(accountingToken), address(0), address(asyncRedeemer), address(0));
-        _machineAddr = address(machine);
+        (machine,) = _deployMachine(address(accountingToken), address(0), address(asyncRedeemer), address(0));
     }
 }
 
@@ -48,7 +48,7 @@ contract Whitelist_AsyncRedeemer_Util_Concrete_Test is
         whitelist = IWhitelist(address(asyncRedeemer));
 
         vm.prank(dao);
-        hubPeripheryFactory.setMachine(address(asyncRedeemer), _machineAddr);
+        hubPeripheryFactory.setMachine(address(asyncRedeemer), address(machine));
     }
 }
 
@@ -73,12 +73,12 @@ contract Getters_Setters_AsyncRedeemer_Util_Concrete_Test is
         assertEq(asyncRedeemer.finalizationDelay(), Constants.DEFAULT_FINALIZATION_DELAY);
     }
 
-    function test_SetFinalizationDelay_RevertWhen_NotRMT() public withMachine(_machineAddr) {
+    function test_SetFinalizationDelay_RevertWhen_NotRMT() public withMachine(address(machine)) {
         vm.expectRevert(CoreErrors.UnauthorizedCaller.selector);
         asyncRedeemer.setFinalizationDelay(1 days);
     }
 
-    function test_SetFinalizationDelay() public withMachine(_machineAddr) {
+    function test_SetFinalizationDelay() public withMachine(address(machine)) {
         uint256 newFinalizationDelay = 7 days;
         vm.expectEmit(true, true, false, false, address(asyncRedeemer));
         emit IAsyncRedeemer.FinalizationDelayChanged(Constants.DEFAULT_FINALIZATION_DELAY, newFinalizationDelay);
@@ -87,12 +87,12 @@ contract Getters_Setters_AsyncRedeemer_Util_Concrete_Test is
         assertEq(asyncRedeemer.finalizationDelay(), newFinalizationDelay);
     }
 
-    function test_SetMinRedeemAmount_RevertWhen_NotRMT() public withMachine(_machineAddr) {
+    function test_SetMinRedeemAmount_RevertWhen_NotRMT() public withMachine(address(machine)) {
         vm.expectRevert(CoreErrors.UnauthorizedCaller.selector);
         asyncRedeemer.setMinRedeemAmount(10);
     }
 
-    function test_SetMinRedeemAmount() public withMachine(_machineAddr) {
+    function test_SetMinRedeemAmount() public withMachine(address(machine)) {
         uint256 newMinRedeemAmount = 10;
         vm.expectEmit(true, true, false, false, address(asyncRedeemer));
         emit IAsyncRedeemer.MinRedeemAmountChanged(Constants.DEFAULT_MIN_REDEEM_AMOUNT, newMinRedeemAmount);

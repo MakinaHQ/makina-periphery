@@ -10,8 +10,8 @@ import {SMCooldownReceipt} from "src/security-module/SMCooldownReceipt.sol";
 import {Unit_Concrete_Test} from "../UnitConcrete.t.sol";
 
 abstract contract SMCooldownReceipt_Unit_Concrete_Test is Unit_Concrete_Test {
-    SecurityModule public securityModule;
-    SMCooldownReceipt public cooldownReceipt;
+    SecurityModule internal securityModule;
+    SMCooldownReceipt internal cooldownReceipt;
 
     function setUp() public virtual override {
         Unit_Concrete_Test.setUp();

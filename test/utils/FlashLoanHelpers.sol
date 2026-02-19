@@ -9,7 +9,7 @@ library FlashLoanHelpers {
     Vm private constant vm = Vm(address(uint160(uint256(keccak256("hevm cheat code")))));
 
     /// @dev Sets up the caliber contract as a legit caliber in hubCoreFactory's storage.
-    function registerCaliber(address hubCoreFactory, address caliber) public {
+    function registerCaliber(address hubCoreFactory, address caliber) internal {
         // 1. Compute the storage slot for _isCaliber[caliber] in hubCoreFactory's storage
         uint256 isCaliberMappingSlot = 0x092f83b0a9c245bf0116fc4aaf5564ab048ff47d6596f1c61801f18d9dfbea00;
         bytes32 slot = keccak256(abi.encode(address(caliber), bytes32(isCaliberMappingSlot)));

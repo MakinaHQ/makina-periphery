@@ -3,8 +3,6 @@ pragma solidity 0.8.28;
 
 import {ICaliber} from "@makina-core/interfaces/ICaliber.sol";
 
-/// @title IFlashloanAggregator
-/// @notice The interface for the flashloan aggregator.
 interface IFlashloanAggregator {
     /// @notice Error thrown when the caller is not a Caliber.
     error NotCaliber();
@@ -54,7 +52,7 @@ interface IFlashloanAggregator {
     /// @notice Error thrown when the user data hash is invalid.
     error InvalidUserDataHash();
 
-    /// @notice The enum for the flashloan providers.
+    /// @notice The enum for the flash loan providers.
     enum FlashloanProvider {
         /// Aave V3
         AAVE_V3,
@@ -68,8 +66,8 @@ interface IFlashloanAggregator {
         DSS_FLASH
     }
 
-    /// @notice The struct for requesting a flashloan.
-    /// @param provider The provider of the flashloan.
+    /// @notice The struct for requesting a flash loan.
+    /// @param provider The provider of the flash loan.
     /// @param instruction The instruction to execute.
     /// @param token The token to borrow.
     /// @param amount The amount to borrow.
@@ -80,7 +78,7 @@ interface IFlashloanAggregator {
         uint256 amount;
     }
 
-    /// @notice The function to request a flashloan.
-    /// @param request The request for the flashloan.
+    /// @notice The function to request a flash loan.
+    /// @param request The request for the flash loan.
     function requestFlashloan(FlashloanRequest calldata request) external;
 }

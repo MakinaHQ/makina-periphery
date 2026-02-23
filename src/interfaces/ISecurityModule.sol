@@ -22,7 +22,7 @@ interface ISecurityModule is IERC20Metadata, IMachinePeriphery {
     /// @param machineShare Address of the machine share token locked in this contract.
     /// @param initialCooldownDuration Cooldown duration in seconds for unlocking.
     /// @param initialMaxSlashableBps Maximum slashable proportion of the vault balance in basis points.
-    /// @param minBalanceAfterSlash Minimum balance that must remain in the vault after a slash.
+    /// @param initialMinBalanceAfterSlash Minimum balance that must remain in the vault after a slash.
     struct SecurityModuleInitParams {
         address machineShare;
         uint256 initialCooldownDuration;

@@ -57,7 +57,7 @@ abstract contract WatermarkFeeManager_Util_Concrete_Test is MachinePeriphery_Uti
     }
 }
 
-contract Getters_Setters_AsyncRedeemer_Util_Concrete_Test is
+contract Getters_Setters_WatermarkFeeManager_Util_Concrete_Test is
     Getter_Setter_MachinePeriphery_Util_Concrete_Test,
     WatermarkFeeManager_Util_Concrete_Test
 {
@@ -92,6 +92,15 @@ contract Getters_Setters_AsyncRedeemer_Util_Concrete_Test is
         assertEq(watermarkFeeManager.perfFeeReceivers()[0], FEE_RECEIVER);
 
         assertEq(watermarkFeeManager.sharePriceWatermark(), 0);
+
+        bytes4[] memory rfcSelectors = watermarkFeeManager.getRestrictedFeeConfigSelectors();
+        assertEq(rfcSelectors.length, 6);
+        assertEq(rfcSelectors[0], IWatermarkFeeManager.resetSharePriceWatermark.selector);
+        assertEq(rfcSelectors[1], IWatermarkFeeManager.setMgmtFeeRatePerSecond.selector);
+        assertEq(rfcSelectors[2], IWatermarkFeeManager.setSmFeeRatePerSecond.selector);
+        assertEq(rfcSelectors[3], IWatermarkFeeManager.setPerfFeeRate.selector);
+        assertEq(rfcSelectors[4], IWatermarkFeeManager.setMgmtFeeSplit.selector);
+        assertEq(rfcSelectors[5], IWatermarkFeeManager.setPerfFeeSplit.selector);
     }
 
     function test_authority_RevertWhen_MachineNotSet() public {

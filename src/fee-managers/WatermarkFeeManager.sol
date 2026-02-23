@@ -135,7 +135,15 @@ contract WatermarkFeeManager is MachinePeriphery, AccessManagedUpgradeable, IWat
 
     /// @inheritdoc IFeeManager
     function getRestrictedFeeConfigSelectors() external pure override returns (bytes4[] memory) {
-        return new bytes4[](0);
+        bytes4[] memory selectors = new bytes4[](6);
+        selectors[0] = IWatermarkFeeManager.resetSharePriceWatermark.selector;
+        selectors[1] = IWatermarkFeeManager.setMgmtFeeRatePerSecond.selector;
+        selectors[2] = IWatermarkFeeManager.setSmFeeRatePerSecond.selector;
+        selectors[3] = IWatermarkFeeManager.setPerfFeeRate.selector;
+        selectors[4] = IWatermarkFeeManager.setMgmtFeeSplit.selector;
+        selectors[5] = IWatermarkFeeManager.setPerfFeeSplit.selector;
+
+        return selectors;
     }
 
     /// @inheritdoc IFeeManager

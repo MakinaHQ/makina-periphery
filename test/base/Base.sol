@@ -223,14 +223,10 @@ abstract contract Base is ProxyUtils {
             getProxyAdmin(address(deployment.hubPeripheryFactory)), proxyAdminSelectors, Roles.INFRA_UPGRADE_ROLE
         );
         IAccessManager(accessManager).setTargetFunctionRole(
-            getProxyAdmin(address(deployment.metaMorphoOracleFactory)),
-            proxyAdminSelectors,
-            Roles.INFRA_UPGRADE_ROLE
+            getProxyAdmin(address(deployment.metaMorphoOracleFactory)), proxyAdminSelectors, Roles.INFRA_UPGRADE_ROLE
         );
         IAccessManager(accessManager).setTargetFunctionRole(
-            getProxyAdmin(address(deployment.machineShareOracleFactory)),
-            proxyAdminSelectors,
-            Roles.INFRA_UPGRADE_ROLE
+            getProxyAdmin(address(deployment.machineShareOracleFactory)), proxyAdminSelectors, Roles.INFRA_UPGRADE_ROLE
         );
 
         // Upgradeable Beacons

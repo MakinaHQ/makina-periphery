@@ -8,8 +8,6 @@ import {DeployPeriphery} from "./DeployPeriphery.s.sol";
 contract DeployHubPeriphery is DeployPeriphery {
     using stdJson for string;
 
-    address public upgradeAdmin;
-
     address public accessManager;
     address public hubCoreRegistry;
     FlashloanProvidersSorted public flProviders;
@@ -37,8 +35,6 @@ contract DeployHubPeriphery is DeployPeriphery {
     }
 
     function _deploySetupBefore() public override {
-        upgradeAdmin = abi.decode(vm.parseJson(inputJson, ".upgradeAdmin"), (address));
-
         accessManager = abi.decode(vm.parseJson(inputJson, ".accessManager"), (address));
         hubCoreRegistry = abi.decode(vm.parseJson(inputJson, ".hubCoreRegistry"), (address));
         flProviders = abi.decode(vm.parseJson(inputJson, ".flashloanProviders"), (FlashloanProvidersSorted));
@@ -60,8 +56,7 @@ contract DeployHubPeriphery is DeployPeriphery {
                 dssFlash: flProviders.dssFlash,
                 aaveV3AddressProvider: flProviders.aaveV3AddressProvider,
                 dai: flProviders.dai
-            }),
-            upgradeAdmin
+            })
         );
     }
 

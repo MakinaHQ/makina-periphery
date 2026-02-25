@@ -39,9 +39,11 @@ This contract provides flashloan functionality within a Caliber execution. When 
 
 Similarly to Makina Core contracts, contracts in this repository implement the [OpenZeppelin AccessManagerUpgradeable](https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable/blob/master/contracts/access/manager/AccessManagerUpgradeable.sol). The Makina protocol provides an instance of `AccessManagerUpgradeable` with addresses defined by the Makina DAO, but institutions that require it can deploy machines and periphery modules with their own `AccessManagerUpgradeable`. See [PERMISSIONS.md](https://github.com/makinaHQ/makina-periphery/blob/main/PERMISSIONS.md) for full list of permissions.
 
-Roles used in makina periphery contracts are defined as follows:
+Roles used in Makina Periphery contracts are a subset of those used in Makina Core contracts, and are defined as follows:
 
-- `ADMIN_ROLE` - roleId `0` - the Access Manager super admin. Can grant and revoke any role. Set by default in the Access Manager constructor.
-- `INFRA_SETUP_ROLE` - roleId `1` - the address allowed to perform setup and maintenance on shared periphery contracts.
-- `STRATEGY_DEPLOYMENT_ROLE` - roleId `2` - the address allowed to deploy new periphery modules.
-- `STRATEGY_COMPONENTS_SETUP_ROLE` - roleId `3` - the address allowed to manage fees setup in fee managers.
+- `ADMIN_ROLE` - roleId `0` - Super admin of the Access Manager. Authorized to perform Access Manager configuration actions.
+- `INFRA_CONFIG_ROLE` - roleId `1` - Authorized to configure shared periphery contracts.
+- `STRATEGY_DEPLOYMENT_ROLE` - roleId `2` - Authorized to deploy new periphery modules.
+- `STRATEGY_COMPONENTS_SETUP_ROLE` - roleId `3` - Authorized to configure fee settings in fee manager contracts.
+- `INFRA_UPGRADE_ROLE` - roleId `5` - Authorized to upgrade proxys and beacons, and register contracts in the core registry.
+- `GUARDIAN_ROLE` - roleId `6` - Authorized to cancel operations scheduled with the roles above.

@@ -5,7 +5,7 @@ import {Test} from "forge-std/Test.sol";
 
 import {AccessManagerUpgradeable} from "@openzeppelin/contracts-upgradeable/access/manager/AccessManagerUpgradeable.sol";
 
-import "@makina-core-test/base/Base.sol" as Core_base;
+import "@makina-core-test/base/Base.sol" as Core_Base;
 import {ChainsInfo} from "@makina-core-test/utils/ChainsInfo.sol";
 import {ChainRegistry} from "@makina-core/registries/ChainRegistry.sol";
 import {HubCoreRegistry} from "@makina-core/registries/HubCoreRegistry.sol";
@@ -14,14 +14,13 @@ import {OracleRegistry} from "@makina-core/registries/OracleRegistry.sol";
 import {SwapModule} from "@makina-core/swap/SwapModule.sol";
 import {TokenRegistry} from "@makina-core/registries/TokenRegistry.sol";
 
-import {CoreHelpers} from "../utils/CoreHelpers.sol";
 import {FlashloanAggregator} from "../../src/flashloans/FlashloanAggregator.sol";
 import {HubPeripheryRegistry} from "../../src/registries/HubPeripheryRegistry.sol";
 import {HubPeripheryFactory} from "../../src/factories/HubPeripheryFactory.sol";
 
 import {Base} from "../base/Base.sol";
 
-abstract contract Fork_Test is Base, Test, CoreHelpers {
+abstract contract Fork_Test is Base, Test, Core_Base.Base {
     address public deployer;
 
     uint256 public chainId;
@@ -80,27 +79,22 @@ abstract contract Fork_Test is Base, Test, CoreHelpers {
             dai: abi.decode(vm.parseJson(peripheryInputJson, ".flashloanProviders.dai"), (address))
         });
 
-        // deploy core contracts
-        address wormhole = abi.decode(vm.parseJson(coreInputJson, ".wormhole"), (address));
-        Core_base.Base.HubCore memory hubCore = _deployHubCore(deployer, dao, wormhole);
-        accessManager = hubCore.accessManager;
-        oracleRegistry = hubCore.oracleRegistry;
-        swapModule = hubCore.swapModule;
-        hubCoreRegistry = hubCore.hubCoreRegistry;
-        tokenRegistry = hubCore.tokenRegistry;
-        chainRegistry = hubCore.chainRegistry;
-        hubCoreFactory = hubCore.hubCoreFactory;
+        // hub Core
+        Core_Base.Base.HubCore memory coreDeployment = deployHubCore(deployer, address(0));
+        accessManager = coreDeployment.accessManager;
+        hubCoreRegistry = coreDeployment.hubCoreRegistry;
+        hubCoreFactory = coreDeployment.hubCoreFactory;
+        setupHubCoreRegistry(coreDeployment);
 
         // Hub Periphery
-        HubPeriphery memory hubPeriphery =
-            deployHubPeriphery(address(accessManager), address(hubCoreRegistry), flashloanProviders, dao);
-        flashloanAggregator = hubPeriphery.flashloanAggregator;
-        hubPeripheryRegistry = hubPeriphery.hubPeripheryRegistry;
-        hubPeripheryFactory = hubPeriphery.hubPeripheryFactory;
+        HubPeriphery memory peripheryDeployment =
+            deployHubPeriphery(address(accessManager), address(hubCoreRegistry), flashloanProviders);
+        flashloanAggregator = peripheryDeployment.flashloanAggregator;
+        hubPeripheryRegistry = peripheryDeployment.hubPeripheryRegistry;
+        hubPeripheryFactory = peripheryDeployment.hubPeripheryFactory;
+    }
 
-        registerFlashloanAggregator(address(hubCore.hubCoreRegistry), address(flashloanAggregator));
-        registerHubPeripheryFactory(address(hubPeripheryRegistry), address(hubPeripheryFactory));
-        setupHubPeripheryAMFunctionRoles(address(accessManager), hubPeriphery);
-        _setupAccessManager(accessManager, dao);
+    function _deployWeirollVM() internal pure override returns (address) {
+        return address(0);
     }
 }

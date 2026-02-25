@@ -13,14 +13,14 @@ import {MachinePeriphery_Util_Concrete_Test} from "../machine-periphery/MachineP
 import {Unit_Concrete_Test} from "../UnitConcrete.t.sol";
 
 abstract contract SecurityModule_Util_Concrete_Test is MachinePeriphery_Util_Concrete_Test {
-    SecurityModule public securityModule;
-    MachineShare public machineShare;
+    SecurityModule internal securityModule;
+    Machine internal machine;
+    MachineShare internal machineShare;
 
     function setUp() public virtual override {
         Unit_Concrete_Test.setUp();
 
-        (Machine machine,) = _deployMachine(address(accountingToken), address(0), address(0), address(0));
-        _machineAddr = address(machine);
+        (machine,) = _deployMachine(address(accountingToken), address(0), address(0), address(0));
         machineShare = MachineShare(machine.shareToken());
 
         vm.prank(dao);
@@ -40,7 +40,7 @@ abstract contract SecurityModule_Util_Concrete_Test is MachinePeriphery_Util_Con
 contract Getters_Setters_SecurityModule_Util_Concrete_Test is SecurityModule_Util_Concrete_Test {
     function test_Getters() public view {
         assertEq(securityModule.decimals(), DecimalsUtils.SHARE_TOKEN_DECIMALS);
-        assertEq(securityModule.machine(), _machineAddr);
+        assertEq(securityModule.machine(), address(machine));
         assertEq(securityModule.machineShare(), securityModule.machineShare());
         assertEq(securityModule.cooldownDuration(), DEFAULT_COOLDOWN_DURATION);
         assertEq(securityModule.maxSlashableBps(), DEFAULT_MAX_SLASHABLE_BPS);

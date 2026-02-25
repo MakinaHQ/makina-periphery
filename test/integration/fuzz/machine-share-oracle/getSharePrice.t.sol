@@ -13,18 +13,18 @@ import {MachineShareOracle} from "src/oracles/MachineShareOracle.sol";
 import {Base_Hub_Test} from "test/base/Base.t.sol";
 
 contract GetSharePrice_Integration_Fuzz_Test is Base_Hub_Test {
-    MockERC20 public accountingToken;
-    MockERC20 public depositToken;
+    MockERC20 internal accountingToken;
+    MockERC20 internal depositToken;
 
     MockPriceFeed internal aPriceFeed1;
     MockPriceFeed internal dPriceFeed1;
 
-    MockFeeManager public feeManager;
+    MockFeeManager internal feeManager;
 
-    PreDepositVault public preDepositVault;
-    Machine public machine;
+    PreDepositVault internal preDepositVault;
+    Machine internal machine;
 
-    MachineShareOracle public machineShareOracle;
+    MachineShareOracle internal machineShareOracle;
 
     /// a represents the accounting token
     /// d represents the deposit token

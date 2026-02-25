@@ -6,7 +6,7 @@ import {BooleanHelper} from "src/weiroll-helpers/BooleanHelper.sol";
 import {Unit_Concrete_Test} from "../../UnitConcrete.t.sol";
 
 contract BooleanHelper_Unit_Concrete_Test is Unit_Concrete_Test {
-    BooleanHelper public booleanHelper;
+    BooleanHelper internal booleanHelper;
 
     function setUp() public virtual override {
         Unit_Concrete_Test.setUp();

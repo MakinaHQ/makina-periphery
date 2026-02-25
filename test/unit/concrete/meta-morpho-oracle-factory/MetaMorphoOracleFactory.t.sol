@@ -11,10 +11,10 @@ import {MockMetaMorphoFactory} from "test/mocks/MockMetaMorphoFactory.sol";
 import {Unit_Concrete_Test} from "../UnitConcrete.t.sol";
 
 abstract contract MetaMorphoOracleFactory_Unit_Concrete_Test is Unit_Concrete_Test {
-    ERC4626Oracle public oracle;
-    MockMetaMorphoFactory public morphoVaultFactory;
-    MockERC4626 public metaMorphoVault;
-    uint8 public oracleDecimals;
+    ERC4626Oracle internal oracle;
+    MockMetaMorphoFactory internal morphoVaultFactory;
+    MockERC4626 internal metaMorphoVault;
+    uint8 internal oracleDecimals;
 
     function setUp() public virtual override {
         Unit_Concrete_Test.setUp();

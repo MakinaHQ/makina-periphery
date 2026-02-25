@@ -8,15 +8,15 @@ import {DeployPeriphery} from "./DeployPeriphery.s.sol";
 contract DeployHubPeriphery is DeployPeriphery {
     using stdJson for string;
 
-    address public accessManager;
-    address public hubCoreRegistry;
-    FlashloanProvidersSorted public flProviders;
+    address internal accessManager;
+    address internal hubCoreRegistry;
+    FlashloanProvidersSorted internal flProviders;
 
     HubPeriphery private _hubPeriphery;
 
     constructor() {
-        string memory inputFilename = vm.envString("HUB_INPUT_FILENAME");
-        string memory outputFilename = vm.envString("HUB_OUTPUT_FILENAME");
+        string memory inputFilename = vm.envString("HUB_PERIPHERY_INPUT_FILENAME");
+        string memory outputFilename = vm.envString("HUB_PERIPHERY_OUTPUT_FILENAME");
 
         string memory basePath = string.concat(vm.projectRoot(), "/script/deployments/");
 

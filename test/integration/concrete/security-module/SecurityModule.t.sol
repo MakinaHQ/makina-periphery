@@ -10,10 +10,10 @@ import {SMCooldownReceipt} from "src/security-module/SMCooldownReceipt.sol";
 import {MachinePeriphery_Integration_Concrete_Test} from "../machine-periphery/MachinePeriphery.t.sol";
 
 abstract contract SecurityModule_Integration_Concrete_Test is MachinePeriphery_Integration_Concrete_Test {
-    SecurityModule public securityModule;
-    SMCooldownReceipt public cooldownReceipt;
+    SecurityModule internal securityModule;
+    SMCooldownReceipt internal cooldownReceipt;
 
-    address public depositorAddr;
+    address internal depositorAddr;
 
     function setUp() public virtual override {
         MachinePeriphery_Integration_Concrete_Test.setUp();

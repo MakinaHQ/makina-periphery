@@ -15,7 +15,8 @@ import {Whitelist_Unit_Concrete_Test} from "../whitelist/Whitelist.t.sol";
 import {Unit_Concrete_Test} from "../UnitConcrete.t.sol";
 
 abstract contract DirectDepositor_Util_Concrete_Test is MachinePeriphery_Util_Concrete_Test {
-    DirectDepositor public directDepositor;
+    DirectDepositor internal directDepositor;
+    Machine internal machine;
 
     function setUp() public virtual override {
         Unit_Concrete_Test.setUp();
@@ -29,8 +30,7 @@ abstract contract DirectDepositor_Util_Concrete_Test is MachinePeriphery_Util_Co
 
         machinePeriphery = IMachinePeriphery(address(directDepositor));
 
-        (Machine machine,) = _deployMachine(address(accountingToken), address(directDepositor), address(0), address(0));
-        _machineAddr = address(machine);
+        (machine,) = _deployMachine(address(accountingToken), address(directDepositor), address(0), address(0));
     }
 }
 
@@ -43,7 +43,7 @@ contract Whitelist_DirectDepositor_Util_Concrete_Test is
         whitelist = IWhitelist(address(directDepositor));
 
         vm.prank(dao);
-        hubPeripheryFactory.setMachine(address(directDepositor), _machineAddr);
+        hubPeripheryFactory.setMachine(address(directDepositor), address(machine));
     }
 }
 

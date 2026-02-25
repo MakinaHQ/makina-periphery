@@ -10,14 +10,14 @@ import {MachineShareOracle} from "src/oracles/MachineShareOracle.sol";
 import {Integration_Concrete_Test} from "../IntegrationConcrete.t.sol";
 
 abstract contract MachineShareOracle_Integration_Concrete_Test is Integration_Concrete_Test {
-    MockFeeManager public feeManager;
+    MockFeeManager internal feeManager;
 
-    PreDepositVault public preDepositVault;
-    Machine public machine;
+    PreDepositVault internal preDepositVault;
+    Machine internal machine;
 
-    MachineShareOracle public machineShareOracle;
+    MachineShareOracle internal machineShareOracle;
 
-    uint8 public atDecimals;
+    uint8 internal atDecimals;
 
     function setUp() public virtual override {
         Integration_Concrete_Test.setUp();

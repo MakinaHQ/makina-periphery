@@ -9,7 +9,7 @@ import {MachineShareOracle} from "src/oracles/MachineShareOracle.sol";
 import {MachineShareOracle_Integration_Concrete_Test} from "../MachineShareOracle.t.sol";
 
 contract GetSharePrice_Integration_Concrete_Test is MachineShareOracle_Integration_Concrete_Test {
-    uint256 public price_b_a;
+    uint256 internal price_b_a;
 
     function setUp() public override {
         MachineShareOracle_Integration_Concrete_Test.setUp();

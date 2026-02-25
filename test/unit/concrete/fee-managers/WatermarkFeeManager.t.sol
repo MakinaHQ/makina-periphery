@@ -17,19 +17,20 @@ import {
 import {Unit_Concrete_Test} from "../UnitConcrete.t.sol";
 
 abstract contract WatermarkFeeManager_Util_Concrete_Test is MachinePeriphery_Util_Concrete_Test {
-    WatermarkFeeManager public watermarkFeeManager;
+    WatermarkFeeManager internal watermarkFeeManager;
+    Machine internal machine;
 
-    address public FEE_RECEIVER;
+    address internal feeReceiver;
 
     function setUp() public virtual override {
         Unit_Concrete_Test.setUp();
 
-        FEE_RECEIVER = dao;
+        feeReceiver = dao;
 
         uint256[] memory dummyFeeSplitBps = new uint256[](1);
         dummyFeeSplitBps[0] = 10_000;
         address[] memory dummyFeeSplitReceivers = new address[](1);
-        dummyFeeSplitReceivers[0] = FEE_RECEIVER;
+        dummyFeeSplitReceivers[0] = feeReceiver;
 
         vm.prank(dao);
         watermarkFeeManager = WatermarkFeeManager(
@@ -51,9 +52,7 @@ abstract contract WatermarkFeeManager_Util_Concrete_Test is MachinePeriphery_Uti
 
         machinePeriphery = IMachinePeriphery(address(watermarkFeeManager));
 
-        (Machine machine,) =
-            _deployMachine(address(accountingToken), address(0), address(0), address(watermarkFeeManager));
-        _machineAddr = address(machine);
+        (machine,) = _deployMachine(address(accountingToken), address(0), address(0), address(watermarkFeeManager));
     }
 }
 
@@ -84,12 +83,12 @@ contract Getters_Setters_WatermarkFeeManager_Util_Concrete_Test is
         assertEq(watermarkFeeManager.mgmtFeeSplitBps().length, 1);
         assertEq(watermarkFeeManager.mgmtFeeSplitBps()[0], 10_000);
         assertEq(watermarkFeeManager.mgmtFeeReceivers().length, 1);
-        assertEq(watermarkFeeManager.mgmtFeeReceivers()[0], FEE_RECEIVER);
+        assertEq(watermarkFeeManager.mgmtFeeReceivers()[0], feeReceiver);
 
         assertEq(watermarkFeeManager.perfFeeSplitBps().length, 1);
         assertEq(watermarkFeeManager.perfFeeSplitBps()[0], 10_000);
         assertEq(watermarkFeeManager.perfFeeReceivers().length, 1);
-        assertEq(watermarkFeeManager.perfFeeReceivers()[0], FEE_RECEIVER);
+        assertEq(watermarkFeeManager.perfFeeReceivers()[0], feeReceiver);
 
         assertEq(watermarkFeeManager.sharePriceWatermark(), 0);
 
@@ -108,22 +107,22 @@ contract Getters_Setters_WatermarkFeeManager_Util_Concrete_Test is
         watermarkFeeManager.authority();
     }
 
-    function test_authority() public withMachine(_machineAddr) {
+    function test_authority() public withMachine(address(machine)) {
         assertEq(watermarkFeeManager.authority(), address(accessManager));
     }
 
-    function test_SetMgmtFeeRate_RevertWhen_CallerWithoutRole() public withMachine(_machineAddr) {
+    function test_SetMgmtFeeRate_RevertWhen_CallerWithoutRole() public withMachine(address(machine)) {
         vm.expectRevert(abi.encodeWithSelector(IAccessManaged.AccessManagedUnauthorized.selector, address(this)));
         watermarkFeeManager.setMgmtFeeRatePerSecond(0);
     }
 
-    function test_SetMgmtFeeRate_RevertWhen_MaxFeeRateValueExceeded() public withMachine(_machineAddr) {
+    function test_SetMgmtFeeRate_RevertWhen_MaxFeeRateValueExceeded() public withMachine(address(machine)) {
         vm.expectRevert(Errors.MaxFeeRateValueExceeded.selector);
         vm.prank(dao);
         watermarkFeeManager.setMgmtFeeRatePerSecond(1e18 + 1);
     }
 
-    function test_SetMgmtFeeRatePerSecond() public withMachine(_machineAddr) {
+    function test_SetMgmtFeeRatePerSecond() public withMachine(address(machine)) {
         uint256 newMgmtFeeRate = 1e18;
         vm.expectEmit(true, true, false, false, address(watermarkFeeManager));
         emit IWatermarkFeeManager.MgmtFeeRatePerSecondChanged(
@@ -134,18 +133,18 @@ contract Getters_Setters_WatermarkFeeManager_Util_Concrete_Test is
         assertEq(watermarkFeeManager.mgmtFeeRatePerSecond(), newMgmtFeeRate);
     }
 
-    function test_SetSmFeeRate_RevertWhen_CallerWithoutRole() public withMachine(_machineAddr) {
+    function test_SetSmFeeRate_RevertWhen_CallerWithoutRole() public withMachine(address(machine)) {
         vm.expectRevert(abi.encodeWithSelector(IAccessManaged.AccessManagedUnauthorized.selector, address(this)));
         watermarkFeeManager.setSmFeeRatePerSecond(0);
     }
 
-    function test_SetSmFeeRate_RevertWhen_MaxFeeRateValueExceeded() public withMachine(_machineAddr) {
+    function test_SetSmFeeRate_RevertWhen_MaxFeeRateValueExceeded() public withMachine(address(machine)) {
         vm.expectRevert(Errors.MaxFeeRateValueExceeded.selector);
         vm.prank(dao);
         watermarkFeeManager.setSmFeeRatePerSecond(1e18 + 1);
     }
 
-    function test_SetSmFeeRatePerSecond() public withMachine(_machineAddr) {
+    function test_SetSmFeeRatePerSecond() public withMachine(address(machine)) {
         uint256 newSmFeeRate = 1e18;
         vm.expectEmit(true, true, false, false, address(watermarkFeeManager));
         emit IWatermarkFeeManager.SmFeeRatePerSecondChanged(
@@ -156,18 +155,18 @@ contract Getters_Setters_WatermarkFeeManager_Util_Concrete_Test is
         assertEq(watermarkFeeManager.smFeeRatePerSecond(), newSmFeeRate);
     }
 
-    function test_SetPerfFeeRate_RevertWhen_CallerWithoutRole() public withMachine(_machineAddr) {
+    function test_SetPerfFeeRate_RevertWhen_CallerWithoutRole() public withMachine(address(machine)) {
         vm.expectRevert(abi.encodeWithSelector(IAccessManaged.AccessManagedUnauthorized.selector, address(this)));
         watermarkFeeManager.setPerfFeeRate(0);
     }
 
-    function test_SetPerfFeeRate_RevertWhen_MaxFeeRateValueExceeded() public withMachine(_machineAddr) {
+    function test_SetPerfFeeRate_RevertWhen_MaxFeeRateValueExceeded() public withMachine(address(machine)) {
         vm.expectRevert(Errors.MaxFeeRateValueExceeded.selector);
         vm.prank(dao);
         watermarkFeeManager.setPerfFeeRate(1e18 + 1);
     }
 
-    function test_SetPerfFeeRate() public withMachine(_machineAddr) {
+    function test_SetPerfFeeRate() public withMachine(address(machine)) {
         uint256 newPerfFeeRate = 1e18;
         vm.expectEmit(true, true, false, false, address(watermarkFeeManager));
         emit IWatermarkFeeManager.PerfFeeRateChanged(DEFAULT_WATERMARK_FEE_MANAGER_PERF_FEE_RATE, newPerfFeeRate);
@@ -176,7 +175,7 @@ contract Getters_Setters_WatermarkFeeManager_Util_Concrete_Test is
         assertEq(watermarkFeeManager.perfFeeRate(), newPerfFeeRate);
     }
 
-    function test_SetMgmtFeeSplit_RevertWhen_CallerWithoutRole() public withMachine(_machineAddr) {
+    function test_SetMgmtFeeSplit_RevertWhen_CallerWithoutRole() public withMachine(address(machine)) {
         address[] memory newMgmtFeeReceivers = new address[](0);
         uint256[] memory newMgmtFeeSplitBps = new uint256[](0);
 
@@ -184,7 +183,7 @@ contract Getters_Setters_WatermarkFeeManager_Util_Concrete_Test is
         watermarkFeeManager.setMgmtFeeSplit(newMgmtFeeReceivers, newMgmtFeeSplitBps);
     }
 
-    function test_SetMgmtFeeSplit_RevertWhen_InvalidFeeSplit() public withMachine(_machineAddr) {
+    function test_SetMgmtFeeSplit_RevertWhen_InvalidFeeSplit() public withMachine(address(machine)) {
         address[] memory newMgmtFeeReceivers = new address[](0);
         uint256[] memory newMgmtFeeSplitBps = new uint256[](0);
 
@@ -219,7 +218,7 @@ contract Getters_Setters_WatermarkFeeManager_Util_Concrete_Test is
         watermarkFeeManager.setMgmtFeeSplit(newMgmtFeeReceivers, newMgmtFeeSplitBps);
     }
 
-    function test_SetMgmtFeeSplit() public withMachine(_machineAddr) {
+    function test_SetMgmtFeeSplit() public withMachine(address(machine)) {
         address[] memory newMgmtFeeReceivers = new address[](2);
         newMgmtFeeReceivers[0] = address(0x123);
         newMgmtFeeReceivers[1] = address(0x456);
@@ -240,7 +239,7 @@ contract Getters_Setters_WatermarkFeeManager_Util_Concrete_Test is
         assertEq(watermarkFeeManager.mgmtFeeSplitBps()[1], 6_500);
     }
 
-    function test_SetPerfFeeSplit_RevertWhen_CallerWithoutRole() public withMachine(_machineAddr) {
+    function test_SetPerfFeeSplit_RevertWhen_CallerWithoutRole() public withMachine(address(machine)) {
         address[] memory newPerfFeeReceivers = new address[](0);
         uint256[] memory newPerfFeeSplitBps = new uint256[](0);
 
@@ -248,7 +247,7 @@ contract Getters_Setters_WatermarkFeeManager_Util_Concrete_Test is
         watermarkFeeManager.setPerfFeeSplit(newPerfFeeReceivers, newPerfFeeSplitBps);
     }
 
-    function test_SetPerfFeeSplit_RevertWhen_InvalidFeeSplit() public withMachine(_machineAddr) {
+    function test_SetPerfFeeSplit_RevertWhen_InvalidFeeSplit() public withMachine(address(machine)) {
         address[] memory newPerfFeeReceivers = new address[](0);
         uint256[] memory newPerfFeeSplitBps = new uint256[](0);
 
@@ -283,7 +282,7 @@ contract Getters_Setters_WatermarkFeeManager_Util_Concrete_Test is
         watermarkFeeManager.setPerfFeeSplit(newPerfFeeReceivers, newPerfFeeSplitBps);
     }
 
-    function test_SetPerfFeeSplit() public withMachine(_machineAddr) {
+    function test_SetPerfFeeSplit() public withMachine(address(machine)) {
         address[] memory newPerfFeeReceivers = new address[](2);
         newPerfFeeReceivers[0] = address(0x123);
         newPerfFeeReceivers[1] = address(0x456);

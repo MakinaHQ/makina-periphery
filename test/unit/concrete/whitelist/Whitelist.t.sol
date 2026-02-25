@@ -7,8 +7,9 @@ import {IWhitelist} from "src/interfaces/IWhitelist.sol";
 import {Unit_Concrete_Test} from "../UnitConcrete.t.sol";
 
 abstract contract Whitelist_Unit_Concrete_Test is Unit_Concrete_Test {
-    IWhitelist public whitelist;
+    IWhitelist internal whitelist;
 
+    // solhint-disable-next-line no-empty-blocks
     function setUp() public virtual override {}
 
     function test_Getters() public view {

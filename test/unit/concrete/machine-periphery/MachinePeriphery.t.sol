@@ -7,10 +7,9 @@ import {Errors, CoreErrors} from "src/libraries/Errors.sol";
 import {Unit_Concrete_Test} from "../UnitConcrete.t.sol";
 
 abstract contract MachinePeriphery_Util_Concrete_Test is Unit_Concrete_Test {
-    IMachinePeriphery public machinePeriphery;
+    IMachinePeriphery internal machinePeriphery;
 
-    address public _machineAddr;
-
+    // solhint-disable-next-line no-empty-blocks
     function setUp() public virtual override {}
 }
 

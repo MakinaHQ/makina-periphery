@@ -8,10 +8,10 @@ import {MockFeeManager} from "@makina-core-test/mocks/MockFeeManager.sol";
 import {Integration_Concrete_Test} from "../IntegrationConcrete.t.sol";
 
 abstract contract MachineShareOracleFactory_Integration_Concrete_Test is Integration_Concrete_Test {
-    MockFeeManager public feeManager;
+    MockFeeManager internal feeManager;
 
-    PreDepositVault public preDepositVault;
-    Machine public machine;
+    PreDepositVault internal preDepositVault;
+    Machine internal machine;
 
     function setUp() public virtual override {
         Integration_Concrete_Test.setUp();

@@ -7,13 +7,13 @@ import {MachineShare} from "@makina-core/machine/MachineShare.sol";
 import {Integration_Concrete_Test} from "../IntegrationConcrete.t.sol";
 
 abstract contract MachinePeriphery_Integration_Concrete_Test is Integration_Concrete_Test {
-    Machine public machine;
-    MachineShare public machineShare;
+    Machine internal machine;
+    MachineShare internal machineShare;
 
-    address public user1;
-    address public user2;
-    address public user3;
-    address public user4;
+    address internal user1;
+    address internal user2;
+    address internal user3;
+    address internal user4;
 
     function setUp() public virtual override {
         Integration_Concrete_Test.setUp();

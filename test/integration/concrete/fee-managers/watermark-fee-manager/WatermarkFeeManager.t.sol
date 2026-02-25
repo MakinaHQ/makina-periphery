@@ -9,21 +9,21 @@ import {ISecurityModule} from "src/interfaces/ISecurityModule.sol";
 import {MachinePeriphery_Integration_Concrete_Test} from "../../machine-periphery/MachinePeriphery.t.sol";
 
 abstract contract WatermarkFeeManager_Integration_Concrete_Test is MachinePeriphery_Integration_Concrete_Test {
-    IWatermarkFeeManager public watermarkFeeManager;
+    IWatermarkFeeManager internal watermarkFeeManager;
 
-    address public securityModuleAddr;
+    address internal securityModuleAddr;
 
-    address public FEE_RECEIVER;
+    address internal feeReceiver;
 
     function setUp() public virtual override {
         MachinePeriphery_Integration_Concrete_Test.setUp();
 
-        FEE_RECEIVER = dao;
+        feeReceiver = dao;
 
         uint256[] memory dummyFeeSplitBps = new uint256[](1);
         dummyFeeSplitBps[0] = 10_000;
         address[] memory dummyFeeSplitReceivers = new address[](1);
-        dummyFeeSplitReceivers[0] = FEE_RECEIVER;
+        dummyFeeSplitReceivers[0] = feeReceiver;
 
         vm.prank(dao);
         watermarkFeeManager = IWatermarkFeeManager(

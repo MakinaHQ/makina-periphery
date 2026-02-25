@@ -12,14 +12,14 @@ import {DeployPeriphery} from "./DeployPeriphery.s.sol";
 contract DeploySpokePeriphery is DeployPeriphery {
     using stdJson for string;
 
-    address public spokeCoreRegistry;
-    FlashloanProvidersSorted public flProviders;
+    address internal spokeCoreRegistry;
+    FlashloanProvidersSorted internal flProviders;
 
     FlashloanAggregator private deployedInstance;
 
     constructor() {
-        string memory inputFilename = vm.envString("SPOKE_INPUT_FILENAME");
-        string memory outputFilename = vm.envString("SPOKE_OUTPUT_FILENAME");
+        string memory inputFilename = vm.envString("SPOKE_PERIPHERY_INPUT_FILENAME");
+        string memory outputFilename = vm.envString("SPOKE_PERIPHERY_OUTPUT_FILENAME");
 
         string memory basePath = string.concat(vm.projectRoot(), "/script/deployments/");
 

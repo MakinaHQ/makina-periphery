@@ -25,10 +25,11 @@ contract DeployDirectDepositor is Base, Script, SortedParams {
     address public deployedInstance;
 
     constructor() {
-        string memory deploymentOutputFilename = vm.envString("HUB_OUTPUT_FILENAME");
-        string memory implemIdsInputFilename = vm.envString("HUB_INPUT_FILENAME");
-        string memory inputFilename = vm.envString("HUB_INPUT_FILENAME");
-        string memory outputFilename = vm.envString("HUB_OUTPUT_FILENAME");
+        string memory deploymentOutputFilename = vm.envString("HUB_PERIPHERY_OUTPUT_FILENAME");
+        string memory implemIdsInputFilename = vm.envString("HUB_PERIPHERY_INPUT_FILENAME");
+
+        string memory inputFilename = vm.envString("HUB_STRAT_INPUT_FILENAME");
+        string memory outputFilename = vm.envString("HUB_STRAT_OUTPUT_FILENAME");
 
         string memory basePath = string.concat(vm.projectRoot(), "/script/deployments/");
 

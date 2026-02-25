@@ -6,7 +6,7 @@ import {SignedMathHelper} from "src/weiroll-helpers/SignedMathHelper.sol";
 import {Unit_Concrete_Test} from "../../UnitConcrete.t.sol";
 
 contract SignedMathHelper_Unit_concrete_Test is Unit_Concrete_Test {
-    SignedMathHelper public signedMathHelper;
+    SignedMathHelper internal signedMathHelper;
 
     function setUp() public virtual override {
         Unit_Concrete_Test.setUp();

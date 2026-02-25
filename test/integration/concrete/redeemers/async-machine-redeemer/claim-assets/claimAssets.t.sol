@@ -201,7 +201,7 @@ contract ClaimAssets_Integration_Concrete_Test is AsyncRedeemer_Integration_Conc
         assertEq(accountingToken.balanceOf(user4), claimedAssets);
     }
 
-    function test_FinalizeRequests_TwoUsers() public {
+    function test_ClaimAssets_TwoUsers() public {
         // Deposit assets to the machine
         deal(address(accountingToken), depositorAddr, 1e18 + 2e18);
         vm.startPrank(depositorAddr);

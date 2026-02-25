@@ -27,14 +27,18 @@ contract DeployPeriphery is Base, Script, SortedParams, CreateXUtils {
     }
 
     function deployFlashloanAggregator(address _caliberFactory, FlashloanProviders memory _flProviders)
-        public
+        internal
         override
         returns (FlashloanAggregator)
     {
+        bytes32 salt;
+        if (vm.envOr("TEST_ENV", false)) {
+            salt = keccak256("TestFlashloanAggregator");
+        }
         return FlashloanAggregator(
             _deployCodeCreateX(
                 abi.encodePacked(type(FlashloanAggregator).creationCode, abi.encode(_caliberFactory, _flProviders)),
-                bytes32(0),
+                salt,
                 deployer
             )
         );

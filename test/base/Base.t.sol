@@ -35,49 +35,49 @@ import {MetaMorphoOracleFactory} from "../../src/factories/MetaMorphoOracleFacto
 import {Base} from "./Base.sol";
 
 abstract contract Base_Test is Base, Test, Constants, Core_Base.Base, Core_Constants.Constants {
-    address public deployer;
+    address internal deployer;
 
-    uint256 public hubChainId;
+    uint256 internal hubChainId;
 
-    address public dao;
-    address public mechanic;
-    address public securityCouncil;
-    address public riskManager;
-    address public riskManagerTimelock;
+    address internal dao;
+    address internal mechanic;
+    address internal securityCouncil;
+    address internal riskManager;
+    address internal riskManagerTimelock;
 
     // Core contracts
-    AccessManagerUpgradeable public accessManager;
-    OracleRegistry public oracleRegistry;
-    TokenRegistry public tokenRegistry;
-    SwapModule public swapModule;
+    AccessManagerUpgradeable internal accessManager;
+    OracleRegistry internal oracleRegistry;
+    TokenRegistry internal tokenRegistry;
+    SwapModule internal swapModule;
 
     address internal coreFactory;
 
     // Flashloan Aggregator
-    FlashloanAggregator public flashloanAggregator;
+    FlashloanAggregator internal flashloanAggregator;
 
     // Registry and Factory
-    HubPeripheryRegistry public hubPeripheryRegistry;
-    HubPeripheryFactory public hubPeripheryFactory;
+    HubPeripheryRegistry internal hubPeripheryRegistry;
+    HubPeripheryFactory internal hubPeripheryFactory;
 
     // Machine Depositors
-    UpgradeableBeacon public directDepositorBeacon;
+    UpgradeableBeacon internal directDepositorBeacon;
 
     // Machine Redeemers
-    UpgradeableBeacon public asyncRedeemerBeacon;
+    UpgradeableBeacon internal asyncRedeemerBeacon;
 
     // Machine Fee Managers
-    UpgradeableBeacon public watermarkFeeManagerBeacon;
+    UpgradeableBeacon internal watermarkFeeManagerBeacon;
 
     // Security Module
-    UpgradeableBeacon public securityModuleBeacon;
+    UpgradeableBeacon internal securityModuleBeacon;
 
     // MetaMorpho Oracle Factory
-    MetaMorphoOracleFactory public metaMorphoOracleFactory;
+    MetaMorphoOracleFactory internal metaMorphoOracleFactory;
 
     // Machine Share Oracle Beacon and Factory
-    UpgradeableBeacon public machineShareOracleBeacon;
-    MachineShareOracleFactory public machineShareOracleFactory;
+    UpgradeableBeacon internal machineShareOracleBeacon;
+    MachineShareOracleFactory internal machineShareOracleFactory;
 
     function setUp() public virtual {
         deployer = address(this);
@@ -114,17 +114,17 @@ abstract contract Base_Test is Base, Test, Constants, Core_Base.Base, Core_Const
 }
 
 abstract contract Base_Hub_Test is Base_Test {
-    address public balancerV2Pool;
-    address public balancerV3Pool;
-    address public morphoPool;
-    address public dssFlash;
-    address public aaveV3AddressProvider;
-    address public dai;
+    address internal balancerV2Pool;
+    address internal balancerV3Pool;
+    address internal morphoPool;
+    address internal dssFlash;
+    address internal aaveV3AddressProvider;
+    address internal dai;
 
     // Hub Core
-    HubCoreRegistry public hubCoreRegistry;
-    ChainRegistry public chainRegistry;
-    HubCoreFactory public hubCoreFactory;
+    HubCoreRegistry internal hubCoreRegistry;
+    ChainRegistry internal chainRegistry;
+    HubCoreFactory internal hubCoreFactory;
 
     function setUp() public virtual override {
         Base_Test.setUp();
@@ -202,7 +202,10 @@ abstract contract Base_Hub_Test is Base_Test {
         setupAccessManagerRolesAndOwnership();
     }
 
-    function _deployPreDepositVault(address _depositToken, address _accountingToken) public returns (PreDepositVault) {
+    function _deployPreDepositVault(address _depositToken, address _accountingToken)
+        internal
+        returns (PreDepositVault)
+    {
         vm.prank(dao);
         PreDepositVault _preDepositVault = PreDepositVault(
             hubCoreFactory.createPreDepositVault(
@@ -227,7 +230,7 @@ abstract contract Base_Hub_Test is Base_Test {
         address _depositor,
         address _redeemer,
         address _feeManager
-    ) public returns (Machine, Caliber) {
+    ) internal returns (Machine, Caliber) {
         vm.prank(dao);
         Machine _machine = Machine(
             hubCoreFactory.createMachineFromPreDeposit(
@@ -272,7 +275,7 @@ abstract contract Base_Hub_Test is Base_Test {
     }
 
     function _deployMachine(address _accountingToken, address _depositor, address _redeemer, address _feeManager)
-        public
+        internal
         returns (Machine, Caliber)
     {
         vm.prank(dao);

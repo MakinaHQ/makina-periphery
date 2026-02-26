@@ -13,6 +13,7 @@ abstract contract Constants {
 
     // Redeemers
     uint16 internal constant ASYNC_REDEEMER_IMPLEM_ID = 2001;
+    uint16 internal constant ASYNC_REDEEMER_FEE_IMPLEM_ID = 2002;
 
     // Fee managers
     uint16 internal constant WATERMARK_FEE_MANAGER_IMPLEM_ID = 3001;
@@ -27,6 +28,8 @@ abstract contract Constants {
     // Redeemers
     uint256 internal constant DEFAULT_FINALIZATION_DELAY = 1 hours;
     uint256 internal constant DEFAULT_MIN_REDEEM_AMOUNT = 100;
+    uint256 internal constant DEFAULT_REDEEM_FEE_RATE = 1e15; // 0.1% fee
+    uint256 internal constant DEFAULT_MAX_REDEEM_FEE_RATE = 1e17; // 10% fee
 
     // Fee managers
     uint256 internal constant DEFAULT_WATERMARK_FEE_MANAGER_MGMT_FEE_RATE_PER_SECOND = 1e4; // 0.0000000000000001% of supply per second

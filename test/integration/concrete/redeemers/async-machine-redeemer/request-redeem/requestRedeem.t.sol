@@ -6,9 +6,9 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Errors, CoreErrors} from "src/libraries/Errors.sol";
 import {IAsyncRedeemer} from "src/interfaces/IAsyncRedeemer.sol";
 
-import {AsyncRedeemer_Integration_Concrete_Test} from "../AsyncRedeemer.t.sol";
+import {AsyncRedeemer_Shared_Integration_Concrete_Test} from "../AsyncRedeemerShared.t.sol";
 
-contract RequestRedeem_Integration_Concrete_Test is AsyncRedeemer_Integration_Concrete_Test {
+abstract contract RequestRedeem_Integration_Concrete_Test is AsyncRedeemer_Shared_Integration_Concrete_Test {
     function test_RevertGiven_MachineNotSet() public {
         vm.expectRevert(Errors.MachineNotSet.selector);
         asyncRedeemer.requestRedeem(0, address(0), 0);

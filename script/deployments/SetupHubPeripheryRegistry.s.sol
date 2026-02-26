@@ -59,10 +59,12 @@ contract SetupHubPeripheryRegistry is Base, Script, SortedParams {
         mdBeacons = new address[](1);
         mdBeacons[0] = _hubPeriphery.directDepositorBeacon;
 
-        mrImplemIds = new uint16[](1);
+        mrImplemIds = new uint16[](2);
         mrImplemIds[0] = abi.decode(vm.parseJson(inputJson, ".asyncRedeemerImplemId"), (uint16));
-        mrBeacons = new address[](1);
+        mrImplemIds[1] = abi.decode(vm.parseJson(inputJson, ".asyncRedeemerFeeImplemId"), (uint16));
+        mrBeacons = new address[](2);
         mrBeacons[0] = _hubPeriphery.asyncRedeemerBeacon;
+        mrBeacons[1] = _hubPeriphery.asyncRedeemerFeeBeacon;
 
         fmImplemIds = new uint16[](1);
         fmImplemIds[0] = abi.decode(vm.parseJson(inputJson, ".watermarkFeeManagerImplemId"), (uint16));

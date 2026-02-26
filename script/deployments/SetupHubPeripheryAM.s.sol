@@ -61,6 +61,7 @@ contract SetupHubPeripheryAM is Base, Script, SortedParams {
                 hubPeripheryFactory: HubPeripheryFactory(_hubPeriphery.hubPeripheryFactory),
                 directDepositorBeacon: UpgradeableBeacon(_hubPeriphery.directDepositorBeacon),
                 asyncRedeemerBeacon: UpgradeableBeacon(_hubPeriphery.asyncRedeemerBeacon),
+                asyncRedeemerFeeBeacon: UpgradeableBeacon(_hubPeriphery.asyncRedeemerFeeBeacon),
                 watermarkFeeManagerBeacon: UpgradeableBeacon(_hubPeriphery.watermarkFeeManagerBeacon),
                 securityModuleBeacon: UpgradeableBeacon(_hubPeriphery.securityModuleBeacon),
                 metaMorphoOracleFactory: MetaMorphoOracleFactory(_hubPeriphery.metaMorphoOracleFactory),

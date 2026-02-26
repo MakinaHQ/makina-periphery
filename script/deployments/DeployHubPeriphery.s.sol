@@ -73,6 +73,7 @@ contract DeployHubPeriphery is DeployPeriphery {
         vm.serializeAddress(key, "SecurityModuleBeacon", address(_hubPeriphery.securityModuleBeacon));
         vm.serializeAddress(key, "DirectDepositorBeacon", address(_hubPeriphery.directDepositorBeacon));
         vm.serializeAddress(key, "AsyncRedeemerBeacon", address(_hubPeriphery.asyncRedeemerBeacon));
+        vm.serializeAddress(key, "AsyncRedeemerFeeBeacon", address(_hubPeriphery.asyncRedeemerFeeBeacon));
         vm.serializeAddress(key, "WatermarkFeeManagerBeacon", address(_hubPeriphery.watermarkFeeManagerBeacon));
         vm.serializeAddress(key, "MachineShareOracleBeacon", address(_hubPeriphery.machineShareOracleBeacon));
         vm.serializeAddress(key, "MachineShareOracleFactory", address(_hubPeriphery.machineShareOracleFactory));

@@ -8,6 +8,7 @@ import {ChainsInfo} from "@makina-core-test/utils/ChainsInfo.sol";
 
 import {FlashloanAggregator} from "src/flashloans/FlashloanAggregator.sol";
 import {AsyncRedeemer} from "src/redeemers/AsyncRedeemer.sol";
+import {AsyncRedeemerFee} from "src/redeemers/AsyncRedeemerFee.sol";
 import {DirectDepositor} from "src/depositors/DirectDepositor.sol";
 import {SecurityModule} from "src/security-module/SecurityModule.sol";
 import {WatermarkFeeManager} from "src/fee-managers/WatermarkFeeManager.sol";
@@ -17,6 +18,7 @@ import {DeploySpokePeriphery} from "script/deployments/DeploySpokePeriphery.s.so
 import {DeploySecurityModule} from "script/deployments/DeploySecurityModule.s.sol";
 import {DeployDirectDepositor} from "script/deployments/DeployDirectDepositor.s.sol";
 import {DeployAsyncRedeemer} from "script/deployments/DeployAsyncRedeemer.s.sol";
+import {DeployAsyncRedeemerFee} from "script/deployments/DeployAsyncRedeemerFee.s.sol";
 import {DeployWatermarkFeeManager} from "script/deployments/DeployWatermarkFeeManager.s.sol";
 import {SetupHubPeripheryRegistry} from "script/deployments/SetupHubPeripheryRegistry.s.sol";
 import {SortedParams} from "script/deployments/utils/SortedParams.sol";
@@ -33,6 +35,7 @@ contract Deploy_Scripts_Test is Base_Test {
     DeploySecurityModule public deploySecurityModule;
     DeployDirectDepositor public deployDirectDepositor;
     DeployAsyncRedeemer public deployAsyncRedeemer;
+    DeployAsyncRedeemerFee public deployAsyncRedeemerFee;
     DeployWatermarkFeeManager public deployWatermarkFeeManager;
 
     DeploySpokePeriphery public deploySpokePeriphery;
@@ -221,6 +224,35 @@ contract Deploy_Scripts_Test is Base_Test {
         assertEq(
             asyncRedeemer.isWhitelistEnabled(),
             abi.decode(vm.parseJson(deployAsyncRedeemer.inputJson(), ".whitelistStatus"), (bool))
+        );
+    }
+
+    function testScript_AsyncRedeemerFee() public {
+        vm.createSelectFork({urlOrAlias: ChainsInfo.getChainInfo(ChainsInfo.CHAIN_ID_ETHEREUM).foundryAlias});
+
+        HubPeriphery memory hubPeripheryDeployment = _deployHubPeriphery();
+
+        // Redeemer deployment
+        deployAsyncRedeemerFee = new DeployAsyncRedeemerFee();
+        deployAsyncRedeemerFee.run();
+
+        AsyncRedeemerFee asyncRedeemerFee = AsyncRedeemerFee(deployAsyncRedeemerFee.deployedInstance());
+        assertTrue(hubPeripheryDeployment.hubPeripheryFactory.isRedeemer(address(asyncRedeemerFee)));
+        assertEq(
+            asyncRedeemerFee.finalizationDelay(),
+            abi.decode(vm.parseJson(deployAsyncRedeemerFee.inputJson(), ".finalizationDelay"), (uint256))
+        );
+        assertEq(
+            asyncRedeemerFee.minRedeemAmount(),
+            abi.decode(vm.parseJson(deployAsyncRedeemerFee.inputJson(), ".minRedeemAmount"), (uint256))
+        );
+        assertEq(
+            asyncRedeemerFee.isWhitelistEnabled(),
+            abi.decode(vm.parseJson(deployAsyncRedeemerFee.inputJson(), ".whitelistStatus"), (bool))
+        );
+        assertEq(
+            asyncRedeemerFee.redeemFeeRate(),
+            abi.decode(vm.parseJson(deployAsyncRedeemerFee.inputJson(), ".redeemFeeRate"), (uint256))
         );
     }
 

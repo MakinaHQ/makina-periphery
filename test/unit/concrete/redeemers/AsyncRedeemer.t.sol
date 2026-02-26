@@ -9,8 +9,6 @@ import {IMachinePeriphery} from "src/interfaces/IMachinePeriphery.sol";
 import {IWhitelist} from "src/interfaces/IWhitelist.sol";
 import {AsyncRedeemer} from "src/redeemers/AsyncRedeemer.sol";
 
-import {Constants} from "../../../utils/Constants.sol";
-
 import {
     MachinePeriphery_Util_Concrete_Test,
     Getter_Setter_MachinePeriphery_Util_Concrete_Test
@@ -70,7 +68,8 @@ contract Getters_Setters_AsyncRedeemer_Util_Concrete_Test is
     function test_Getters() public view {
         assertEq(asyncRedeemer.nextRequestId(), 1);
         assertEq(asyncRedeemer.lastFinalizedRequestId(), 0);
-        assertEq(asyncRedeemer.finalizationDelay(), Constants.DEFAULT_FINALIZATION_DELAY);
+        assertEq(asyncRedeemer.finalizationDelay(), DEFAULT_FINALIZATION_DELAY);
+        assertEq(asyncRedeemer.minRedeemAmount(), DEFAULT_MIN_REDEEM_AMOUNT);
     }
 
     function test_SetFinalizationDelay_RevertWhen_NotRMT() public withMachine(address(machine)) {
@@ -81,7 +80,7 @@ contract Getters_Setters_AsyncRedeemer_Util_Concrete_Test is
     function test_SetFinalizationDelay() public withMachine(address(machine)) {
         uint256 newFinalizationDelay = 7 days;
         vm.expectEmit(true, true, false, false, address(asyncRedeemer));
-        emit IAsyncRedeemer.FinalizationDelayChanged(Constants.DEFAULT_FINALIZATION_DELAY, newFinalizationDelay);
+        emit IAsyncRedeemer.FinalizationDelayChanged(DEFAULT_FINALIZATION_DELAY, newFinalizationDelay);
         vm.prank(riskManagerTimelock);
         asyncRedeemer.setFinalizationDelay(newFinalizationDelay);
         assertEq(asyncRedeemer.finalizationDelay(), newFinalizationDelay);
@@ -95,7 +94,7 @@ contract Getters_Setters_AsyncRedeemer_Util_Concrete_Test is
     function test_SetMinRedeemAmount() public withMachine(address(machine)) {
         uint256 newMinRedeemAmount = 10;
         vm.expectEmit(true, true, false, false, address(asyncRedeemer));
-        emit IAsyncRedeemer.MinRedeemAmountChanged(Constants.DEFAULT_MIN_REDEEM_AMOUNT, newMinRedeemAmount);
+        emit IAsyncRedeemer.MinRedeemAmountChanged(DEFAULT_MIN_REDEEM_AMOUNT, newMinRedeemAmount);
         vm.prank(riskManagerTimelock);
         asyncRedeemer.setMinRedeemAmount(newMinRedeemAmount);
         assertEq(asyncRedeemer.minRedeemAmount(), newMinRedeemAmount);

@@ -13,6 +13,7 @@ abstract contract SortedParams {
 
     struct HubPeripherySorted {
         address asyncRedeemerBeacon;
+        address asyncRedeemerFeeBeacon;
         address directDepositorBeacon;
         address flashloanAggregator;
         address hubPeripheryFactory;

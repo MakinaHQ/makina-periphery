@@ -8,18 +8,15 @@ interface IMetaMorphoOracleFactory {
 
     event MetaMorphoOracleCreated(address indexed oracle);
 
-    /// @notice Address => Whether this is a trusted Morpho factory.
-    /// @param morphoFactory The Morpho factory address to check.
-    /// @return isFactory True if the factory is trusted, false otherwise.
+    /// @notice Factory => Whether this is a whitelisted Morpho factory.
     function isMorphoFactory(address morphoFactory) external view returns (bool isFactory);
 
-    /// @notice Address => Whether this is an oracle deployed by this factory.
-    /// @param oracle The oracle address to check.
+    /// @notice Oracle => Whether this is an oracle instance deployed by this factory.
     function isOracle(address oracle) external view returns (bool);
 
-    /// @notice Sets the Morpho Registry in the factory contract.
-    /// @param morphoFactory The address of the Morpho Registry.
-    /// @param isFactory Flags the factory as trusted or not.
+    /// @notice Whitelist or unwhitelist a Morpho factory.
+    /// @param morphoFactory The address of the Morpho factory.
+    /// @param isFactory True to whitelist the factory, false to unwhitelist.
     function setMorphoFactory(address morphoFactory, bool isFactory) external;
 
     /// @notice Creates an oracle for the given MetaMorpho Vault.

@@ -24,7 +24,7 @@ interface IAsyncRedeemer is IMachinePeriphery {
     /// @notice ID of the last finalized redeem request.
     function lastFinalizedRequestId() external view returns (uint256);
 
-    /// @notice Minimum time (in seconds) to be elapsed between request submission and finalization.
+    /// @notice Minimum time (in seconds) that must elapse between request submission and finalization.
     function finalizationDelay() external view returns (uint256);
 
     /// @notice Minimum amount of shares required to create a redeem request.
@@ -37,7 +37,7 @@ interface IAsyncRedeemer is IMachinePeriphery {
     /// @dev Reverts if the request is not finalized.
     function getClaimableAssets(uint256 requestId) external view returns (uint256);
 
-    /// @notice Returns the total shares and curreent expected assets for a batch of unfinalized requests up to given request ID.
+    /// @notice Returns the total shares and current expected assets for a batch of unfinalized requests up to the given request ID.
     /// @param upToRequestId The request ID up to which to calculate the total shares and assets.
     /// @return totalShares The total shares for the batch of requests.
     /// @return totalAssets The current total assets for the batch of requests.
@@ -46,7 +46,7 @@ interface IAsyncRedeemer is IMachinePeriphery {
     /// @notice Creates a redeem request and issues an associated NFT to the receiver.
     /// @param shares The amount of shares to redeem.
     /// @param receiver The receiver of the receipt NFT.
-    /// @param minAssets The minimum amount of assets for the request’s entry price.
+    /// @param minAssets The minimum amount of assets for the request's entry price.
     /// @return requestId The ID of the redeem request.
     function requestRedeem(uint256 shares, address receiver, uint256 minAssets) external returns (uint256);
 
@@ -57,7 +57,7 @@ interface IAsyncRedeemer is IMachinePeriphery {
     function finalizeRequests(uint256 upToRequestId, uint256 minAssets) external returns (uint256, uint256);
 
     /// @notice Claims the assets associated with a finalized redeem request and burns the associated NFT.
-    /// @param requestId the ID of the redeem request and associated NFT.
+    /// @param requestId The ID of the redeem request and associated NFT.
     function claimAssets(uint256 requestId) external returns (uint256);
 
     /// @notice Sets the finalization delay for redeem requests.

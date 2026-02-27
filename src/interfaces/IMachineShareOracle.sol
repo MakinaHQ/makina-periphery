@@ -27,6 +27,6 @@ interface IMachineShareOracle {
 
     /// @notice Notifies the migration of the original share owner from a pre-deposit vault to a machine.
     /// @dev Can only be called once and only if the share owner was initially a pre-deposit vault.
-    /// @dev This function can be call permissionlessly and allows to optimize gas costs for users of the oracle.
+    /// @dev This function can be called permissionlessly and allows to optimize gas costs for users of the oracle.
     function notifyPdvMigration() external;
 }

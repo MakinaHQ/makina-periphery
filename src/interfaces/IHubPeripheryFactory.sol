@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.28;
 
-import {ISecurityModule} from "../interfaces/ISecurityModule.sol";
+import {ISecurityModule} from "./ISecurityModule.sol";
 
 interface IHubPeripheryFactory {
     event DepositorCreated(address indexed depositor, uint16 indexed implemId);

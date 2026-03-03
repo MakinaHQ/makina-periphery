@@ -7,12 +7,10 @@ import {IERC721Errors} from "@openzeppelin/contracts/interfaces/draft-IERC6093.s
 import {Errors, CoreErrors} from "src/libraries/Errors.sol";
 import {IAsyncRedeemer} from "src/interfaces/IAsyncRedeemer.sol";
 
-import {AsyncRedeemer_Integration_Concrete_Test} from "../AsyncRedeemer.t.sol";
+import {AsyncRedeemer_Shared_Integration_Concrete_Test} from "../AsyncRedeemerShared.t.sol";
 
-contract FinalizeRequests_Integration_Concrete_Test is AsyncRedeemer_Integration_Concrete_Test {
-    function setUp() public virtual override(AsyncRedeemer_Integration_Concrete_Test) {
-        AsyncRedeemer_Integration_Concrete_Test.setUp();
-
+abstract contract FinalizeRequests_Integration_Concrete_Test is AsyncRedeemer_Shared_Integration_Concrete_Test {
+    function setUp() public virtual override {
         vm.prank(dao);
         hubPeripheryFactory.setMachine(address(asyncRedeemer), address(machine));
     }
@@ -91,7 +89,7 @@ contract FinalizeRequests_Integration_Concrete_Test is AsyncRedeemer_Integration
 
         // User1 enters queue
         uint256 sharesToRedeem1 = mintedShares1 / 3; // User1 redeems half of their shares
-        uint256 assetsToWithdraw1 = machine.convertToAssets(sharesToRedeem1);
+        uint256 assetsToWithdraw1 = _previewRedeem(sharesToRedeem1);
         vm.startPrank(user1);
         machineShare.approve(address(asyncRedeemer), sharesToRedeem1);
         uint256 requestId1 = asyncRedeemer.requestRedeem(sharesToRedeem1, user3, 0);
@@ -138,7 +136,7 @@ contract FinalizeRequests_Integration_Concrete_Test is AsyncRedeemer_Integration
         deal(address(accountingToken), address(machine), accountingToken.balanceOf(address(machine)) - 1e18);
         machine.updateTotalAum();
 
-        uint256 assetsToWithdraw2 = machine.convertToAssets(sharesToRedeem2);
+        uint256 assetsToWithdraw2 = _previewRedeem(sharesToRedeem2);
 
         (previewTotalShares, previewTotalAssets) = asyncRedeemer.previewFinalizeRequests(requestId2);
 
@@ -175,7 +173,7 @@ contract FinalizeRequests_Integration_Concrete_Test is AsyncRedeemer_Integration
 
         // User1 enters queue
         uint256 sharesToRedeem1 = mintedShares1 / 3; // User1 redeems half of their shares
-        uint256 assetsToWithdraw1 = machine.convertToAssets(sharesToRedeem1);
+        uint256 assetsToWithdraw1 = _previewRedeem(sharesToRedeem1);
         vm.startPrank(user1);
         machineShare.approve(address(asyncRedeemer), sharesToRedeem1);
         uint256 requestId1 = asyncRedeemer.requestRedeem(sharesToRedeem1, user3, 0);
@@ -218,7 +216,7 @@ contract FinalizeRequests_Integration_Concrete_Test is AsyncRedeemer_Integration
         deal(address(accountingToken), address(machine), accountingToken.balanceOf(address(machine)) - 1e18);
         machine.updateTotalAum();
 
-        uint256 assetsToWithdraw2 = machine.convertToAssets(sharesToRedeem2);
+        uint256 assetsToWithdraw2 = _previewRedeem(sharesToRedeem2);
 
         (previewTotalShares, previewTotalAssets) = asyncRedeemer.previewFinalizeRequests(requestId2);
 
@@ -254,7 +252,7 @@ contract FinalizeRequests_Integration_Concrete_Test is AsyncRedeemer_Integration
 
         // User1 enters queue
         uint256 sharesToRedeem1 = mintedShares1 / 3; // User1 redeems half of their shares
-        uint256 assetsToWithdraw1 = machine.convertToAssets(sharesToRedeem1);
+        uint256 assetsToWithdraw1 = _previewRedeem(sharesToRedeem1);
         vm.startPrank(user1);
         machineShare.approve(address(asyncRedeemer), sharesToRedeem1);
         uint256 requestId1 = asyncRedeemer.requestRedeem(sharesToRedeem1, user3, 0);
@@ -309,8 +307,8 @@ contract FinalizeRequests_Integration_Concrete_Test is AsyncRedeemer_Integration
         deal(address(accountingToken), address(machine), accountingToken.balanceOf(address(machine)) - 1e18);
         machine.updateTotalAum();
 
-        uint256 assetsToWithdraw2 = machine.convertToAssets(sharesToRedeem2);
-        uint256 assetsToWithdraw3 = machine.convertToAssets(sharesToRedeem3);
+        uint256 assetsToWithdraw2 = _previewRedeem(sharesToRedeem2);
+        uint256 assetsToWithdraw3 = _previewRedeem(sharesToRedeem3);
 
         (previewTotalShares, previewTotalAssets) = asyncRedeemer.previewFinalizeRequests(requestId3);
 

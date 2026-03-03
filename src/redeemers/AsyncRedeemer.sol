@@ -47,6 +47,13 @@ contract AsyncRedeemer is ERC721Upgradeable, ReentrancyGuard, MachinePeriphery, 
         (uint256 _finalizationDelay, uint256 _minRedeemAmount, bool _whitelistStatus) =
             abi.decode(data, (uint256, uint256, bool));
 
+        __AsyncRedeemer_init(_finalizationDelay, _minRedeemAmount, _whitelistStatus);
+    }
+
+    function __AsyncRedeemer_init(uint256 _finalizationDelay, uint256 _minRedeemAmount, bool _whitelistStatus)
+        internal
+        onlyInitializing
+    {
         AsyncRedeemerStorage storage $ = _getAsyncRedeemerStorage();
 
         $._finalizationDelay = _finalizationDelay;
@@ -101,7 +108,7 @@ contract AsyncRedeemer is ERC721Upgradeable, ReentrancyGuard, MachinePeriphery, 
         for (uint256 i = $._lastFinalizedRequestId + 1; i <= upToRequestId; ++i) {
             IAsyncRedeemer.RedeemRequest memory request = $._requests[i];
 
-            uint256 newSharesValue = IMachine(machine()).convertToAssets(request.shares);
+            uint256 newSharesValue = _previewRedeem(request.shares);
             uint256 newAssets = newSharesValue < request.assets ? newSharesValue : request.assets;
 
             totalShares += request.shares;
@@ -130,7 +137,7 @@ contract AsyncRedeemer is ERC721Upgradeable, ReentrancyGuard, MachinePeriphery, 
             revert Errors.AmountToolow();
         }
 
-        uint256 assets = IMachine(_machine).convertToAssets(shares);
+        uint256 assets = _previewRedeem(shares);
 
         if (assets < minAssets) {
             revert CoreErrors.SlippageProtection();
@@ -166,7 +173,7 @@ contract AsyncRedeemer is ERC721Upgradeable, ReentrancyGuard, MachinePeriphery, 
         for (uint256 i = $._lastFinalizedRequestId + 1; i <= upToRequestId; ++i) {
             IAsyncRedeemer.RedeemRequest storage request = $._requests[i];
 
-            uint256 newAssets = IMachine(_machine).convertToAssets(request.shares);
+            uint256 newAssets = _previewRedeem(request.shares);
             request.assets = newAssets < request.assets ? newAssets : request.assets;
 
             totalShares += request.shares;
@@ -256,5 +263,10 @@ contract AsyncRedeemer is ERC721Upgradeable, ReentrancyGuard, MachinePeriphery, 
         if (block.timestamp < $._requests[requestId].requestTime + $._finalizationDelay) {
             revert Errors.FinalizationDelayPending();
         }
+    }
+
+    /// @dev Returns the amount of assets that can be obtained against a given amount of shares, under current market conditions.
+    function _previewRedeem(uint256 shares) internal view virtual returns (uint256) {
+        return IMachine(machine()).convertToAssets(shares);
     }
 }

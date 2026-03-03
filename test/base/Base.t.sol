@@ -65,6 +65,7 @@ abstract contract Base_Test is Base, Test, Constants, Core_Base.Base, Core_Const
 
     // Machine Redeemers
     UpgradeableBeacon internal asyncRedeemerBeacon;
+    UpgradeableBeacon internal asyncRedeemerFeeBeacon;
 
     // Machine Fee Managers
     UpgradeableBeacon internal watermarkFeeManagerBeacon;
@@ -167,6 +168,7 @@ abstract contract Base_Hub_Test is Base_Test {
         hubPeripheryFactory = peripheryDeployment.hubPeripheryFactory;
         directDepositorBeacon = peripheryDeployment.directDepositorBeacon;
         asyncRedeemerBeacon = peripheryDeployment.asyncRedeemerBeacon;
+        asyncRedeemerFeeBeacon = peripheryDeployment.asyncRedeemerFeeBeacon;
         watermarkFeeManagerBeacon = peripheryDeployment.watermarkFeeManagerBeacon;
         securityModuleBeacon = peripheryDeployment.securityModuleBeacon;
         metaMorphoOracleFactory = peripheryDeployment.metaMorphoOracleFactory;
@@ -183,10 +185,12 @@ abstract contract Base_Hub_Test is Base_Test {
         mdBeacons[0] = address(peripheryDeployment.directDepositorBeacon);
         registerDepositorBeacons(address(hubPeripheryRegistry), mdImplemIds, mdBeacons);
 
-        uint16[] memory mrImplemIds = new uint16[](1);
+        uint16[] memory mrImplemIds = new uint16[](2);
         mrImplemIds[0] = ASYNC_REDEEMER_IMPLEM_ID;
-        address[] memory mrBeacons = new address[](1);
+        mrImplemIds[1] = ASYNC_REDEEMER_FEE_IMPLEM_ID;
+        address[] memory mrBeacons = new address[](2);
         mrBeacons[0] = address(peripheryDeployment.asyncRedeemerBeacon);
+        mrBeacons[1] = address(peripheryDeployment.asyncRedeemerFeeBeacon);
         registerRedeemerBeacons(address(hubPeripheryRegistry), mrImplemIds, mrBeacons);
 
         uint16[] memory fmImplemIds = new uint16[](1);

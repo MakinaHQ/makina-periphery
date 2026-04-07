@@ -95,8 +95,9 @@ abstract contract Base_Test is Base, Test, Constants, Core_Base.Base, Core_Const
         accessManager.grantRole(accessManager.ADMIN_ROLE(), coreFactory, 0);
         accessManager.grantRole(Roles.INFRA_CONFIG_ROLE, dao, 0);
         accessManager.grantRole(Roles.STRATEGY_DEPLOYMENT_ROLE, dao, 0);
-        accessManager.grantRole(Roles.STRATEGY_COMPONENTS_SETUP_ROLE, dao, 0);
+        accessManager.grantRole(Roles.STRATEGY_COMPONENTS_LINKING_ROLE, dao, 0);
         accessManager.grantRole(Roles.STRATEGY_MANAGEMENT_CONFIG_ROLE, dao, 0);
+        accessManager.grantRole(Roles.STRATEGY_FEE_CONFIG_ROLE, dao, 0);
         accessManager.grantRole(Roles.INFRA_UPGRADE_ROLE, dao, 0);
         accessManager.grantRole(Roles.GUARDIAN_ROLE, securityCouncil, 0);
 

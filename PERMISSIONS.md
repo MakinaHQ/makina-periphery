@@ -20,6 +20,8 @@ This is the list of role permissions in Makina Periphery contracts. These roles 
   - Can deploy redeemers.
   - Can deploy fee managers.
   - Can deploy security modules.
+  - Can set machine address in deployed modules listed above.
+  - Can set security modules address in respective fee managers.
 
 ### DirectDepositor
 
@@ -39,11 +41,27 @@ This is the list of role permissions in Makina Periphery contracts. These roles 
   - Can add or remove users from the whitelist.
 
 - **Risk Manager Timelock**
+
+  - Can set the request finalisation delay.
+  - Can set the redeem fee rate, up to the max allowed value.
+
+  ### AsyncRedeemManagerFee
+
+- **Mechanic**
+
+  - Can finalize redemption requests, provided that the requests have reached their finalisation delay and that the machine is not in recovery mode.
+
+- **Risk Manager**
+
+  - Can activate and deactivate whitelist.
+  - Can add or remove users from the whitelist.
+
+- **Risk Manager Timelock**
   - Can set the request finalisation delay.
 
 ### WatermarkFeeManager
 
-- `STRATEGY_COMPONENTS_SETUP_ROLE` (roleId `3`)
+- `STRATEGY_FEE_CONFIG_ROLE` (roleId `3`)
   - Can reset the share price watermark to a value below the current one.
   - Can set the fee rates.
   - Can define the allocation of fees to different receivers.
@@ -64,10 +82,4 @@ This is the list of role permissions in Makina Periphery contracts. These roles 
 
 - `INFRA_CONFIG_ROLE` (roleId `1`)
   - Can register and unregister Morpho factories.
-  - Can deploy an oracle.
-
-### MachineShareOracleFactory
-
-- `INFRA_CONFIG_ROLE` (roleId `1`)
-  - Can set the machine share oracle beacon.
   - Can deploy an oracle.

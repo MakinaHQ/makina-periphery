@@ -19,6 +19,7 @@ import {HubPeripheryFactory} from "../../src/factories/HubPeripheryFactory.sol";
 import {WatermarkFeeManager} from "../../src/fee-managers/WatermarkFeeManager.sol";
 import {DirectDepositor} from "../../src/depositors/DirectDepositor.sol";
 import {AsyncRedeemer} from "../../src/redeemers/AsyncRedeemer.sol";
+import {AsyncRedeemerFee} from "../../src/redeemers/AsyncRedeemerFee.sol";
 import {SecurityModule} from "../../src/security-module/SecurityModule.sol";
 import {MachineShareOracle} from "../../src/oracles/MachineShareOracle.sol";
 import {MachineShareOracleFactory} from "../../src/factories/MachineShareOracleFactory.sol";
@@ -31,6 +32,7 @@ abstract contract Base is ProxyUtils {
         HubPeripheryFactory hubPeripheryFactory;
         UpgradeableBeacon directDepositorBeacon;
         UpgradeableBeacon asyncRedeemerBeacon;
+        UpgradeableBeacon asyncRedeemerFeeBeacon;
         UpgradeableBeacon watermarkFeeManagerBeacon;
         UpgradeableBeacon securityModuleBeacon;
         MetaMorphoOracleFactory metaMorphoOracleFactory;
@@ -95,6 +97,11 @@ abstract contract Base is ProxyUtils {
         {
             address asyncRedeemerImplemAddr = address(new AsyncRedeemer(address(deployment.hubPeripheryRegistry)));
             deployment.asyncRedeemerBeacon = new UpgradeableBeacon(asyncRedeemerImplemAddr, accessManager);
+        }
+
+        {
+            address asyncRedeemerFeeImplemAddr = address(new AsyncRedeemerFee(address(deployment.hubPeripheryRegistry)));
+            deployment.asyncRedeemerFeeBeacon = new UpgradeableBeacon(asyncRedeemerFeeImplemAddr, accessManager);
         }
 
         {

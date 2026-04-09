@@ -60,7 +60,7 @@ abstract contract Whitelist is Initializable, IWhitelist {
     function _setWhitelistedUsers(address[] calldata users, bool whitelisted) internal {
         WhitelistStorage storage $ = _getWhitelistStorage();
         uint256 len = users.length;
-        for (uint256 i = 0; i < len; ++i) {
+        for (uint256 i; i < len; ++i) {
             if ($._isWhitelistedUser[users[i]] != whitelisted) {
                 $._isWhitelistedUser[users[i]] = whitelisted;
                 emit UserWhitelistingChanged(users[i], whitelisted);

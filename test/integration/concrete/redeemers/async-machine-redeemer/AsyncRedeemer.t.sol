@@ -4,7 +4,6 @@ pragma solidity 0.8.28;
 import {MachineShare} from "@makina-core/machine/MachineShare.sol";
 
 import {IAsyncRedeemer} from "src/interfaces/IAsyncRedeemer.sol";
-import {IWhitelist} from "src/interfaces/IWhitelist.sol";
 
 import {AsyncRedeemer_Shared_Integration_Concrete_Test} from "./AsyncRedeemerShared.t.sol";
 import {RequestRedeem_Integration_Concrete_Test} from "./request-redeem/requestRedeem.t.sol";

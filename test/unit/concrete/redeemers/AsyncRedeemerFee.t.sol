@@ -8,7 +8,6 @@ import {IAsyncRedeemer} from "src/interfaces/IAsyncRedeemer.sol";
 import {IAsyncRedeemerFee} from "src/interfaces/IAsyncRedeemerFee.sol";
 import {IMachinePeriphery} from "src/interfaces/IMachinePeriphery.sol";
 import {IWhitelist} from "src/interfaces/IWhitelist.sol";
-import {AsyncRedeemer} from "src/redeemers/AsyncRedeemer.sol";
 
 import {
     MachinePeriphery_Util_Concrete_Test,

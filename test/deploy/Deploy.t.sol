@@ -307,7 +307,7 @@ contract Deploy_Scripts_Test is Base_Test {
             (uint256[])
         );
         assertEq(watermarkFeeManager.mgmtFeeSplitBps().length, splitBps.length);
-        for (uint256 i; i < splitBps.length; i++) {
+        for (uint256 i; i < splitBps.length; ++i) {
             assertEq(watermarkFeeManager.mgmtFeeSplitBps()[i], splitBps[i]);
         }
 
@@ -318,7 +318,7 @@ contract Deploy_Scripts_Test is Base_Test {
             (address[])
         );
         assertEq(watermarkFeeManager.mgmtFeeReceivers().length, feeReceivers.length);
-        for (uint256 i; i < feeReceivers.length; i++) {
+        for (uint256 i; i < feeReceivers.length; ++i) {
             assertEq(watermarkFeeManager.mgmtFeeReceivers()[i], feeReceivers[i]);
         }
 
@@ -329,7 +329,7 @@ contract Deploy_Scripts_Test is Base_Test {
             (uint256[])
         );
         assertEq(watermarkFeeManager.perfFeeSplitBps().length, splitBps.length);
-        for (uint256 i; i < splitBps.length; i++) {
+        for (uint256 i; i < splitBps.length; ++i) {
             assertEq(watermarkFeeManager.perfFeeSplitBps()[i], splitBps[i]);
         }
 
@@ -340,7 +340,7 @@ contract Deploy_Scripts_Test is Base_Test {
             (address[])
         );
         assertEq(watermarkFeeManager.perfFeeReceivers().length, feeReceivers.length);
-        for (uint256 i; i < feeReceivers.length; i++) {
+        for (uint256 i; i < feeReceivers.length; ++i) {
             assertEq(watermarkFeeManager.perfFeeReceivers()[i], feeReceivers[i]);
         }
     }

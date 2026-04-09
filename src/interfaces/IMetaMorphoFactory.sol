@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.28;
+pragma solidity ^0.8.28;
 
 /// @title IMetaMorphoFactory
 /// @notice Interface of MetaMorpho's factory.

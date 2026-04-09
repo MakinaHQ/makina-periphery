@@ -43,7 +43,7 @@ Roles used in Makina Periphery contracts are a subset of those used in Makina Co
 
 - `ADMIN_ROLE` - roleId `0` - Super admin of the Access Manager. Authorized to perform Access Manager configuration actions.
 - `INFRA_CONFIG_ROLE` - roleId `1` - Authorized to configure shared periphery contracts.
-- `STRATEGY_DEPLOYMENT_ROLE` - roleId `2` - Authorized to deploy new periphery modules.
-- `STRATEGY_COMPONENTS_SETUP_ROLE` - roleId `3` - Authorized to configure fee settings in fee manager contracts.
-- `INFRA_UPGRADE_ROLE` - roleId `5` - Authorized to upgrade proxys and beacons, and register contracts in the core registry.
-- `GUARDIAN_ROLE` - roleId `6` - Authorized to cancel operations scheduled with the roles above.
+- `STRATEGY_DEPLOYMENT_ROLE` - roleId `2` - Authorized to deploy new strategies.
+- `STRATEGY_FEE_CONFIG_ROLE` - roleId `5` - Authorized to configure fee parameters in strategy periphery contracts.
+- `INFRA_UPGRADE_ROLE` - roleId `6` - Authorized to upgrade proxys and beacons, and register contracts in the periphery registry.
+- `GUARDIAN_ROLE` - roleId `7` - Authorized to cancel operations scheduled with the other roles.

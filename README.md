@@ -12,6 +12,7 @@ See `SPECIFICATION.md` and `PERMISSIONS.md` for more details.
 | `HubPeripheryFactory.sol`       | Hub              | Hub factory for creation of machine periphery modules.                                           |
 | `DirectDepositor.sol`           | Hub              | Synchronous Machine depositor contract.                                                          |
 | `AsyncRedeemer.sol`             | Hub              | Asynchronous Machine redeemer contract.                                                          |
+| `AsyncRedeemerFee.sol`          | Hub              | Asynchronous Machine redeemer contract with support for redemption fees.                         |
 | `WatermarkFeeManager.sol`       | Hub              | Fee manager contract with a high-watermark mechanism for performance fee calculation.            |
 | `SecurityModule.sol`            | Hub              | Security module for machine shares.                                                              |
 | `SMCooldownReceipt.sol`         | Hub              | Receipt NFT for security module cooldown.                                                        |

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.28;
+pragma solidity ^0.8.28;
 
 interface IWhitelist {
     event UserWhitelistingChanged(address indexed user, bool indexed whitelisted);

@@ -10,7 +10,7 @@ contract DeployHubPeriphery is DeployPeriphery {
 
     address internal accessManager;
     address internal hubCoreRegistry;
-    FlashloanProvidersSorted internal flProviders;
+    FlashloanProviders internal flProviders;
 
     HubPeriphery private _hubPeriphery;
 
@@ -37,7 +37,7 @@ contract DeployHubPeriphery is DeployPeriphery {
     function _deploySetupBefore() public override {
         accessManager = abi.decode(vm.parseJson(inputJson, ".accessManager"), (address));
         hubCoreRegistry = abi.decode(vm.parseJson(inputJson, ".hubCoreRegistry"), (address));
-        flProviders = abi.decode(vm.parseJson(inputJson, ".flashloanProviders"), (FlashloanProvidersSorted));
+        flProviders = abi.decode(vm.parseJson(inputJson, ".flashloanProviders"), (FlashloanProviders));
 
         // start broadcasting transactions
         vm.startBroadcast();
@@ -46,18 +46,7 @@ contract DeployHubPeriphery is DeployPeriphery {
     }
 
     function _coreSetup() public override {
-        _hubPeriphery = deployHubPeriphery(
-            accessManager,
-            hubCoreRegistry,
-            FlashloanProviders({
-                balancerV2Pool: flProviders.balancerV2Pool,
-                balancerV3Pool: flProviders.balancerV3Pool,
-                morphoPool: flProviders.morphoPool,
-                dssFlash: flProviders.dssFlash,
-                aaveV3AddressProvider: flProviders.aaveV3AddressProvider,
-                dai: flProviders.dai
-            })
-        );
+        _hubPeriphery = deployHubPeriphery(accessManager, hubCoreRegistry, flProviders);
     }
 
     function _deploySetupAfter() public override {

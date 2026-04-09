@@ -108,9 +108,8 @@ contract MachineShareOracle is MakinaContext, Initializable, IMachineShareOracle
                 IOracleRegistry(IHubCoreRegistry(registry).oracleRegistry()).getPrice(depositToken, accountingToken);
             uint256 dtUnit = 10 ** DecimalsUtils._getDecimals(depositToken);
             uint256 dtBal = IERC20Metadata(depositToken).balanceOf($._shareOwner);
-            sharePrice = DecimalsUtils.SHARE_TOKEN_UNIT.mulDiv(
-                (dtBal * price_d_a) + dtUnit, (stSupply + 10 ** $._shareTokenDecimalsOffset) * dtUnit
-            );
+            sharePrice = DecimalsUtils.SHARE_TOKEN_UNIT
+                .mulDiv((dtBal * price_d_a) + dtUnit, (stSupply + 10 ** $._shareTokenDecimalsOffset) * dtUnit);
         } else {
             address machine = $._isShareOwnerPdv ? IPreDepositVault($._shareOwner).machine() : $._shareOwner;
             uint256 aum = IMachine(machine).lastTotalAum();

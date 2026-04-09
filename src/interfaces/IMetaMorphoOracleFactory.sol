@@ -23,7 +23,5 @@ interface IMetaMorphoOracleFactory {
     /// @param factory The factory used to create the MetaMorpho Vault.
     /// @param metaMorphoVault The Vault for which to create a wrapper oracle.
     /// @param decimals Decimals to use for the oracle price.
-    function createMetaMorphoOracle(address factory, address metaMorphoVault, uint8 decimals)
-        external
-        returns (address);
+    function createMetaMorphoOracle(address factory, address metaMorphoVault, uint8 decimals) external returns (address);
 }

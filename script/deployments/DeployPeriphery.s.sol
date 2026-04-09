@@ -8,11 +8,9 @@ import {CreateXUtils} from "@makina-core-script/deployments/utils/CreateXUtils.s
 
 import {FlashloanAggregator} from "../../src/flashloans/FlashloanAggregator.sol";
 
-import {SortedParams} from "./utils/SortedParams.sol";
-
 import {Base} from "../../test/base/Base.sol";
 
-contract DeployPeriphery is Base, Script, SortedParams, CreateXUtils {
+contract DeployPeriphery is Base, Script, CreateXUtils {
     using stdJson for string;
 
     string public inputJson;
@@ -37,7 +35,18 @@ contract DeployPeriphery is Base, Script, SortedParams, CreateXUtils {
         }
         return FlashloanAggregator(
             _deployCodeCreateX(
-                abi.encodePacked(type(FlashloanAggregator).creationCode, abi.encode(_caliberFactory, _flProviders)),
+                abi.encodePacked(
+                    type(FlashloanAggregator).creationCode,
+                    abi.encode(
+                        _caliberFactory,
+                        _flProviders.balancerV2Pool,
+                        _flProviders.balancerV3Pool,
+                        _flProviders.morphoPool,
+                        _flProviders.dssFlash,
+                        _flProviders.aaveV3AddressProvider,
+                        _flProviders.dai
+                    )
+                ),
                 salt,
                 deployer
             )

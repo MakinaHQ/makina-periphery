@@ -7,20 +7,14 @@ import {stdJson} from "forge-std/StdJson.sol";
 import {IHubPeripheryFactory} from "../../src/interfaces/IHubPeripheryFactory.sol";
 import {ISecurityModule} from "../../src/interfaces/ISecurityModule.sol";
 
-import {SortedParams} from "./utils/SortedParams.sol";
-
 import {Base} from "../../test/base/Base.sol";
 
-contract DeploySecurityModule is Base, Script, SortedParams {
+contract DeploySecurityModule is Base, Script {
     using stdJson for string;
 
     string public deploymentOutputJson;
     string public inputJson;
     string public outputPath;
-
-    HubPeripherySorted private _hubPeriphery;
-
-    SecurityModuleInitParamsSorted public securityModuleInitParams;
 
     address public deployedInstance;
 
@@ -48,9 +42,8 @@ contract DeploySecurityModule is Base, Script, SortedParams {
     }
 
     function run() public {
-        _hubPeriphery = abi.decode(vm.parseJson(deploymentOutputJson), (HubPeripherySorted));
-
-        securityModuleInitParams = abi.decode(vm.parseJson(inputJson), (SecurityModuleInitParamsSorted));
+        ISecurityModule.SecurityModuleInitParams memory initParams =
+            abi.decode(vm.parseJson(inputJson), (ISecurityModule.SecurityModuleInitParams));
 
         address sender = vm.envOr("TEST_SENDER", address(0));
         if (sender != address(0)) {
@@ -59,14 +52,8 @@ contract DeploySecurityModule is Base, Script, SortedParams {
             vm.startBroadcast();
         }
 
-        deployedInstance = IHubPeripheryFactory(_hubPeriphery.hubPeripheryFactory).createSecurityModule(
-            ISecurityModule.SecurityModuleInitParams({
-                initialCooldownDuration: securityModuleInitParams.initialCooldownDuration,
-                initialMaxSlashableBps: securityModuleInitParams.initialMaxSlashableBps,
-                initialMinBalanceAfterSlash: securityModuleInitParams.initialMinBalanceAfterSlash,
-                machineShare: securityModuleInitParams.machineShare
-            })
-        );
+        deployedInstance = IHubPeripheryFactory(vm.parseJsonAddress(deploymentOutputJson, ".HubPeripheryFactory"))
+            .createSecurityModule(initParams);
 
         vm.stopBroadcast();
 

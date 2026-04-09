@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.28;
 
-import {AccessManagedUpgradeable} from "@openzeppelin/contracts-upgradeable/access/manager/AccessManagedUpgradeable.sol";
+import {
+    AccessManagedUpgradeable
+} from "@openzeppelin/contracts-upgradeable/access/manager/AccessManagedUpgradeable.sol";
 import {BeaconProxy} from "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
 
 import {IMachineShareOracle} from "../interfaces/IMachineShareOracle.sol";
@@ -18,11 +20,7 @@ contract MachineShareOracleFactory is AccessManagedUpgradeable, IMachineShareOra
     bytes32 private constant MachineShareOracleFactoryStorageLocation =
         0x566402f20de4969fde1c09f6ddbae1c0f5590a4d61e4a12b6deb88f69bf7c700;
 
-    function _getMachineShareOracleFactoryStorage()
-        internal
-        pure
-        returns (MachineShareOracleFactoryStorage storage $)
-    {
+    function _getMachineShareOracleFactoryStorage() internal pure returns (MachineShareOracleFactoryStorage storage $) {
         assembly {
             $.slot := MachineShareOracleFactoryStorageLocation
         }

@@ -24,8 +24,9 @@ library FlashLoanHelpers {
         uint256 PERCENTAGE_FACTOR = 1e4;
         uint256 HALF_PERCENTAGE_FACTOR = 0.5e4;
         assembly {
-            if iszero(or(iszero(premiumPct), iszero(gt(amount, div(sub(not(0), HALF_PERCENTAGE_FACTOR), premiumPct)))))
-            {
+            if iszero(
+                or(iszero(premiumPct), iszero(gt(amount, div(sub(not(0), HALF_PERCENTAGE_FACTOR), premiumPct))))
+            ) {
                 revert(0, 0)
             }
             premium := div(add(mul(amount, premiumPct), HALF_PERCENTAGE_FACTOR), PERCENTAGE_FACTOR)

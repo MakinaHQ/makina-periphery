@@ -61,11 +61,7 @@ contract Getters_Setters_AsyncRedeemerFee_Util_Concrete_Test is
     Getter_Setter_MachinePeriphery_Util_Concrete_Test,
     AsyncRedeemerFee_Util_Concrete_Test
 {
-    function setUp()
-        public
-        virtual
-        override(AsyncRedeemerFee_Util_Concrete_Test, MachinePeriphery_Util_Concrete_Test)
-    {
+    function setUp() public virtual override(AsyncRedeemerFee_Util_Concrete_Test, MachinePeriphery_Util_Concrete_Test) {
         AsyncRedeemerFee_Util_Concrete_Test.setUp();
     }
 

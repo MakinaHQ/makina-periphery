@@ -21,7 +21,6 @@ import {DeployAsyncRedeemer} from "script/deployments/DeployAsyncRedeemer.s.sol"
 import {DeployAsyncRedeemerFee} from "script/deployments/DeployAsyncRedeemerFee.s.sol";
 import {DeployWatermarkFeeManager} from "script/deployments/DeployWatermarkFeeManager.s.sol";
 import {SetupHubPeripheryRegistry} from "script/deployments/SetupHubPeripheryRegistry.s.sol";
-import {SortedParams} from "script/deployments/utils/SortedParams.sol";
 
 import {Base_Test} from "../base/Base.t.sol";
 
@@ -90,18 +89,17 @@ contract Deploy_Scripts_Test is Base_Test {
         (HubPeriphery memory hubPeripheryDeployment) = deployHubPeriphery.deployment();
 
         // Check that FlashloanAggregator is correctly set up
-        SortedParams.FlashloanProvidersSorted memory flProviders = abi.decode(
-            vm.parseJson(deployHubPeriphery.inputJson(), ".flashloanProviders"), (SortedParams.FlashloanProvidersSorted)
-        );
+        FlashloanProviders memory flProviders =
+            abi.decode(vm.parseJson(deployHubPeriphery.inputJson(), ".flashloanProviders"), (FlashloanProviders));
+        assertEq(address(hubPeripheryDeployment.flashloanAggregator.balancerV2Pool()), flProviders.balancerV2Pool);
+        assertEq(address(hubPeripheryDeployment.flashloanAggregator.balancerV3Pool()), flProviders.balancerV3Pool);
+        assertEq(address(hubPeripheryDeployment.flashloanAggregator.morphoPool()), flProviders.morphoPool);
+        assertEq(address(hubPeripheryDeployment.flashloanAggregator.dssFlash()), flProviders.dssFlash);
         assertEq(
             address(hubPeripheryDeployment.flashloanAggregator.aaveV3AddressProvider()),
             flProviders.aaveV3AddressProvider
         );
-        assertEq(address(hubPeripheryDeployment.flashloanAggregator.balancerV2Pool()), flProviders.balancerV2Pool);
-        assertEq(address(hubPeripheryDeployment.flashloanAggregator.balancerV3Pool()), flProviders.balancerV3Pool);
         assertEq(address(hubPeripheryDeployment.flashloanAggregator.dai()), flProviders.dai);
-        assertEq(address(hubPeripheryDeployment.flashloanAggregator.dssFlash()), flProviders.dssFlash);
-        assertEq(address(hubPeripheryDeployment.flashloanAggregator.morphoPool()), flProviders.morphoPool);
 
         // Check that HubPeripheryRegistry is correctly set up
         assertEq(
@@ -114,23 +112,28 @@ contract Deploy_Scripts_Test is Base_Test {
         );
         assertEq(
             address(hubPeripheryDeployment.directDepositorBeacon),
-            hubPeripheryDeployment.hubPeripheryRegistry.depositorBeacon(
-                abi.decode(vm.parseJson(setupHubPeripheryRegistry.inputJson(), ".directDepositorImplemId"), (uint16))
-            )
+            hubPeripheryDeployment.hubPeripheryRegistry
+                .depositorBeacon(
+                    abi.decode(
+                        vm.parseJson(setupHubPeripheryRegistry.inputJson(), ".directDepositorImplemId"), (uint16)
+                    )
+                )
         );
         assertEq(
             address(hubPeripheryDeployment.asyncRedeemerBeacon),
-            hubPeripheryDeployment.hubPeripheryRegistry.redeemerBeacon(
-                abi.decode(vm.parseJson(setupHubPeripheryRegistry.inputJson(), ".asyncRedeemerImplemId"), (uint16))
-            )
+            hubPeripheryDeployment.hubPeripheryRegistry
+                .redeemerBeacon(
+                    abi.decode(vm.parseJson(setupHubPeripheryRegistry.inputJson(), ".asyncRedeemerImplemId"), (uint16))
+                )
         );
         assertEq(
             address(hubPeripheryDeployment.watermarkFeeManagerBeacon),
-            hubPeripheryDeployment.hubPeripheryRegistry.feeManagerBeacon(
-                abi.decode(
-                    vm.parseJson(setupHubPeripheryRegistry.inputJson(), ".watermarkFeeManagerImplemId"), (uint16)
+            hubPeripheryDeployment.hubPeripheryRegistry
+                .feeManagerBeacon(
+                    abi.decode(
+                        vm.parseJson(setupHubPeripheryRegistry.inputJson(), ".watermarkFeeManagerImplemId"), (uint16)
+                    )
                 )
-            )
         );
     }
 
@@ -144,16 +147,14 @@ contract Deploy_Scripts_Test is Base_Test {
         FlashloanAggregator deployment = deploySpokePeriphery.deployment();
 
         // Check that FlashloanAggregator is correctly set up
-        SortedParams.FlashloanProvidersSorted memory flProviders = abi.decode(
-            vm.parseJson(deploySpokePeriphery.inputJson(), ".flashloanProviders"),
-            (SortedParams.FlashloanProvidersSorted)
-        );
-        assertEq(address(deployment.aaveV3AddressProvider()), flProviders.aaveV3AddressProvider);
+        FlashloanProviders memory flProviders =
+            abi.decode(vm.parseJson(deploySpokePeriphery.inputJson(), ".flashloanProviders"), (FlashloanProviders));
         assertEq(address(deployment.balancerV2Pool()), flProviders.balancerV2Pool);
         assertEq(address(deployment.balancerV3Pool()), flProviders.balancerV3Pool);
-        assertEq(address(deployment.dai()), flProviders.dai);
-        assertEq(address(deployment.dssFlash()), flProviders.dssFlash);
         assertEq(address(deployment.morphoPool()), flProviders.morphoPool);
+        assertEq(address(deployment.dssFlash()), flProviders.dssFlash);
+        assertEq(address(deployment.aaveV3AddressProvider()), flProviders.aaveV3AddressProvider);
+        assertEq(address(deployment.dai()), flProviders.dai);
     }
 
     function testScript_DeploySecurityModule() public {
@@ -292,13 +293,17 @@ contract Deploy_Scripts_Test is Base_Test {
         assertEq(
             watermarkFeeManager.perfFeeRate(),
             abi.decode(
-                vm.parseJson(deployWatermarkFeeManager.inputJson(), ".watermarkFeeManagerInitParams.initialPerfFeeRate"),
+                vm.parseJson(
+                    deployWatermarkFeeManager.inputJson(), ".watermarkFeeManagerInitParams.initialPerfFeeRate"
+                ),
                 (uint256)
             )
         );
 
         uint256[] memory splitBps = abi.decode(
-            vm.parseJson(deployWatermarkFeeManager.inputJson(), ".watermarkFeeManagerInitParams.initialMgmtFeeSplitBps"),
+            vm.parseJson(
+                deployWatermarkFeeManager.inputJson(), ".watermarkFeeManagerInitParams.initialMgmtFeeSplitBps"
+            ),
             (uint256[])
         );
         assertEq(watermarkFeeManager.mgmtFeeSplitBps().length, splitBps.length);
@@ -318,7 +323,9 @@ contract Deploy_Scripts_Test is Base_Test {
         }
 
         splitBps = abi.decode(
-            vm.parseJson(deployWatermarkFeeManager.inputJson(), ".watermarkFeeManagerInitParams.initialPerfFeeSplitBps"),
+            vm.parseJson(
+                deployWatermarkFeeManager.inputJson(), ".watermarkFeeManagerInitParams.initialPerfFeeSplitBps"
+            ),
             (uint256[])
         );
         assertEq(watermarkFeeManager.perfFeeSplitBps().length, splitBps.length);

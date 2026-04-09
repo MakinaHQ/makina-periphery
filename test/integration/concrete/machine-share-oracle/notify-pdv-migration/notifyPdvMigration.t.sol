@@ -19,8 +19,9 @@ contract NotifyPdvMigration_Integration_Concrete_Test is MachineShareOracle_Inte
 
     function test_RevertGiven_MigrationAlreadyNotified() public {
         vm.prank(dao);
-        machineShareOracle =
-            MachineShareOracle(machineShareOracleFactory.createMachineShareOracle(address(preDepositVault), atDecimals));
+        machineShareOracle = MachineShareOracle(
+            machineShareOracleFactory.createMachineShareOracle(address(preDepositVault), atDecimals)
+        );
 
         _deployMachineFromPreDeposit(address(preDepositVault), address(this), address(this), address(feeManager));
 
@@ -32,8 +33,9 @@ contract NotifyPdvMigration_Integration_Concrete_Test is MachineShareOracle_Inte
 
     function test_RevertGiven_PreDepositVaultNotMigrated() public {
         vm.prank(dao);
-        machineShareOracle =
-            MachineShareOracle(machineShareOracleFactory.createMachineShareOracle(address(preDepositVault), atDecimals));
+        machineShareOracle = MachineShareOracle(
+            machineShareOracleFactory.createMachineShareOracle(address(preDepositVault), atDecimals)
+        );
 
         vm.expectRevert(abi.encodeWithSelector(CoreErrors.NotMigrated.selector));
         machineShareOracle.notifyPdvMigration();
@@ -41,8 +43,9 @@ contract NotifyPdvMigration_Integration_Concrete_Test is MachineShareOracle_Inte
 
     function test_NotifyPdvMigration() public {
         vm.prank(dao);
-        machineShareOracle =
-            MachineShareOracle(machineShareOracleFactory.createMachineShareOracle(address(preDepositVault), atDecimals));
+        machineShareOracle = MachineShareOracle(
+            machineShareOracleFactory.createMachineShareOracle(address(preDepositVault), atDecimals)
+        );
 
         (machine,) =
             _deployMachineFromPreDeposit(address(preDepositVault), address(this), address(this), address(feeManager));

@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity 0.8.28;
 
-import {IFlashLoanRecipient as BalancerV2FlashloanRecipient} from
-    "@balancer-v2-interfaces/vault/IFlashLoanRecipient.sol";
+import {
+    IFlashLoanRecipient as BalancerV2FlashloanRecipient
+} from "@balancer-v2-interfaces/vault/IFlashLoanRecipient.sol";
 import {IERC20 as BalancerIERC20} from "@balancer-v2-interfaces/solidity-utils/openzeppelin/IERC20.sol";
 import {IVault as IVaultV2} from "@balancer-v2-interfaces/vault/IVault.sol";
 import {IVault as IVaultV3} from "@balancer-v3-interfaces/vault/IVault.sol";
@@ -213,9 +214,8 @@ contract FlashloanAggregator is
         // Request the flashloan
         // No need to set the expected data hash as the flashloan passes the initiator over
         // and we can check it in `onFlashLoan`
-        IERC3156FlashLender(dssFlash).flashLoan(
-            this, request.token, request.amount, abi.encode(msg.sender, request.instruction)
-        );
+        IERC3156FlashLender(dssFlash)
+            .flashLoan(this, request.token, request.amount, abi.encode(msg.sender, request.instruction));
     }
 
     /// @notice Function to request a flashloan from Aave V3.

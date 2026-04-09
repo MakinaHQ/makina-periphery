@@ -6,19 +6,15 @@ import {stdJson} from "forge-std/StdJson.sol";
 
 import {IHubPeripheryFactory} from "../../src/interfaces/IHubPeripheryFactory.sol";
 
-import {SortedParams} from "./utils/SortedParams.sol";
-
 import {Base} from "../../test/base/Base.sol";
 
-contract DeployAsyncRedeemer is Base, Script, SortedParams {
+contract DeployAsyncRedeemer is Base, Script {
     using stdJson for string;
 
     string public deploymentOutputJson;
     string public implemIdsInputJson;
     string public inputJson;
     string public outputPath;
-
-    HubPeripherySorted private _hubPeriphery;
 
     uint256 public finalizationDelay;
     uint256 public minRedeemAmount;
@@ -56,13 +52,11 @@ contract DeployAsyncRedeemer is Base, Script, SortedParams {
     }
 
     function run() public {
-        _hubPeriphery = abi.decode(vm.parseJson(deploymentOutputJson), (HubPeripherySorted));
-
         uint16 implemId = abi.decode(vm.parseJson(implemIdsInputJson, ".asyncRedeemerImplemId"), (uint16));
 
-        finalizationDelay = abi.decode(vm.parseJson(inputJson, ".finalizationDelay"), (uint256));
-        minRedeemAmount = abi.decode(vm.parseJson(inputJson, ".minRedeemAmount"), (uint256));
-        whitelistStatus = abi.decode(vm.parseJson(inputJson, ".whitelistStatus"), (bool));
+        finalizationDelay = vm.parseJsonUint(inputJson, ".finalizationDelay");
+        minRedeemAmount = vm.parseJsonUint(inputJson, ".minRedeemAmount");
+        whitelistStatus = vm.parseJsonBool(inputJson, ".whitelistStatus");
 
         address sender = vm.envOr("TEST_SENDER", address(0));
         if (sender != address(0)) {
@@ -71,9 +65,8 @@ contract DeployAsyncRedeemer is Base, Script, SortedParams {
             vm.startBroadcast();
         }
 
-        deployedInstance = IHubPeripheryFactory(_hubPeriphery.hubPeripheryFactory).createRedeemer(
-            implemId, abi.encode(finalizationDelay, minRedeemAmount, whitelistStatus)
-        );
+        deployedInstance = IHubPeripheryFactory(vm.parseJsonAddress(deploymentOutputJson, ".HubPeripheryFactory"))
+            .createRedeemer(implemId, abi.encode(finalizationDelay, minRedeemAmount, whitelistStatus));
 
         vm.stopBroadcast();
 

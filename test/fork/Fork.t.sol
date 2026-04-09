@@ -3,7 +3,9 @@ pragma solidity 0.8.28;
 
 import {Test} from "forge-std/Test.sol";
 
-import {AccessManagerUpgradeable} from "@openzeppelin/contracts-upgradeable/access/manager/AccessManagerUpgradeable.sol";
+import {
+    AccessManagerUpgradeable
+} from "@openzeppelin/contracts-upgradeable/access/manager/AccessManagerUpgradeable.sol";
 
 import "@makina-core-test/base/Base.sol" as Core_Base;
 import {ChainsInfo} from "@makina-core-test/utils/ChainsInfo.sol";
@@ -69,8 +71,12 @@ abstract contract Fork_Test is Base, Test, Core_Base.Base {
 
         // read misc addresses from json
         flashloanProviders = FlashloanProviders({
-            balancerV2Pool: abi.decode(vm.parseJson(peripheryInputJson, ".flashloanProviders.balancerV2Pool"), (address)),
-            balancerV3Pool: abi.decode(vm.parseJson(peripheryInputJson, ".flashloanProviders.balancerV3Pool"), (address)),
+            balancerV2Pool: abi.decode(
+                vm.parseJson(peripheryInputJson, ".flashloanProviders.balancerV2Pool"), (address)
+            ),
+            balancerV3Pool: abi.decode(
+                vm.parseJson(peripheryInputJson, ".flashloanProviders.balancerV3Pool"), (address)
+            ),
             morphoPool: abi.decode(vm.parseJson(peripheryInputJson, ".flashloanProviders.morphoPool"), (address)),
             dssFlash: abi.decode(vm.parseJson(peripheryInputJson, ".flashloanProviders.dssFlash"), (address)),
             aaveV3AddressProvider: abi.decode(

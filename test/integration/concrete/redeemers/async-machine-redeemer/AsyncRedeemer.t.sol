@@ -8,8 +8,9 @@ import {IWhitelist} from "src/interfaces/IWhitelist.sol";
 
 import {AsyncRedeemer_Shared_Integration_Concrete_Test} from "./AsyncRedeemerShared.t.sol";
 import {RequestRedeem_Integration_Concrete_Test} from "./request-redeem/requestRedeem.t.sol";
-import {PreviewFinalizeRequests_Integration_Concrete_Test} from
-    "./preview-finalize-requests/previewFinalizeRequests.t.sol";
+import {
+    PreviewFinalizeRequests_Integration_Concrete_Test
+} from "./preview-finalize-requests/previewFinalizeRequests.t.sol";
 import {FinalizeRequests_Integration_Concrete_Test} from "./finalize-requests/finalizeRequests.t.sol";
 import {ClaimAssets_Integration_Concrete_Test} from "./claim-assets/claimAssets.t.sol";
 

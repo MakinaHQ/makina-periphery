@@ -6,19 +6,15 @@ import {stdJson} from "forge-std/StdJson.sol";
 
 import {IHubPeripheryFactory} from "../../src/interfaces/IHubPeripheryFactory.sol";
 
-import {SortedParams} from "./utils/SortedParams.sol";
-
 import {Base} from "../../test/base/Base.sol";
 
-contract DeployAsyncRedeemerFee is Base, Script, SortedParams {
+contract DeployAsyncRedeemerFee is Base, Script {
     using stdJson for string;
 
     string public deploymentOutputJson;
     string public implemIdsInputJson;
     string public inputJson;
     string public outputPath;
-
-    HubPeripherySorted private _hubPeriphery;
 
     uint256 public finalizationDelay;
     uint256 public minRedeemAmount;
@@ -58,8 +54,6 @@ contract DeployAsyncRedeemerFee is Base, Script, SortedParams {
     }
 
     function run() public {
-        _hubPeriphery = abi.decode(vm.parseJson(deploymentOutputJson), (HubPeripherySorted));
-
         uint16 implemId = abi.decode(vm.parseJson(implemIdsInputJson, ".asyncRedeemerFeeImplemId"), (uint16));
 
         finalizationDelay = abi.decode(vm.parseJson(inputJson, ".finalizationDelay"), (uint256));
@@ -75,9 +69,11 @@ contract DeployAsyncRedeemerFee is Base, Script, SortedParams {
             vm.startBroadcast();
         }
 
-        deployedInstance = IHubPeripheryFactory(_hubPeriphery.hubPeripheryFactory).createRedeemer(
-            implemId, abi.encode(finalizationDelay, minRedeemAmount, whitelistStatus, redeemFeeRate, maxRedeemFeeRate)
-        );
+        deployedInstance = IHubPeripheryFactory(vm.parseJsonAddress(deploymentOutputJson, ".HubPeripheryFactory"))
+            .createRedeemer(
+                implemId,
+                abi.encode(finalizationDelay, minRedeemAmount, whitelistStatus, redeemFeeRate, maxRedeemFeeRate)
+            );
 
         vm.stopBroadcast();
 

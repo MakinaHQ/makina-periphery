@@ -8,10 +8,12 @@ import {IAsyncRedeemerFee} from "src/interfaces/IAsyncRedeemerFee.sol";
 
 import {AsyncRedeemer_Shared_Integration_Concrete_Test} from "../async-machine-redeemer/AsyncRedeemerShared.t.sol";
 import {RequestRedeem_Integration_Concrete_Test} from "../async-machine-redeemer/request-redeem/requestRedeem.t.sol";
-import {PreviewFinalizeRequests_Integration_Concrete_Test} from
-    "../async-machine-redeemer/preview-finalize-requests/previewFinalizeRequests.t.sol";
-import {FinalizeRequests_Integration_Concrete_Test} from
-    "../async-machine-redeemer/finalize-requests/finalizeRequests.t.sol";
+import {
+    PreviewFinalizeRequests_Integration_Concrete_Test
+} from "../async-machine-redeemer/preview-finalize-requests/previewFinalizeRequests.t.sol";
+import {
+    FinalizeRequests_Integration_Concrete_Test
+} from "../async-machine-redeemer/finalize-requests/finalizeRequests.t.sol";
 import {ClaimAssets_Integration_Concrete_Test} from "../async-machine-redeemer/claim-assets/claimAssets.t.sol";
 
 abstract contract AsyncRedeemerFee_Integration_Concrete_Test is AsyncRedeemer_Shared_Integration_Concrete_Test {

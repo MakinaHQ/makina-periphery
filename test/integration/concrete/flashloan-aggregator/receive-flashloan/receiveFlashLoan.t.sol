@@ -2,8 +2,9 @@
 pragma solidity 0.8.28;
 
 import {IERC20 as BalancerIERC20} from "@balancer-v2-interfaces/solidity-utils/openzeppelin/IERC20.sol";
-import {IFlashLoanRecipient as BalancerV2FlashloanRecipient} from
-    "@balancer-v2-interfaces/vault/IFlashLoanRecipient.sol";
+import {
+    IFlashLoanRecipient as BalancerV2FlashloanRecipient
+} from "@balancer-v2-interfaces/vault/IFlashLoanRecipient.sol";
 
 import {ICaliber} from "@makina-core/interfaces/ICaliber.sol";
 

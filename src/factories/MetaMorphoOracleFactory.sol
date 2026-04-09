@@ -2,7 +2,9 @@
 pragma solidity 0.8.28;
 
 import {IERC4626} from "@openzeppelin/contracts/interfaces/IERC4626.sol";
-import {AccessManagedUpgradeable} from "@openzeppelin/contracts-upgradeable/access/manager/AccessManagedUpgradeable.sol";
+import {
+    AccessManagedUpgradeable
+} from "@openzeppelin/contracts-upgradeable/access/manager/AccessManagedUpgradeable.sol";
 
 import {ERC4626Oracle} from "../oracles/ERC4626Oracle.sol";
 import {IMetaMorphoFactory} from "../interfaces/IMetaMorphoFactory.sol";

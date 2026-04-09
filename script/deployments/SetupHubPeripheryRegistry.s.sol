@@ -4,11 +4,9 @@ pragma solidity 0.8.28;
 import {Script} from "forge-std/Script.sol";
 import {stdJson} from "forge-std/StdJson.sol";
 
-import {SortedParams} from "./utils/SortedParams.sol";
-
 import {Base} from "../../test/base/Base.sol";
 
-contract SetupHubPeripheryRegistry is Base, Script, SortedParams {
+contract SetupHubPeripheryRegistry is Base, Script {
     using stdJson for string;
 
     string public deploymentInputJson;
@@ -16,7 +14,6 @@ contract SetupHubPeripheryRegistry is Base, Script, SortedParams {
     string public inputJson;
 
     address private _accessManager;
-    HubPeripherySorted private _hubPeriphery;
 
     uint16[] private mdImplemIds;
     uint16[] private mrImplemIds;
@@ -52,24 +49,23 @@ contract SetupHubPeripheryRegistry is Base, Script, SortedParams {
 
     function run() public {
         _accessManager = abi.decode(vm.parseJson(deploymentInputJson, ".accessManager"), (address));
-        _hubPeriphery = abi.decode(vm.parseJson(deploymentOutputJson), (HubPeripherySorted));
 
         mdImplemIds = new uint16[](1);
         mdImplemIds[0] = abi.decode(vm.parseJson(inputJson, ".directDepositorImplemId"), (uint16));
         mdBeacons = new address[](1);
-        mdBeacons[0] = _hubPeriphery.directDepositorBeacon;
+        mdBeacons[0] = vm.parseJsonAddress(deploymentOutputJson, ".DirectDepositorBeacon");
 
         mrImplemIds = new uint16[](2);
         mrImplemIds[0] = abi.decode(vm.parseJson(inputJson, ".asyncRedeemerImplemId"), (uint16));
         mrImplemIds[1] = abi.decode(vm.parseJson(inputJson, ".asyncRedeemerFeeImplemId"), (uint16));
         mrBeacons = new address[](2);
-        mrBeacons[0] = _hubPeriphery.asyncRedeemerBeacon;
-        mrBeacons[1] = _hubPeriphery.asyncRedeemerFeeBeacon;
+        mrBeacons[0] = vm.parseJsonAddress(deploymentOutputJson, ".AsyncRedeemerBeacon");
+        mrBeacons[1] = vm.parseJsonAddress(deploymentOutputJson, ".AsyncRedeemerFeeBeacon");
 
         fmImplemIds = new uint16[](1);
         fmImplemIds[0] = abi.decode(vm.parseJson(inputJson, ".watermarkFeeManagerImplemId"), (uint16));
         fmBeacons = new address[](1);
-        fmBeacons[0] = _hubPeriphery.watermarkFeeManagerBeacon;
+        fmBeacons[0] = vm.parseJsonAddress(deploymentOutputJson, ".WatermarkFeeManagerBeacon");
 
         address sender = vm.envOr("TEST_SENDER", address(0));
         if (sender != address(0)) {
@@ -78,11 +74,17 @@ contract SetupHubPeripheryRegistry is Base, Script, SortedParams {
             vm.startBroadcast();
         }
 
-        registerHubPeripheryFactory(_hubPeriphery.hubPeripheryRegistry, _hubPeriphery.hubPeripheryFactory);
-        registerSecurityModuleBeacon(_hubPeriphery.hubPeripheryRegistry, _hubPeriphery.securityModuleBeacon);
-        registerDepositorBeacons(_hubPeriphery.hubPeripheryRegistry, mdImplemIds, mdBeacons);
-        registerRedeemerBeacons(_hubPeriphery.hubPeripheryRegistry, mrImplemIds, mrBeacons);
-        registerFeeManagerBeacons(_hubPeriphery.hubPeripheryRegistry, fmImplemIds, fmBeacons);
+        address hubPeripheryRegistry = vm.parseJsonAddress(deploymentOutputJson, ".HubPeripheryRegistry");
+
+        registerHubPeripheryFactory(
+            hubPeripheryRegistry, vm.parseJsonAddress(deploymentOutputJson, ".HubPeripheryFactory")
+        );
+        registerSecurityModuleBeacon(
+            hubPeripheryRegistry, vm.parseJsonAddress(deploymentOutputJson, ".SecurityModuleBeacon")
+        );
+        registerDepositorBeacons(hubPeripheryRegistry, mdImplemIds, mdBeacons);
+        registerRedeemerBeacons(hubPeripheryRegistry, mrImplemIds, mrBeacons);
+        registerFeeManagerBeacons(hubPeripheryRegistry, fmImplemIds, fmBeacons);
 
         vm.stopBroadcast();
     }

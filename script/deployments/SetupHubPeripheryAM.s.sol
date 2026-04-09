@@ -12,18 +12,15 @@ import {HubPeripheryRegistry} from "../../src/registries/HubPeripheryRegistry.so
 import {MachineShareOracleFactory} from "../../src/factories/MachineShareOracleFactory.sol";
 import {MetaMorphoOracleFactory} from "../../src/factories/MetaMorphoOracleFactory.sol";
 
-import {SortedParams} from "./utils/SortedParams.sol";
-
 import {Base} from "../../test/base/Base.sol";
 
-contract SetupHubPeripheryAM is Base, Script, SortedParams {
+contract SetupHubPeripheryAM is Base, Script {
     using stdJson for string;
 
     string public deploymentInputJson;
     string public deploymentOutputJson;
 
     address private _accessManager;
-    HubPeripherySorted private _hubPeriphery;
 
     constructor() {
         string memory deploymentInputFilename = vm.envString("HUB_PERIPHERY_INPUT_FILENAME");
@@ -44,7 +41,6 @@ contract SetupHubPeripheryAM is Base, Script, SortedParams {
 
     function run() public {
         _accessManager = abi.decode(vm.parseJson(deploymentInputJson, ".accessManager"), (address));
-        _hubPeriphery = abi.decode(vm.parseJson(deploymentOutputJson), (HubPeripherySorted));
 
         address sender = vm.envOr("TEST_SENDER", address(0));
         if (sender != address(0)) {
@@ -56,17 +52,39 @@ contract SetupHubPeripheryAM is Base, Script, SortedParams {
         setupHubPeripheryAMFunctionRoles(
             _accessManager,
             HubPeriphery({
-                flashloanAggregator: FlashloanAggregator(_hubPeriphery.flashloanAggregator),
-                hubPeripheryRegistry: HubPeripheryRegistry(_hubPeriphery.hubPeripheryRegistry),
-                hubPeripheryFactory: HubPeripheryFactory(_hubPeriphery.hubPeripheryFactory),
-                directDepositorBeacon: UpgradeableBeacon(_hubPeriphery.directDepositorBeacon),
-                asyncRedeemerBeacon: UpgradeableBeacon(_hubPeriphery.asyncRedeemerBeacon),
-                asyncRedeemerFeeBeacon: UpgradeableBeacon(_hubPeriphery.asyncRedeemerFeeBeacon),
-                watermarkFeeManagerBeacon: UpgradeableBeacon(_hubPeriphery.watermarkFeeManagerBeacon),
-                securityModuleBeacon: UpgradeableBeacon(_hubPeriphery.securityModuleBeacon),
-                metaMorphoOracleFactory: MetaMorphoOracleFactory(_hubPeriphery.metaMorphoOracleFactory),
-                machineShareOracleBeacon: UpgradeableBeacon(_hubPeriphery.machineShareOracleBeacon),
-                machineShareOracleFactory: MachineShareOracleFactory(_hubPeriphery.machineShareOracleFactory)
+                flashloanAggregator: FlashloanAggregator(
+                    vm.parseJsonAddress(deploymentOutputJson, ".FlashloanAggregator")
+                ),
+                hubPeripheryRegistry: HubPeripheryRegistry(
+                    vm.parseJsonAddress(deploymentOutputJson, ".HubPeripheryRegistry")
+                ),
+                hubPeripheryFactory: HubPeripheryFactory(
+                    vm.parseJsonAddress(deploymentOutputJson, ".HubPeripheryFactory")
+                ),
+                directDepositorBeacon: UpgradeableBeacon(
+                    vm.parseJsonAddress(deploymentOutputJson, ".DirectDepositorBeacon")
+                ),
+                asyncRedeemerBeacon: UpgradeableBeacon(
+                    vm.parseJsonAddress(deploymentOutputJson, ".AsyncRedeemerBeacon")
+                ),
+                asyncRedeemerFeeBeacon: UpgradeableBeacon(
+                    vm.parseJsonAddress(deploymentOutputJson, ".AsyncRedeemerFeeBeacon")
+                ),
+                watermarkFeeManagerBeacon: UpgradeableBeacon(
+                    vm.parseJsonAddress(deploymentOutputJson, ".WatermarkFeeManagerBeacon")
+                ),
+                securityModuleBeacon: UpgradeableBeacon(
+                    vm.parseJsonAddress(deploymentOutputJson, ".SecurityModuleBeacon")
+                ),
+                metaMorphoOracleFactory: MetaMorphoOracleFactory(
+                    vm.parseJsonAddress(deploymentOutputJson, ".MetaMorphoOracleFactory")
+                ),
+                machineShareOracleBeacon: UpgradeableBeacon(
+                    vm.parseJsonAddress(deploymentOutputJson, ".MachineShareOracleBeacon")
+                ),
+                machineShareOracleFactory: MachineShareOracleFactory(
+                    vm.parseJsonAddress(deploymentOutputJson, ".MachineShareOracleFactory")
+                )
             })
         );
 

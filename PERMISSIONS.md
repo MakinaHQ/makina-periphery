@@ -32,27 +32,22 @@ This is the list of role permissions in Makina Periphery contracts. These roles 
 ### AsyncRedeemManager
 
 - **Mechanic**
-
   - Can finalize redemption requests, provided that the requests have reached their finalisation delay and that the machine is not in recovery mode.
 
 - **Risk Manager**
-
   - Can activate and deactivate whitelist.
   - Can add or remove users from the whitelist.
 
 - **Risk Manager Timelock**
-
   - Can set the request finalisation delay.
   - Can set the redeem fee rate, up to the max allowed value.
 
   ### AsyncRedeemManagerFee
 
 - **Mechanic**
-
   - Can finalize redemption requests, provided that the requests have reached their finalisation delay and that the machine is not in recovery mode.
 
 - **Risk Manager**
-
   - Can activate and deactivate whitelist.
   - Can add or remove users from the whitelist.
 
@@ -69,7 +64,6 @@ This is the list of role permissions in Makina Periphery contracts. These roles 
 ### SecurityModule
 
 - **Security Council**
-
   - Can slash locked machine shares up to the maximum slashable amount.
   - Can re-enable locking after a slashing event.
 

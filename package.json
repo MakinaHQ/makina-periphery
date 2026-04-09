@@ -6,7 +6,7 @@
   "author": "MakinaHQ",
   "license": "SEE LICENSE IN LICENSE",
   "devDependencies": {
-    "prettier": "3.3.3",
+    "prettier": "3.8.1",
     "solhint": "5.0.5"
   },
   "scripts": {

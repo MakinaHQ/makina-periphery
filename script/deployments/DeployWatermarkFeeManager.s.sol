@@ -7,19 +7,15 @@ import {stdJson} from "forge-std/StdJson.sol";
 import {IHubPeripheryFactory} from "../../src/interfaces/IHubPeripheryFactory.sol";
 import {IWatermarkFeeManager} from "../../src/interfaces/IWatermarkFeeManager.sol";
 
-import {SortedParams} from "./utils/SortedParams.sol";
-
 import {Base} from "../../test/base/Base.sol";
 
-contract DeployWatermarkFeeManager is Base, Script, SortedParams {
+contract DeployWatermarkFeeManager is Base, Script {
     using stdJson for string;
 
     string public deploymentOutputJson;
     string public implemIdsInputJson;
     string public inputJson;
     string public outputPath;
-
-    HubPeripherySorted private _hubPeriphery;
 
     uint256 public finalizationDelay;
     bool public whitelistStatus;
@@ -56,14 +52,14 @@ contract DeployWatermarkFeeManager is Base, Script, SortedParams {
     }
 
     function run() public {
-        _hubPeriphery = abi.decode(vm.parseJson(deploymentOutputJson), (HubPeripherySorted));
-
         uint16 implemId = abi.decode(vm.parseJson(implemIdsInputJson, ".watermarkFeeManagerImplemId"), (uint16));
 
-        WatermarkFeeManagerInitParamsSorted memory initParams =
-            abi.decode(vm.parseJson(inputJson, ".watermarkFeeManagerInitParams"), (WatermarkFeeManagerInitParamsSorted));
+        IWatermarkFeeManager.WatermarkFeeManagerInitParams memory initParams = abi.decode(
+            vm.parseJson(inputJson, ".watermarkFeeManagerInitParams"),
+            (IWatermarkFeeManager.WatermarkFeeManagerInitParams)
+        );
 
-        address securityModule = abi.decode(vm.parseJson(inputJson, ".securityModule"), (address));
+        address securityModule = vm.parseJsonAddress(inputJson, ".securityModule");
 
         address sender = vm.envOr("TEST_SENDER", address(0));
         if (sender != address(0)) {
@@ -72,22 +68,11 @@ contract DeployWatermarkFeeManager is Base, Script, SortedParams {
             vm.startBroadcast();
         }
 
-        deployedInstance = IHubPeripheryFactory(_hubPeriphery.hubPeripheryFactory).createFeeManager(
-            implemId,
-            abi.encode(
-                IWatermarkFeeManager.WatermarkFeeManagerInitParams({
-                    initialMgmtFeeRatePerSecond: initParams.initialMgmtFeeRatePerSecond,
-                    initialSmFeeRatePerSecond: initParams.initialSmFeeRatePerSecond,
-                    initialPerfFeeRate: initParams.initialPerfFeeRate,
-                    initialMgmtFeeSplitBps: initParams.initialMgmtFeeSplitBps,
-                    initialMgmtFeeReceivers: initParams.initialMgmtFeeReceivers,
-                    initialPerfFeeSplitBps: initParams.initialPerfFeeSplitBps,
-                    initialPerfFeeReceivers: initParams.initialPerfFeeReceivers
-                })
-            )
-        );
+        address hubPeripheryFactory = vm.parseJsonAddress(deploymentOutputJson, ".HubPeripheryFactory");
+
+        deployedInstance = IHubPeripheryFactory(hubPeripheryFactory).createFeeManager(implemId, abi.encode(initParams));
         if (securityModule != address(0)) {
-            IHubPeripheryFactory(_hubPeriphery.hubPeripheryFactory).setSecurityModule(deployedInstance, securityModule);
+            IHubPeripheryFactory(hubPeripheryFactory).setSecurityModule(deployedInstance, securityModule);
         }
 
         vm.stopBroadcast();

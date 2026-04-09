@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.28;
 
+// solhint-disable-next-line no-unused-import
 import {Errors as CoreErrors} from "@makina-core/libraries/Errors.sol";
 
 library Errors {

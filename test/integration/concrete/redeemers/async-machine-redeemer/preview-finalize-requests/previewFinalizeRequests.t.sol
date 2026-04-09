@@ -8,9 +8,7 @@ import {Errors} from "src/libraries/Errors.sol";
 
 import {AsyncRedeemer_Shared_Integration_Concrete_Test} from "../AsyncRedeemerShared.t.sol";
 
-abstract contract PreviewFinalizeRequests_Integration_Concrete_Test is
-    AsyncRedeemer_Shared_Integration_Concrete_Test
-{
+abstract contract PreviewFinalizeRequests_Integration_Concrete_Test is AsyncRedeemer_Shared_Integration_Concrete_Test {
     function setUp() public virtual override {
         vm.prank(dao);
         hubPeripheryFactory.setMachine(address(asyncRedeemer), address(machine));

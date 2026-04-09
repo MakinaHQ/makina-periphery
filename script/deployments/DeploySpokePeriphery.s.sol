@@ -13,7 +13,7 @@ contract DeploySpokePeriphery is DeployPeriphery {
     using stdJson for string;
 
     address internal spokeCoreRegistry;
-    FlashloanProvidersSorted internal flProviders;
+    FlashloanProviders internal flProviders;
 
     FlashloanAggregator private deployedInstance;
 
@@ -39,7 +39,7 @@ contract DeploySpokePeriphery is DeployPeriphery {
 
     function _deploySetupBefore() public override {
         spokeCoreRegistry = abi.decode(vm.parseJson(inputJson, ".spokeCoreRegistry"), (address));
-        flProviders = abi.decode(vm.parseJson(inputJson, ".flashloanProviders"), (FlashloanProvidersSorted));
+        flProviders = abi.decode(vm.parseJson(inputJson, ".flashloanProviders"), (FlashloanProviders));
 
         // start broadcasting transactions
         vm.startBroadcast();
@@ -49,17 +49,7 @@ contract DeploySpokePeriphery is DeployPeriphery {
 
     function _coreSetup() public override {
         address caliberFactory = ICoreRegistry(spokeCoreRegistry).coreFactory();
-        deployedInstance = deployFlashloanAggregator(
-            caliberFactory,
-            FlashloanProviders({
-                balancerV2Pool: flProviders.balancerV2Pool,
-                balancerV3Pool: flProviders.balancerV3Pool,
-                morphoPool: flProviders.morphoPool,
-                dssFlash: flProviders.dssFlash,
-                aaveV3AddressProvider: flProviders.aaveV3AddressProvider,
-                dai: flProviders.dai
-            })
-        );
+        deployedInstance = deployFlashloanAggregator(caliberFactory, flProviders);
     }
 
     function _deploySetupAfter() public override {

@@ -6,8 +6,8 @@
   "author": "MakinaHQ",
   "license": "SEE LICENSE IN LICENSE",
   "devDependencies": {
-    "prettier": "3.3.3",
-    "solhint": "5.0.5"
+    "prettier": "3.8.1",
+    "solhint": "6.2.1"
   },
   "scripts": {
     "lint": "yarn lint:sol && yarn prettier:check",

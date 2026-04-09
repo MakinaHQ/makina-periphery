@@ -32,8 +32,9 @@ contract GetSharePrice_Integration_Concrete_Test is MachineShareOracle_Integrati
 
     function test_GetSharePrice_PDVNotMigrated_UnderlyingDecimals_EmptyVault() public {
         vm.prank(dao);
-        machineShareOracle =
-            MachineShareOracle(machineShareOracleFactory.createMachineShareOracle(address(preDepositVault), atDecimals));
+        machineShareOracle = MachineShareOracle(
+            machineShareOracleFactory.createMachineShareOracle(address(preDepositVault), atDecimals)
+        );
 
         uint256 vaultSharePrice = preDepositVault.previewRedeem(DecimalsUtils.SHARE_TOKEN_UNIT);
         uint256 oracleSharePrice = machineShareOracle.getSharePrice();
@@ -42,8 +43,9 @@ contract GetSharePrice_Integration_Concrete_Test is MachineShareOracle_Integrati
 
     function test_GetSharePrice_PDVNotMigrated_UnderlyingDecimals_NonEmptyVault() public withLiquidity {
         vm.prank(dao);
-        machineShareOracle =
-            MachineShareOracle(machineShareOracleFactory.createMachineShareOracle(address(preDepositVault), atDecimals));
+        machineShareOracle = MachineShareOracle(
+            machineShareOracleFactory.createMachineShareOracle(address(preDepositVault), atDecimals)
+        );
 
         uint256 vaultSharePrice = preDepositVault.previewRedeem(DecimalsUtils.SHARE_TOKEN_UNIT);
         uint256 oracleSharePrice = machineShareOracle.getSharePrice();
@@ -74,8 +76,9 @@ contract GetSharePrice_Integration_Concrete_Test is MachineShareOracle_Integrati
 
     function test_GetSharePrice_PDVMigrated_UnderlyingDecimals_EmptyVault() public {
         vm.prank(dao);
-        machineShareOracle =
-            MachineShareOracle(machineShareOracleFactory.createMachineShareOracle(address(preDepositVault), atDecimals));
+        machineShareOracle = MachineShareOracle(
+            machineShareOracleFactory.createMachineShareOracle(address(preDepositVault), atDecimals)
+        );
 
         (machine,) =
             _deployMachineFromPreDeposit(address(preDepositVault), address(this), address(this), address(feeManager));
@@ -93,8 +96,9 @@ contract GetSharePrice_Integration_Concrete_Test is MachineShareOracle_Integrati
 
     function test_GetSharePrice_PDVMigrated_UnderlyingDecimals_NonEmptyVault() public withLiquidity {
         vm.prank(dao);
-        machineShareOracle =
-            MachineShareOracle(machineShareOracleFactory.createMachineShareOracle(address(preDepositVault), atDecimals));
+        machineShareOracle = MachineShareOracle(
+            machineShareOracleFactory.createMachineShareOracle(address(preDepositVault), atDecimals)
+        );
 
         (machine,) =
             _deployMachineFromPreDeposit(address(preDepositVault), address(this), address(this), address(feeManager));

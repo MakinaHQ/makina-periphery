@@ -56,9 +56,7 @@ interface IHubPeripheryFactory {
     /// @param implemId The ID of the fee manager implementation to be used.
     /// @param initializationData Additional initialization data.
     /// @return feeManager The address of the newly created fee manager.
-    function createFeeManager(uint16 implemId, bytes calldata initializationData)
-        external
-        returns (address feeManager);
+    function createFeeManager(uint16 implemId, bytes calldata initializationData) external returns (address feeManager);
 
     /// @notice Creates a new security module.
     /// @param smParams The security module initialization parameters.

@@ -24,9 +24,7 @@ abstract contract MachineShareOracleFactory_Unit_Concrete_Test is Unit_Concrete_
     }
 }
 
-contract Getters_Setters_MachineShareOracleFactory_Unit_Concrete_Test is
-    MachineShareOracleFactory_Unit_Concrete_Test
-{
+contract Getters_Setters_MachineShareOracleFactory_Unit_Concrete_Test is MachineShareOracleFactory_Unit_Concrete_Test {
     function test_Getters() public view {
         assertEq(machineShareOracleFactory.authority(), address(accessManager));
         assertEq(machineShareOracleFactory.machineShareOracleBeacon(), address(machineShareOracleBeacon));

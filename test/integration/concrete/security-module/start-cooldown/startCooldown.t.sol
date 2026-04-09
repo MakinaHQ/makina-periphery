@@ -140,7 +140,7 @@ contract StartCooldown_Integration_Concrete_Test is SecurityModule_Integration_C
         assertEq(expectedCooldownId, 2);
 
         // User3 restarts cooldown with different amount
-        securitySharesToRedeem--;
+        --securitySharesToRedeem;
         uint256 expectedCDMaturity = block.timestamp + securityModule.cooldownDuration();
         uint256 expectedAssets = securityModule.convertToAssets(securitySharesToRedeem);
         vm.expectEmit(true, true, true, true, address(securityModule));

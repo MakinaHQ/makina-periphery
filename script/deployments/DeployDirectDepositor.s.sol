@@ -6,19 +6,15 @@ import {stdJson} from "forge-std/StdJson.sol";
 
 import {IHubPeripheryFactory} from "../../src/interfaces/IHubPeripheryFactory.sol";
 
-import {SortedParams} from "./utils/SortedParams.sol";
-
 import {Base} from "../../test/base/Base.sol";
 
-contract DeployDirectDepositor is Base, Script, SortedParams {
+contract DeployDirectDepositor is Base, Script {
     using stdJson for string;
 
     string public deploymentOutputJson;
     string public implemIdsInputJson;
     string public inputJson;
     string public outputPath;
-
-    HubPeripherySorted private _hubPeriphery;
 
     bool public whitelistStatus;
 
@@ -54,8 +50,6 @@ contract DeployDirectDepositor is Base, Script, SortedParams {
     }
 
     function run() public {
-        _hubPeriphery = abi.decode(vm.parseJson(deploymentOutputJson), (HubPeripherySorted));
-
         uint16 implemId = abi.decode(vm.parseJson(implemIdsInputJson, ".directDepositorImplemId"), (uint16));
 
         whitelistStatus = abi.decode(vm.parseJson(inputJson, ".whitelistStatus"), (bool));
@@ -67,9 +61,8 @@ contract DeployDirectDepositor is Base, Script, SortedParams {
             vm.startBroadcast();
         }
 
-        deployedInstance = IHubPeripheryFactory(_hubPeriphery.hubPeripheryFactory).createDepositor(
-            implemId, abi.encode(whitelistStatus)
-        );
+        deployedInstance = IHubPeripheryFactory(vm.parseJsonAddress(deploymentOutputJson, ".HubPeripheryFactory"))
+            .createDepositor(implemId, abi.encode(whitelistStatus));
 
         vm.stopBroadcast();
 

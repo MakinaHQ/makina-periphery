@@ -37,10 +37,7 @@ abstract contract AsyncRedeemer_Util_Concrete_Test is MachinePeriphery_Util_Conc
     }
 }
 
-contract Whitelist_AsyncRedeemer_Util_Concrete_Test is
-    Whitelist_Unit_Concrete_Test,
-    AsyncRedeemer_Util_Concrete_Test
-{
+contract Whitelist_AsyncRedeemer_Util_Concrete_Test is Whitelist_Unit_Concrete_Test, AsyncRedeemer_Util_Concrete_Test {
     function setUp() public override(Whitelist_Unit_Concrete_Test, AsyncRedeemer_Util_Concrete_Test) {
         AsyncRedeemer_Util_Concrete_Test.setUp();
         whitelist = IWhitelist(address(asyncRedeemer));

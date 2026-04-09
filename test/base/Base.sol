@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.28;
 
-import {Vm} from "forge-std/Vm.sol";
-
 import {IAccessManager} from "@openzeppelin/contracts/access/manager/IAccessManager.sol";
 import {ProxyAdmin} from "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
 import {TransparentUpgradeableProxy} from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
@@ -223,37 +221,44 @@ abstract contract Base is ProxyUtils {
         // Transparent Proxy Admins
         bytes4[] memory proxyAdminSelectors = new bytes4[](1);
         proxyAdminSelectors[0] = ProxyAdmin.upgradeAndCall.selector;
-        IAccessManager(accessManager).setTargetFunctionRole(
-            getProxyAdmin(address(deployment.hubPeripheryRegistry)), proxyAdminSelectors, Roles.INFRA_UPGRADE_ROLE
-        );
-        IAccessManager(accessManager).setTargetFunctionRole(
-            getProxyAdmin(address(deployment.hubPeripheryFactory)), proxyAdminSelectors, Roles.INFRA_UPGRADE_ROLE
-        );
-        IAccessManager(accessManager).setTargetFunctionRole(
-            getProxyAdmin(address(deployment.metaMorphoOracleFactory)), proxyAdminSelectors, Roles.INFRA_UPGRADE_ROLE
-        );
-        IAccessManager(accessManager).setTargetFunctionRole(
-            getProxyAdmin(address(deployment.machineShareOracleFactory)), proxyAdminSelectors, Roles.INFRA_UPGRADE_ROLE
-        );
+        IAccessManager(accessManager)
+            .setTargetFunctionRole(
+                getProxyAdmin(address(deployment.hubPeripheryRegistry)), proxyAdminSelectors, Roles.INFRA_UPGRADE_ROLE
+            );
+        IAccessManager(accessManager)
+            .setTargetFunctionRole(
+                getProxyAdmin(address(deployment.hubPeripheryFactory)), proxyAdminSelectors, Roles.INFRA_UPGRADE_ROLE
+            );
+        IAccessManager(accessManager)
+            .setTargetFunctionRole(
+                getProxyAdmin(address(deployment.metaMorphoOracleFactory)),
+                proxyAdminSelectors,
+                Roles.INFRA_UPGRADE_ROLE
+            );
+        IAccessManager(accessManager)
+            .setTargetFunctionRole(
+                getProxyAdmin(address(deployment.machineShareOracleFactory)),
+                proxyAdminSelectors,
+                Roles.INFRA_UPGRADE_ROLE
+            );
 
         // Upgradeable Beacons
         bytes4[] memory beaconSelectors = new bytes4[](1);
         beaconSelectors[0] = UpgradeableBeacon.upgradeTo.selector;
-        IAccessManager(accessManager).setTargetFunctionRole(
-            address(deployment.directDepositorBeacon), beaconSelectors, Roles.INFRA_UPGRADE_ROLE
-        );
-        IAccessManager(accessManager).setTargetFunctionRole(
-            address(deployment.asyncRedeemerBeacon), beaconSelectors, Roles.INFRA_UPGRADE_ROLE
-        );
-        IAccessManager(accessManager).setTargetFunctionRole(
-            address(deployment.watermarkFeeManagerBeacon), beaconSelectors, Roles.INFRA_UPGRADE_ROLE
-        );
-        IAccessManager(accessManager).setTargetFunctionRole(
-            address(deployment.securityModuleBeacon), beaconSelectors, Roles.INFRA_UPGRADE_ROLE
-        );
-        IAccessManager(accessManager).setTargetFunctionRole(
-            address(deployment.machineShareOracleBeacon), beaconSelectors, Roles.INFRA_UPGRADE_ROLE
-        );
+        IAccessManager(accessManager)
+            .setTargetFunctionRole(address(deployment.directDepositorBeacon), beaconSelectors, Roles.INFRA_UPGRADE_ROLE);
+        IAccessManager(accessManager)
+            .setTargetFunctionRole(address(deployment.asyncRedeemerBeacon), beaconSelectors, Roles.INFRA_UPGRADE_ROLE);
+        IAccessManager(accessManager)
+            .setTargetFunctionRole(
+                address(deployment.watermarkFeeManagerBeacon), beaconSelectors, Roles.INFRA_UPGRADE_ROLE
+            );
+        IAccessManager(accessManager)
+            .setTargetFunctionRole(address(deployment.securityModuleBeacon), beaconSelectors, Roles.INFRA_UPGRADE_ROLE);
+        IAccessManager(accessManager)
+            .setTargetFunctionRole(
+                address(deployment.machineShareOracleBeacon), beaconSelectors, Roles.INFRA_UPGRADE_ROLE
+            );
 
         // HubPeripheryRegistry
         bytes4[] memory hubPeripheryRegistrySelectors = new bytes4[](10);
@@ -262,9 +267,10 @@ abstract contract Base is ProxyUtils {
         hubPeripheryRegistrySelectors[2] = IHubPeripheryRegistry.setRedeemerBeacon.selector;
         hubPeripheryRegistrySelectors[3] = IHubPeripheryRegistry.setFeeManagerBeacon.selector;
         hubPeripheryRegistrySelectors[4] = IHubPeripheryRegistry.setSecurityModuleBeacon.selector;
-        IAccessManager(accessManager).setTargetFunctionRole(
-            address(deployment.hubPeripheryRegistry), hubPeripheryRegistrySelectors, Roles.INFRA_UPGRADE_ROLE
-        );
+        IAccessManager(accessManager)
+            .setTargetFunctionRole(
+                address(deployment.hubPeripheryRegistry), hubPeripheryRegistrySelectors, Roles.INFRA_UPGRADE_ROLE
+            );
 
         // HubPeripheryFactory
         bytes4[] memory hubPeripheryFactorySelectors = new bytes4[](6);
@@ -274,27 +280,35 @@ abstract contract Base is ProxyUtils {
         hubPeripheryFactorySelectors[3] = HubPeripheryFactory.createRedeemer.selector;
         hubPeripheryFactorySelectors[4] = HubPeripheryFactory.createFeeManager.selector;
         hubPeripheryFactorySelectors[5] = HubPeripheryFactory.createSecurityModule.selector;
-        IAccessManager(accessManager).setTargetFunctionRole(
-            address(deployment.hubPeripheryFactory), hubPeripheryFactorySelectors, Roles.STRATEGY_DEPLOYMENT_ROLE
-        );
+        IAccessManager(accessManager)
+            .setTargetFunctionRole(
+                address(deployment.hubPeripheryFactory), hubPeripheryFactorySelectors, Roles.STRATEGY_DEPLOYMENT_ROLE
+            );
 
         // MetaMorphoOracleFactory
         bytes4[] memory metaMorphoOracleFactorySelectors = new bytes4[](2);
         metaMorphoOracleFactorySelectors[0] = MetaMorphoOracleFactory.setMorphoFactory.selector;
         metaMorphoOracleFactorySelectors[1] = MetaMorphoOracleFactory.createMetaMorphoOracle.selector;
-        IAccessManager(accessManager).setTargetFunctionRole(
-            address(deployment.metaMorphoOracleFactory), metaMorphoOracleFactorySelectors, Roles.INFRA_CONFIG_ROLE
-        );
+        IAccessManager(accessManager)
+            .setTargetFunctionRole(
+                address(deployment.metaMorphoOracleFactory), metaMorphoOracleFactorySelectors, Roles.INFRA_CONFIG_ROLE
+            );
 
         // MachineShareOracleFactory
         bytes4[] memory machineShareOracleFactorySelectors = new bytes4[](1);
         machineShareOracleFactorySelectors[0] = MachineShareOracleFactory.setMachineShareOracleBeacon.selector;
-        IAccessManager(accessManager).setTargetFunctionRole(
-            address(deployment.machineShareOracleFactory), machineShareOracleFactorySelectors, Roles.INFRA_UPGRADE_ROLE
-        );
+        IAccessManager(accessManager)
+            .setTargetFunctionRole(
+                address(deployment.machineShareOracleFactory),
+                machineShareOracleFactorySelectors,
+                Roles.INFRA_UPGRADE_ROLE
+            );
         machineShareOracleFactorySelectors[0] = MachineShareOracleFactory.createMachineShareOracle.selector;
-        IAccessManager(accessManager).setTargetFunctionRole(
-            address(deployment.machineShareOracleFactory), machineShareOracleFactorySelectors, Roles.INFRA_CONFIG_ROLE
-        );
+        IAccessManager(accessManager)
+            .setTargetFunctionRole(
+                address(deployment.machineShareOracleFactory),
+                machineShareOracleFactorySelectors,
+                Roles.INFRA_CONFIG_ROLE
+            );
     }
 }

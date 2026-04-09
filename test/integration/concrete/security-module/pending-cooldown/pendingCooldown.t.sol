@@ -158,7 +158,7 @@ contract PendingCooldown_Integration_Concrete_Test is SecurityModule_Integration
         securityModule.cancelCooldown(cooldownId1);
 
         // User3 restarts cooldown with different amount
-        securitySharesToRedeem--;
+        --securitySharesToRedeem;
         (uint256 cooldownId2, uint256 maxAssets2, uint256 maturity2) =
             securityModule.startCooldown(securitySharesToRedeem, user3);
 

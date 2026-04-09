@@ -200,10 +200,10 @@ contract GetSharePrice_Integration_Fuzz_Test is Base_Hub_Test {
 
     function _checkSharePrice_PDV(Data memory data) internal view {
         uint256 vaultSharePrice = preDepositVault.previewRedeem(DecimalsUtils.SHARE_TOKEN_UNIT);
-        uint256 adjustedVaultSharePrice = (
-            vaultSharePrice * oracleRegistry.getPrice(address(depositToken), address(accountingToken))
-                / (10 ** data.dDecimals)
-        ) * (10 ** (data.oDecimals - data.aDecimals));
+        uint256 adjustedVaultSharePrice =
+            (vaultSharePrice
+                    * oracleRegistry.getPrice(address(depositToken), address(accountingToken))
+                    / (10 ** data.dDecimals)) * (10 ** (data.oDecimals - data.aDecimals));
 
         uint256 oracleSharePrice = machineShareOracle.getSharePrice();
 

@@ -62,13 +62,11 @@ contract Deploy_Scripts_Test is Base_Test {
         deployHubPeriphery = new DeployHubPeriphery();
         deploySpokePeriphery = new DeploySpokePeriphery();
 
-        address hubCoreRegistry =
-            abi.decode(vm.parseJson(deployHubPeriphery.inputJson(), ".hubCoreRegistry"), (address));
+        address hubCoreRegistry = vm.parseJsonAddress(deployHubPeriphery.inputJson(), ".hubCoreRegistry");
         assertTrue(hubCoreRegistry != address(0));
 
-        address aaveV3AddressProvider = abi.decode(
-            vm.parseJson(deploySpokePeriphery.inputJson(), ".flashloanProviders.aaveV3AddressProvider"), (address)
-        );
+        address aaveV3AddressProvider =
+            vm.parseJsonAddress(deploySpokePeriphery.inputJson(), ".flashloanProviders.aaveV3AddressProvider");
         assertTrue(aaveV3AddressProvider != address(0));
     }
 
@@ -90,7 +88,7 @@ contract Deploy_Scripts_Test is Base_Test {
 
         // Check that FlashloanAggregator is correctly set up
         FlashloanProviders memory flProviders =
-            abi.decode(vm.parseJson(deployHubPeriphery.inputJson(), ".flashloanProviders"), (FlashloanProviders));
+            parseFlashloanProviders(deployHubPeriphery.inputJson(), ".flashloanProviders");
         assertEq(address(hubPeripheryDeployment.flashloanAggregator.balancerV2Pool()), flProviders.balancerV2Pool);
         assertEq(address(hubPeripheryDeployment.flashloanAggregator.balancerV3Pool()), flProviders.balancerV3Pool);
         assertEq(address(hubPeripheryDeployment.flashloanAggregator.morphoPool()), flProviders.morphoPool);
@@ -114,25 +112,21 @@ contract Deploy_Scripts_Test is Base_Test {
             address(hubPeripheryDeployment.directDepositorBeacon),
             hubPeripheryDeployment.hubPeripheryRegistry
                 .depositorBeacon(
-                    abi.decode(
-                        vm.parseJson(setupHubPeripheryRegistry.inputJson(), ".directDepositorImplemId"), (uint16)
-                    )
+                    uint16(vm.parseJsonUint(setupHubPeripheryRegistry.inputJson(), ".directDepositorImplemId"))
                 )
         );
         assertEq(
             address(hubPeripheryDeployment.asyncRedeemerBeacon),
             hubPeripheryDeployment.hubPeripheryRegistry
                 .redeemerBeacon(
-                    abi.decode(vm.parseJson(setupHubPeripheryRegistry.inputJson(), ".asyncRedeemerImplemId"), (uint16))
+                    uint16(vm.parseJsonUint(setupHubPeripheryRegistry.inputJson(), ".asyncRedeemerImplemId"))
                 )
         );
         assertEq(
             address(hubPeripheryDeployment.watermarkFeeManagerBeacon),
             hubPeripheryDeployment.hubPeripheryRegistry
                 .feeManagerBeacon(
-                    abi.decode(
-                        vm.parseJson(setupHubPeripheryRegistry.inputJson(), ".watermarkFeeManagerImplemId"), (uint16)
-                    )
+                    uint16(vm.parseJsonUint(setupHubPeripheryRegistry.inputJson(), ".watermarkFeeManagerImplemId"))
                 )
         );
     }
@@ -148,7 +142,7 @@ contract Deploy_Scripts_Test is Base_Test {
 
         // Check that FlashloanAggregator is correctly set up
         FlashloanProviders memory flProviders =
-            abi.decode(vm.parseJson(deploySpokePeriphery.inputJson(), ".flashloanProviders"), (FlashloanProviders));
+            parseFlashloanProviders(deploySpokePeriphery.inputJson(), ".flashloanProviders");
         assertEq(address(deployment.balancerV2Pool()), flProviders.balancerV2Pool);
         assertEq(address(deployment.balancerV3Pool()), flProviders.balancerV3Pool);
         assertEq(address(deployment.morphoPool()), flProviders.morphoPool);
@@ -168,21 +162,18 @@ contract Deploy_Scripts_Test is Base_Test {
 
         SecurityModule securityModule = SecurityModule(deploySecurityModule.deployedInstance());
         assertTrue(hubPeripheryDeployment.hubPeripheryFactory.isSecurityModule(address(securityModule)));
-        assertEq(
-            securityModule.machineShare(),
-            abi.decode(vm.parseJson(deploySecurityModule.inputJson(), ".machineShare"), (address))
-        );
+        assertEq(securityModule.machineShare(), vm.parseJsonAddress(deploySecurityModule.inputJson(), ".machineShare"));
         assertEq(
             securityModule.cooldownDuration(),
-            abi.decode(vm.parseJson(deploySecurityModule.inputJson(), ".initialCooldownDuration"), (uint256))
+            vm.parseJsonUint(deploySecurityModule.inputJson(), ".initialCooldownDuration")
         );
         assertEq(
             securityModule.maxSlashableBps(),
-            abi.decode(vm.parseJson(deploySecurityModule.inputJson(), ".initialMaxSlashableBps"), (uint256))
+            vm.parseJsonUint(deploySecurityModule.inputJson(), ".initialMaxSlashableBps")
         );
         assertEq(
             securityModule.minBalanceAfterSlash(),
-            abi.decode(vm.parseJson(deploySecurityModule.inputJson(), ".initialMinBalanceAfterSlash"), (uint256))
+            vm.parseJsonUint(deploySecurityModule.inputJson(), ".initialMinBalanceAfterSlash")
         );
     }
 
@@ -199,7 +190,7 @@ contract Deploy_Scripts_Test is Base_Test {
         assertTrue(hubPeripheryDeployment.hubPeripheryFactory.isDepositor(address(directDepositor)));
         assertEq(
             directDepositor.isWhitelistEnabled(),
-            abi.decode(vm.parseJson(deployDirectDepositor.inputJson(), ".whitelistStatus"), (bool))
+            vm.parseJsonBool(deployDirectDepositor.inputJson(), ".whitelistStatus")
         );
     }
 
@@ -215,16 +206,11 @@ contract Deploy_Scripts_Test is Base_Test {
         AsyncRedeemer asyncRedeemer = AsyncRedeemer(deployAsyncRedeemer.deployedInstance());
         assertTrue(hubPeripheryDeployment.hubPeripheryFactory.isRedeemer(address(asyncRedeemer)));
         assertEq(
-            asyncRedeemer.finalizationDelay(),
-            abi.decode(vm.parseJson(deployAsyncRedeemer.inputJson(), ".finalizationDelay"), (uint256))
+            asyncRedeemer.finalizationDelay(), vm.parseJsonUint(deployAsyncRedeemer.inputJson(), ".finalizationDelay")
         );
+        assertEq(asyncRedeemer.minRedeemAmount(), vm.parseJsonUint(deployAsyncRedeemer.inputJson(), ".minRedeemAmount"));
         assertEq(
-            asyncRedeemer.minRedeemAmount(),
-            abi.decode(vm.parseJson(deployAsyncRedeemer.inputJson(), ".minRedeemAmount"), (uint256))
-        );
-        assertEq(
-            asyncRedeemer.isWhitelistEnabled(),
-            abi.decode(vm.parseJson(deployAsyncRedeemer.inputJson(), ".whitelistStatus"), (bool))
+            asyncRedeemer.isWhitelistEnabled(), vm.parseJsonBool(deployAsyncRedeemer.inputJson(), ".whitelistStatus")
         );
     }
 
@@ -241,23 +227,21 @@ contract Deploy_Scripts_Test is Base_Test {
         assertTrue(hubPeripheryDeployment.hubPeripheryFactory.isRedeemer(address(asyncRedeemerFee)));
         assertEq(
             asyncRedeemerFee.finalizationDelay(),
-            abi.decode(vm.parseJson(deployAsyncRedeemerFee.inputJson(), ".finalizationDelay"), (uint256))
+            vm.parseJsonUint(deployAsyncRedeemerFee.inputJson(), ".finalizationDelay")
         );
         assertEq(
-            asyncRedeemerFee.minRedeemAmount(),
-            abi.decode(vm.parseJson(deployAsyncRedeemerFee.inputJson(), ".minRedeemAmount"), (uint256))
+            asyncRedeemerFee.minRedeemAmount(), vm.parseJsonUint(deployAsyncRedeemerFee.inputJson(), ".minRedeemAmount")
         );
         assertEq(
             asyncRedeemerFee.isWhitelistEnabled(),
-            abi.decode(vm.parseJson(deployAsyncRedeemerFee.inputJson(), ".whitelistStatus"), (bool))
+            vm.parseJsonBool(deployAsyncRedeemerFee.inputJson(), ".whitelistStatus")
         );
         assertEq(
-            asyncRedeemerFee.redeemFeeRate(),
-            abi.decode(vm.parseJson(deployAsyncRedeemerFee.inputJson(), ".redeemFeeRate"), (uint256))
+            asyncRedeemerFee.redeemFeeRate(), vm.parseJsonUint(deployAsyncRedeemerFee.inputJson(), ".redeemFeeRate")
         );
         assertEq(
             asyncRedeemerFee.maxRedeemFeeRate(),
-            abi.decode(vm.parseJson(deployAsyncRedeemerFee.inputJson(), ".maxRedeemFeeRate"), (uint256))
+            vm.parseJsonUint(deployAsyncRedeemerFee.inputJson(), ".maxRedeemFeeRate")
         );
     }
 
@@ -274,70 +258,47 @@ contract Deploy_Scripts_Test is Base_Test {
         assertTrue(hubPeripheryDeployment.hubPeripheryFactory.isFeeManager(address(watermarkFeeManager)));
         assertEq(
             watermarkFeeManager.mgmtFeeRatePerSecond(),
-            abi.decode(
-                vm.parseJson(
-                    deployWatermarkFeeManager.inputJson(), ".watermarkFeeManagerInitParams.initialMgmtFeeRatePerSecond"
-                ),
-                (uint256)
+            vm.parseJsonUint(
+                deployWatermarkFeeManager.inputJson(), ".watermarkFeeManagerInitParams.initialMgmtFeeRatePerSecond"
             )
         );
         assertEq(
             watermarkFeeManager.smFeeRatePerSecond(),
-            abi.decode(
-                vm.parseJson(
-                    deployWatermarkFeeManager.inputJson(), ".watermarkFeeManagerInitParams.initialSmFeeRatePerSecond"
-                ),
-                (uint256)
+            vm.parseJsonUint(
+                deployWatermarkFeeManager.inputJson(), ".watermarkFeeManagerInitParams.initialSmFeeRatePerSecond"
             )
         );
         assertEq(
             watermarkFeeManager.perfFeeRate(),
-            abi.decode(
-                vm.parseJson(
-                    deployWatermarkFeeManager.inputJson(), ".watermarkFeeManagerInitParams.initialPerfFeeRate"
-                ),
-                (uint256)
-            )
+            vm.parseJsonUint(deployWatermarkFeeManager.inputJson(), ".watermarkFeeManagerInitParams.initialPerfFeeRate")
         );
 
-        uint256[] memory splitBps = abi.decode(
-            vm.parseJson(
-                deployWatermarkFeeManager.inputJson(), ".watermarkFeeManagerInitParams.initialMgmtFeeSplitBps"
-            ),
-            (uint256[])
+        uint256[] memory splitBps = vm.parseJsonUintArray(
+            deployWatermarkFeeManager.inputJson(), ".watermarkFeeManagerInitParams.initialMgmtFeeSplitBps"
         );
         assertEq(watermarkFeeManager.mgmtFeeSplitBps().length, splitBps.length);
         for (uint256 i; i < splitBps.length; ++i) {
             assertEq(watermarkFeeManager.mgmtFeeSplitBps()[i], splitBps[i]);
         }
 
-        address[] memory feeReceivers = abi.decode(
-            vm.parseJson(
-                deployWatermarkFeeManager.inputJson(), ".watermarkFeeManagerInitParams.initialMgmtFeeReceivers"
-            ),
-            (address[])
+        address[] memory feeReceivers = vm.parseJsonAddressArray(
+            deployWatermarkFeeManager.inputJson(), ".watermarkFeeManagerInitParams.initialMgmtFeeReceivers"
         );
         assertEq(watermarkFeeManager.mgmtFeeReceivers().length, feeReceivers.length);
         for (uint256 i; i < feeReceivers.length; ++i) {
             assertEq(watermarkFeeManager.mgmtFeeReceivers()[i], feeReceivers[i]);
         }
 
-        splitBps = abi.decode(
-            vm.parseJson(
-                deployWatermarkFeeManager.inputJson(), ".watermarkFeeManagerInitParams.initialPerfFeeSplitBps"
-            ),
-            (uint256[])
+        splitBps = vm.parseJsonUintArray(
+            deployWatermarkFeeManager.inputJson(), ".watermarkFeeManagerInitParams.initialPerfFeeSplitBps"
         );
         assertEq(watermarkFeeManager.perfFeeSplitBps().length, splitBps.length);
         for (uint256 i; i < splitBps.length; ++i) {
             assertEq(watermarkFeeManager.perfFeeSplitBps()[i], splitBps[i]);
         }
 
-        feeReceivers = abi.decode(
-            vm.parseJson(
-                deployWatermarkFeeManager.inputJson(), ".watermarkFeeManagerInitParams.initialPerfFeeReceivers"
-            ),
-            (address[])
+        feeReceivers = vm.parseJsonAddressArray(
+            deployWatermarkFeeManager.inputJson(), ".watermarkFeeManagerInitParams.initialPerfFeeReceivers"
         );
         assertEq(watermarkFeeManager.perfFeeReceivers().length, feeReceivers.length);
         for (uint256 i; i < feeReceivers.length; ++i) {

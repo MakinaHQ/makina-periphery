@@ -63,26 +63,20 @@ abstract contract Fork_Test is Base, Test, Core_Base.Base {
         string memory peripheryInputJson = vm.readFile(string.concat(peripheryInputPath, chainInfo.constantsFilename));
 
         deployer = address(this);
-        usdc = abi.decode(vm.parseJson(coreInputJson, ".usdc"), (address));
-        weth = abi.decode(vm.parseJson(coreInputJson, ".weth"), (address));
-        dao = abi.decode(vm.parseJson(coreInputJson, ".dao"), (address));
-        mechanic = abi.decode(vm.parseJson(coreInputJson, ".mechanic"), (address));
-        securityCouncil = abi.decode(vm.parseJson(coreInputJson, ".securityCouncil"), (address));
+        usdc = vm.parseJsonAddress(coreInputJson, ".usdc");
+        weth = vm.parseJsonAddress(coreInputJson, ".weth");
+        dao = vm.parseJsonAddress(coreInputJson, ".dao");
+        mechanic = vm.parseJsonAddress(coreInputJson, ".mechanic");
+        securityCouncil = vm.parseJsonAddress(coreInputJson, ".securityCouncil");
 
         // read misc addresses from json
         flashloanProviders = FlashloanProviders({
-            balancerV2Pool: abi.decode(
-                vm.parseJson(peripheryInputJson, ".flashloanProviders.balancerV2Pool"), (address)
-            ),
-            balancerV3Pool: abi.decode(
-                vm.parseJson(peripheryInputJson, ".flashloanProviders.balancerV3Pool"), (address)
-            ),
-            morphoPool: abi.decode(vm.parseJson(peripheryInputJson, ".flashloanProviders.morphoPool"), (address)),
-            dssFlash: abi.decode(vm.parseJson(peripheryInputJson, ".flashloanProviders.dssFlash"), (address)),
-            aaveV3AddressProvider: abi.decode(
-                vm.parseJson(peripheryInputJson, ".flashloanProviders.aaveV3AddressProvider"), (address)
-            ),
-            dai: abi.decode(vm.parseJson(peripheryInputJson, ".flashloanProviders.dai"), (address))
+            balancerV2Pool: vm.parseJsonAddress(peripheryInputJson, ".flashloanProviders.balancerV2Pool"),
+            balancerV3Pool: vm.parseJsonAddress(peripheryInputJson, ".flashloanProviders.balancerV3Pool"),
+            morphoPool: vm.parseJsonAddress(peripheryInputJson, ".flashloanProviders.morphoPool"),
+            dssFlash: vm.parseJsonAddress(peripheryInputJson, ".flashloanProviders.dssFlash"),
+            aaveV3AddressProvider: vm.parseJsonAddress(peripheryInputJson, ".flashloanProviders.aaveV3AddressProvider"),
+            dai: vm.parseJsonAddress(peripheryInputJson, ".flashloanProviders.dai")
         });
 
         // hub Core

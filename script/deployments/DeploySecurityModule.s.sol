@@ -42,8 +42,7 @@ contract DeploySecurityModule is Base, Script {
     }
 
     function run() public {
-        ISecurityModule.SecurityModuleInitParams memory initParams =
-            abi.decode(vm.parseJson(inputJson), (ISecurityModule.SecurityModuleInitParams));
+        ISecurityModule.SecurityModuleInitParams memory initParams = parseSecurityModuleInitParams(inputJson);
 
         address sender = vm.envOr("TEST_SENDER", address(0));
         if (sender != address(0)) {

@@ -35,9 +35,9 @@ contract DeployHubPeriphery is DeployPeriphery {
     }
 
     function _deploySetupBefore() public override {
-        accessManager = abi.decode(vm.parseJson(inputJson, ".accessManager"), (address));
-        hubCoreRegistry = abi.decode(vm.parseJson(inputJson, ".hubCoreRegistry"), (address));
-        flProviders = abi.decode(vm.parseJson(inputJson, ".flashloanProviders"), (FlashloanProviders));
+        accessManager = vm.parseJsonAddress(inputJson, ".accessManager");
+        hubCoreRegistry = vm.parseJsonAddress(inputJson, ".hubCoreRegistry");
+        flProviders = parseFlashloanProviders(inputJson, ".flashloanProviders");
 
         // start broadcasting transactions
         vm.startBroadcast();

@@ -50,9 +50,9 @@ contract DeployDirectDepositor is Base, Script {
     }
 
     function run() public {
-        uint16 implemId = abi.decode(vm.parseJson(implemIdsInputJson, ".directDepositorImplemId"), (uint16));
+        uint16 implemId = uint16(vm.parseJsonUint(implemIdsInputJson, ".directDepositorImplemId"));
 
-        whitelistStatus = abi.decode(vm.parseJson(inputJson, ".whitelistStatus"), (bool));
+        whitelistStatus = vm.parseJsonBool(inputJson, ".whitelistStatus");
 
         address sender = vm.envOr("TEST_SENDER", address(0));
         if (sender != address(0)) {

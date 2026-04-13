@@ -40,7 +40,7 @@ contract SetupHubPeripheryAM is Base, Script {
     }
 
     function run() public {
-        _accessManager = abi.decode(vm.parseJson(deploymentInputJson, ".accessManager"), (address));
+        _accessManager = vm.parseJsonAddress(deploymentInputJson, ".accessManager");
 
         address sender = vm.envOr("TEST_SENDER", address(0));
         if (sender != address(0)) {

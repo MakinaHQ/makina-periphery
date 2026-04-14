@@ -10,20 +10,21 @@ import {ProxyUtils} from "@makina-core-test/utils/ProxyUtils.sol";
 import {ICoreRegistry} from "@makina-core/interfaces/ICoreRegistry.sol";
 import {Roles} from "@makina-core/libraries/Roles.sol";
 
-import {IHubPeripheryRegistry} from "../../src/interfaces/IHubPeripheryRegistry.sol";
+import {AsyncRedeemer} from "../../src/redeemers/AsyncRedeemer.sol";
+import {AsyncRedeemerFee} from "../../src/redeemers/AsyncRedeemerFee.sol";
+import {DirectDepositor} from "../../src/depositors/DirectDepositor.sol";
 import {FlashloanAggregator} from "../../src/flashloans/FlashloanAggregator.sol";
 import {HubPeripheryRegistry} from "../../src/registries/HubPeripheryRegistry.sol";
 import {HubPeripheryFactory} from "../../src/factories/HubPeripheryFactory.sol";
-import {WatermarkFeeManager} from "../../src/fee-managers/WatermarkFeeManager.sol";
-import {DirectDepositor} from "../../src/depositors/DirectDepositor.sol";
-import {AsyncRedeemer} from "../../src/redeemers/AsyncRedeemer.sol";
-import {AsyncRedeemerFee} from "../../src/redeemers/AsyncRedeemerFee.sol";
-import {SecurityModule} from "../../src/security-module/SecurityModule.sol";
+import {IHubPeripheryRegistry} from "../../src/interfaces/IHubPeripheryRegistry.sol";
+import {JsonParser} from "../utils/JsonParser.sol";
 import {MachineShareOracle} from "../../src/oracles/MachineShareOracle.sol";
 import {MachineShareOracleFactory} from "../../src/factories/MachineShareOracleFactory.sol";
 import {MetaMorphoOracleFactory} from "../../src/factories/MetaMorphoOracleFactory.sol";
+import {SecurityModule} from "../../src/security-module/SecurityModule.sol";
+import {WatermarkFeeManager} from "../../src/fee-managers/WatermarkFeeManager.sol";
 
-abstract contract Base is ProxyUtils {
+abstract contract Base is ProxyUtils, JsonParser {
     struct HubPeriphery {
         FlashloanAggregator flashloanAggregator;
         HubPeripheryRegistry hubPeripheryRegistry;
@@ -36,15 +37,6 @@ abstract contract Base is ProxyUtils {
         MetaMorphoOracleFactory metaMorphoOracleFactory;
         UpgradeableBeacon machineShareOracleBeacon;
         MachineShareOracleFactory machineShareOracleFactory;
-    }
-
-    struct FlashloanProviders {
-        address balancerV2Pool;
-        address balancerV3Pool;
-        address morphoPool;
-        address dssFlash;
-        address aaveV3AddressProvider;
-        address dai;
     }
 
     ///

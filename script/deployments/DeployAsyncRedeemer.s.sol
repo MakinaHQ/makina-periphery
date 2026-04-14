@@ -52,7 +52,7 @@ contract DeployAsyncRedeemer is Base, Script {
     }
 
     function run() public {
-        uint16 implemId = abi.decode(vm.parseJson(implemIdsInputJson, ".asyncRedeemerImplemId"), (uint16));
+        uint16 implemId = uint16(vm.parseJsonUint(implemIdsInputJson, ".asyncRedeemerImplemId"));
 
         finalizationDelay = vm.parseJsonUint(inputJson, ".finalizationDelay");
         minRedeemAmount = vm.parseJsonUint(inputJson, ".minRedeemAmount");

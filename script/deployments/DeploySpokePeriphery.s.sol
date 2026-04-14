@@ -38,8 +38,8 @@ contract DeploySpokePeriphery is DeployPeriphery {
     }
 
     function _deploySetupBefore() public override {
-        spokeCoreRegistry = abi.decode(vm.parseJson(inputJson, ".spokeCoreRegistry"), (address));
-        flProviders = abi.decode(vm.parseJson(inputJson, ".flashloanProviders"), (FlashloanProviders));
+        spokeCoreRegistry = vm.parseJsonAddress(inputJson, ".spokeCoreRegistry");
+        flProviders = parseFlashloanProviders(inputJson, ".flashloanProviders");
 
         // start broadcasting transactions
         vm.startBroadcast();

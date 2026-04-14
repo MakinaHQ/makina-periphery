@@ -52,12 +52,10 @@ contract DeployWatermarkFeeManager is Base, Script {
     }
 
     function run() public {
-        uint16 implemId = abi.decode(vm.parseJson(implemIdsInputJson, ".watermarkFeeManagerImplemId"), (uint16));
+        uint16 implemId = uint16(vm.parseJsonUint(implemIdsInputJson, ".watermarkFeeManagerImplemId"));
 
-        IWatermarkFeeManager.WatermarkFeeManagerInitParams memory initParams = abi.decode(
-            vm.parseJson(inputJson, ".watermarkFeeManagerInitParams"),
-            (IWatermarkFeeManager.WatermarkFeeManagerInitParams)
-        );
+        IWatermarkFeeManager.WatermarkFeeManagerInitParams memory initParams =
+            parseWatermarkFeeManagerInitParams(inputJson, ".watermarkFeeManagerInitParams");
 
         address securityModule = vm.parseJsonAddress(inputJson, ".securityModule");
 

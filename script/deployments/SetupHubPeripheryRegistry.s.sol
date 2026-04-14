@@ -48,22 +48,22 @@ contract SetupHubPeripheryRegistry is Base, Script {
     }
 
     function run() public {
-        _accessManager = abi.decode(vm.parseJson(deploymentInputJson, ".accessManager"), (address));
+        _accessManager = vm.parseJsonAddress(deploymentInputJson, ".accessManager");
 
         mdImplemIds = new uint16[](1);
-        mdImplemIds[0] = abi.decode(vm.parseJson(inputJson, ".directDepositorImplemId"), (uint16));
+        mdImplemIds[0] = uint16(vm.parseJsonUint(inputJson, ".directDepositorImplemId"));
         mdBeacons = new address[](1);
         mdBeacons[0] = vm.parseJsonAddress(deploymentOutputJson, ".DirectDepositorBeacon");
 
         mrImplemIds = new uint16[](2);
-        mrImplemIds[0] = abi.decode(vm.parseJson(inputJson, ".asyncRedeemerImplemId"), (uint16));
-        mrImplemIds[1] = abi.decode(vm.parseJson(inputJson, ".asyncRedeemerFeeImplemId"), (uint16));
+        mrImplemIds[0] = uint16(vm.parseJsonUint(inputJson, ".asyncRedeemerImplemId"));
+        mrImplemIds[1] = uint16(vm.parseJsonUint(inputJson, ".asyncRedeemerFeeImplemId"));
         mrBeacons = new address[](2);
         mrBeacons[0] = vm.parseJsonAddress(deploymentOutputJson, ".AsyncRedeemerBeacon");
         mrBeacons[1] = vm.parseJsonAddress(deploymentOutputJson, ".AsyncRedeemerFeeBeacon");
 
         fmImplemIds = new uint16[](1);
-        fmImplemIds[0] = abi.decode(vm.parseJson(inputJson, ".watermarkFeeManagerImplemId"), (uint16));
+        fmImplemIds[0] = uint16(vm.parseJsonUint(inputJson, ".watermarkFeeManagerImplemId"));
         fmBeacons = new address[](1);
         fmBeacons[0] = vm.parseJsonAddress(deploymentOutputJson, ".WatermarkFeeManagerBeacon");
 

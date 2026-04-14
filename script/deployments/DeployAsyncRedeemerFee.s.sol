@@ -54,13 +54,13 @@ contract DeployAsyncRedeemerFee is Base, Script {
     }
 
     function run() public {
-        uint16 implemId = abi.decode(vm.parseJson(implemIdsInputJson, ".asyncRedeemerFeeImplemId"), (uint16));
+        uint16 implemId = uint16(vm.parseJsonUint(implemIdsInputJson, ".asyncRedeemerFeeImplemId"));
 
-        finalizationDelay = abi.decode(vm.parseJson(inputJson, ".finalizationDelay"), (uint256));
-        minRedeemAmount = abi.decode(vm.parseJson(inputJson, ".minRedeemAmount"), (uint256));
-        whitelistStatus = abi.decode(vm.parseJson(inputJson, ".whitelistStatus"), (bool));
-        redeemFeeRate = abi.decode(vm.parseJson(inputJson, ".redeemFeeRate"), (uint256));
-        maxRedeemFeeRate = abi.decode(vm.parseJson(inputJson, ".maxRedeemFeeRate"), (uint256));
+        finalizationDelay = vm.parseJsonUint(inputJson, ".finalizationDelay");
+        minRedeemAmount = vm.parseJsonUint(inputJson, ".minRedeemAmount");
+        whitelistStatus = vm.parseJsonBool(inputJson, ".whitelistStatus");
+        redeemFeeRate = vm.parseJsonUint(inputJson, ".redeemFeeRate");
+        maxRedeemFeeRate = vm.parseJsonUint(inputJson, ".maxRedeemFeeRate");
 
         address sender = vm.envOr("TEST_SENDER", address(0));
         if (sender != address(0)) {

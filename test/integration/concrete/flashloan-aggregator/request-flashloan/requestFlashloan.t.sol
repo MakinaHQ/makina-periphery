@@ -88,7 +88,26 @@ contract RequestFlashloan_Integration_Concrete_Test is FlashloanAggregator_Integ
         flashloanAggregator.requestFlashloan(request);
     }
 
+    function test_RevertWhen_DaiNotSet() public {
+        ICaliber.Instruction memory instruction;
+
+        IFlashloanAggregator.FlashloanRequest memory request = IFlashloanAggregator.FlashloanRequest({
+            provider: IFlashloanAggregator.FlashloanProvider.DSS_FLASH,
+            instruction: instruction,
+            token: address(0),
+            amount: 0
+        });
+
+        vm.expectRevert(IFlashloanAggregator.DaiNotSet.selector);
+        vm.prank(caliberAddr);
+        flashloanAggregator.requestFlashloan(request);
+    }
+
     function test_RevertWhen_DssFlashNotSet() public {
+        flashloanAggregator = new FlashloanAggregator(
+            address(hubCoreFactory), address(0), address(0), address(0), address(0), address(0), dai
+        );
+
         ICaliber.Instruction memory instruction;
 
         IFlashloanAggregator.FlashloanRequest memory request = IFlashloanAggregator.FlashloanRequest({

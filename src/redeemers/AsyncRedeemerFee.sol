@@ -23,7 +23,8 @@ contract AsyncRedeemerFee is AsyncRedeemer, IAsyncRedeemerFee {
     }
 
     // keccak256(abi.encode(uint256(keccak256("makina.storage.AsyncRedeemerFee")) - 1)) & ~bytes32(uint256(0xff))
-    bytes32 private constant AsyncRedeemerFeeStorageLocation = 0;
+    bytes32 private constant AsyncRedeemerFeeStorageLocation =
+        0x4eaf1c06329b25f7c60609294578a9146a4886ea6d8691dc44ba3ed4cef8b500;
 
     function _getAsyncRedeemerFeeStorage() private pure returns (AsyncRedeemerFeeStorage storage $) {
         assembly {

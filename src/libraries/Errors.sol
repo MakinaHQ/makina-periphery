@@ -5,13 +5,11 @@ pragma solidity 0.8.28;
 import {Errors as CoreErrors} from "@makina-core/libraries/Errors.sol";
 
 library Errors {
-    error AlreadyClaimed();
     error AlreadyFinalized();
-    error AmountToolow();
+    error AmountTooLow();
     error CooldownExpired();
     error CooldownOngoing();
     error FinalizationDelayPending();
-    error FutureRequest();
     error GreaterThanCurrentWatermark();
     error InvalidDepositorImplemId();
     error InvalidFeeManagerImplemId();
@@ -25,7 +23,6 @@ library Errors {
     error MaxFeeRateValueExceeded();
     error MaxSlashableExceeded();
     error NotDepositor();
-    error NotEnoughAssets();
     error NotFeeManager();
     error NotFinalized();
     error NotImplemented();
@@ -35,6 +32,5 @@ library Errors {
     error SecurityModuleAlreadySet();
     error SlashingSettlementOngoing();
     error ZeroMachineAddress();
-    error ZeroRequestId();
     error ZeroShares();
 }

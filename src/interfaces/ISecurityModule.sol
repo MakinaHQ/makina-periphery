@@ -19,10 +19,10 @@ interface ISecurityModule is IERC20Metadata, IMachinePeriphery {
     event SlashingSettled();
 
     /// @notice Initialization parameters.
-    /// @param machineShare Address of the machine share token locked in this contract.
-    /// @param initialCooldownDuration Cooldown duration in seconds for unlocking.
-    /// @param initialMaxSlashableBps Maximum slashable proportion of the vault balance in basis points.
-    /// @param initialMinBalanceAfterSlash Minimum balance that must remain in the vault after a slash.
+    /// @param machineShare The address of the machine share token locked in this contract.
+    /// @param initialCooldownDuration The cooldown duration in seconds for unlocking.
+    /// @param initialMaxSlashableBps The maximum slashable proportion of the vault balance in basis points.
+    /// @param initialMinBalanceAfterSlash The minimum balance that must remain in the vault after a slash.
     struct SecurityModuleInitParams {
         address machineShare;
         uint256 initialCooldownDuration;
@@ -31,9 +31,9 @@ interface ISecurityModule is IERC20Metadata, IMachinePeriphery {
     }
 
     /// @notice Pending cooldown parameters.
-    /// @param shares Amount of security shares to be redeemed.
-    /// @param maxAssets Maximum amount of machine shares that can be redeemed.
-    /// @param maturity Timestamp at which the cooldown period will end and the shares can be redeemed.
+    /// @param shares The amount of security shares to be redeemed.
+    /// @param maxAssets The maximum amount of machine shares that can be redeemed.
+    /// @param maturity The timestamp at which the cooldown period will end and the shares can be redeemed.
     struct PendingCooldown {
         uint256 shares;
         uint256 maxAssets;
@@ -56,10 +56,10 @@ interface ISecurityModule is IERC20Metadata, IMachinePeriphery {
     function minBalanceAfterSlash() external view returns (uint256);
 
     /// @notice Returns data of a pending cooldown.
-    /// @param cooldownId ID of the cooldown receipt NFT representing the pending cooldown.
-    /// @return shares Amount of security shares to be redeemed.
-    /// @return currentExpectedAssets Current expected amount of machine shares that can be redeemed.
-    /// @return maturity Timestamp at which the cooldown period will end and the shares can be redeemed.
+    /// @param cooldownId The ID of the cooldown receipt NFT representing the pending cooldown.
+    /// @return shares The amount of security shares to be redeemed.
+    /// @return currentExpectedAssets The current expected amount of machine shares that can be redeemed.
+    /// @return maturity The timestamp at which the cooldown period will end and the shares can be redeemed.
     function pendingCooldown(uint256 cooldownId)
         external
         view
@@ -75,35 +75,35 @@ interface ISecurityModule is IERC20Metadata, IMachinePeriphery {
     function maxSlashable() external view returns (uint256);
 
     /// @notice Converts machine shares to security shares.
-    /// @param assets Amount of machine shares to convert.
-    /// @return shares Amount of security shares corresponding to the input machine shares.
+    /// @param assets The amount of machine shares to convert.
+    /// @return shares The amount of security shares corresponding to the input machine shares.
     function convertToShares(uint256 assets) external view returns (uint256 shares);
 
     /// @notice Converts security shares to machine shares.
-    /// @param shares Amount of security shares to convert.
-    /// @return assets Amount of machine shares corresponding to the input security shares.
+    /// @param shares The amount of security shares to convert.
+    /// @return assets The amount of machine shares corresponding to the input security shares.
     function convertToAssets(uint256 shares) external view returns (uint256 assets);
 
     /// @notice Estimates the amount of security shares that would be received for a given amount of machine shares.
-    /// @param assets Amount of machine shares to convert.
-    /// @return shares Estimated amount of security shares corresponding to the input machine shares.
+    /// @param assets The amount of machine shares to convert.
+    /// @return shares The estimated amount of security shares corresponding to the input machine shares.
     function previewLock(uint256 assets) external view returns (uint256 shares);
 
     /// @notice Locks machine shares in the module and mints security shares.
-    /// @param assets Amount of machine shares to lock.
-    /// @param receiver Address that will receive the security shares.
-    /// @param minShares Minimum amount of security shares to receive.
-    /// @return shares Amount of security shares minted.
+    /// @param assets The amount of machine shares to lock.
+    /// @param receiver The address that will receive the security shares.
+    /// @param minShares The minimum amount of security shares to receive.
+    /// @return shares The amount of security shares minted.
     function lock(uint256 assets, address receiver, uint256 minShares) external returns (uint256 shares);
 
     /// @notice Requests a cooldown for redeeming security shares.
     ///         Shares are locked in the contract until the cooldown is cancelled or expires.
     ///         A cooldown receipt NFT is minted to the specified receiver address.
-    /// @param shares Amount of security shares to redeem.
-    /// @param receiver Address that will receive the cooldown receipt.
-    /// @return cooldownId ID of the minted cooldown receipt NFT representing the pending cooldown.
-    /// @return maxAssets Maximum amount of machine shares that can be redeemed.
-    /// @return maturity Timestamp at which the cooldown period will end and the shares can be redeemed.
+    /// @param shares The amount of security shares to redeem.
+    /// @param receiver The address that will receive the cooldown receipt.
+    /// @return cooldownId The ID of the minted cooldown receipt NFT representing the pending cooldown.
+    /// @return maxAssets The maximum amount of machine shares that can be redeemed.
+    /// @return maturity The timestamp at which the cooldown period will end and the shares can be redeemed.
     function startCooldown(uint256 shares, address receiver)
         external
         returns (uint256 cooldownId, uint256 maxAssets, uint256 maturity);
@@ -111,32 +111,32 @@ interface ISecurityModule is IERC20Metadata, IMachinePeriphery {
     /// @notice Cancels a pending cooldown.
     ///         Shares for which the cooldown was cancelled are transferred back to caller.
     ///         The associated cooldown receipt NFT is burned.
-    /// @param cooldownId ID of the cooldown receipt NFT representing the pending cooldown.
-    /// @return shares Amount of security shares for which the cooldown was cancelled.
+    /// @param cooldownId The ID of the cooldown receipt NFT representing the pending cooldown.
+    /// @return shares The amount of security shares for which the cooldown was cancelled.
     function cancelCooldown(uint256 cooldownId) external returns (uint256 shares);
 
     /// @notice Redeems security shares and transfers machine shares to caller.
-    /// @param cooldownId ID of the cooldown receipt NFT representing the pending cooldown.
-    /// @param minAssets Minimum amount of machine shares to receive.
-    /// @return assets Amount of machine shares transferred to the receiver.
+    /// @param cooldownId The ID of the cooldown receipt NFT representing the pending cooldown.
+    /// @param minAssets The minimum amount of machine shares to receive.
+    /// @return assets The amount of machine shares transferred to the receiver.
     function redeem(uint256 cooldownId, uint256 minAssets) external returns (uint256 assets);
 
     /// @notice Slashes a specified amount from the total locked amount and triggers the slashing mode.
-    /// @param amount Amount to slash from the total locked amount.
+    /// @param amount The amount to slash from the total locked amount.
     function slash(uint256 amount) external;
 
     /// @notice Settles the current slashing, allowing the contract to exit slashing mode and resume normal operations.
     function settleSlashing() external;
 
     /// @notice Sets the cooldown duration for unlocking.
-    /// @param cooldownDuration New cooldown duration in seconds.
-    function setCooldownDuration(uint256 cooldownDuration) external;
+    /// @param newCooldownDuration The new cooldown duration in seconds.
+    function setCooldownDuration(uint256 newCooldownDuration) external;
 
     /// @notice Sets the maximum slashable proportion of the vault balance in basis points.
-    /// @param maxSlashableBps New maximum slashable proportion in basis points.
-    function setMaxSlashableBps(uint256 maxSlashableBps) external;
+    /// @param newMaxSlashableBps The new maximum slashable proportion in basis points.
+    function setMaxSlashableBps(uint256 newMaxSlashableBps) external;
 
     /// @notice Sets the minimum balance that must remain in the vault after a slash.
-    /// @param minBalanceAfterSlash New minimum balance after slash.
-    function setMinBalanceAfterSlash(uint256 minBalanceAfterSlash) external;
+    /// @param newMinBalanceAfterSlash The new minimum balance after slash.
+    function setMinBalanceAfterSlash(uint256 newMinBalanceAfterSlash) external;
 }

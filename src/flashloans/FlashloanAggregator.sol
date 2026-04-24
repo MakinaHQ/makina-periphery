@@ -38,9 +38,9 @@ contract FlashloanAggregator is
     using SafeERC20 for IERC20;
     using TransientSlot for *;
 
-    /// @notice Hash of the user data we expect to receive in `onFlashLoan`.
-    bytes32 public constant _EXPECTED_DATA_HASH_SLOT =
-        0x82495b57f77c85cf8c0395fbfa4aaf855e2e402a9c6668de75d52c07a0b11300;
+    // keccak256(abi.encode(uint256(keccak256("makina.storage.FlashloanAggregator.expectedDataHash")) - 1)) & ~bytes32(uint256(0xff))
+    bytes32 private constant EXPECTED_DATA_HASH_SLOT =
+        0x1cdc327c404943fa68ab4aca3860b62126227055e2873c38c2fe6dd350687a00;
 
     /// @notice The address of the Caliber factory.
     address public immutable caliberFactory;
@@ -60,7 +60,7 @@ contract FlashloanAggregator is
     /// @notice The address of the Maker DSS Flash.
     address public immutable dssFlash;
 
-    /// @notice The address of the Aave V3 pool.
+    /// @notice The address of the Aave V3 address provider.
     address public immutable aaveV3AddressProvider;
 
     /// @notice Modifier to check if the caller is a Caliber.
@@ -78,6 +78,8 @@ contract FlashloanAggregator is
     /// @param _balancerV3Pool The address of the Balancer V3 pool.
     /// @param _morphoPool The address of the Morpho pool.
     /// @param _dssFlash The address of the Maker DSS Flash.
+    /// @param _aaveV3AddressProvider The address of the Aave V3 address provider.
+    /// @param _dai The address of the DAI token.
     constructor(
         address _caliberFactory,
         address _balancerV2Pool,
@@ -119,19 +121,19 @@ contract FlashloanAggregator is
 
     /// @notice Internal function to clear the expected data hash.
     function _clearExpectedDataHash() internal {
-        _EXPECTED_DATA_HASH_SLOT.asBytes32().tstore(bytes32(0));
+        EXPECTED_DATA_HASH_SLOT.asBytes32().tstore(bytes32(0));
     }
 
     /// @notice Internal function to set the expected data hash.
     /// @param data The data to set the expected data hash to.
     function _setExpectedDataHash(bytes memory data) internal {
-        _EXPECTED_DATA_HASH_SLOT.asBytes32().tstore(keccak256(data));
+        EXPECTED_DATA_HASH_SLOT.asBytes32().tstore(keccak256(data));
     }
 
     /// @notice Internal function to check if the expected data hash is valid.
     /// @param data The data to check the expected data hash against.
     function _isValidExpectedDataHash(bytes memory data) internal view {
-        if (_EXPECTED_DATA_HASH_SLOT.asBytes32().tload() != keccak256(data)) {
+        if (EXPECTED_DATA_HASH_SLOT.asBytes32().tload() != keccak256(data)) {
             revert InvalidUserDataHash();
         }
     }
@@ -202,11 +204,12 @@ contract FlashloanAggregator is
     /// @notice Function to request a flashloan from Maker DSS Flash.
     /// @param request The request for the flashloan.
     function _requestDssFlashloan(FlashloanRequest calldata request) internal {
-        // Check that the Maker DSS Flash is not address(0).
+        if (dai == address(0)) {
+            revert DaiNotSet();
+        }
         if (dssFlash == address(0)) {
             revert DssFlashNotSet();
         }
-        // Check that the token is DAI.
         if (request.token != dai) {
             revert InvalidToken();
         }
@@ -261,7 +264,7 @@ contract FlashloanAggregator is
         uint256[] memory amounts,
         uint256[] memory feeAmounts,
         bytes memory userData
-    ) external {
+    ) external override {
         // Check if the expected data hash is valid
         _isValidExpectedDataHash(userData);
         _clearExpectedDataHash();
@@ -286,13 +289,13 @@ contract FlashloanAggregator is
         IERC20(address(tokens[0])).safeTransfer(msg.sender, amounts[0] + feeAmounts[0]);
     }
 
-    /// @notice Callback handler for Balancer V3 flashloan.
+    /// @inheritdoc IFlashloanAggregator
     function balancerV3FlashloanCallback(
         address caliber,
         ICaliber.Instruction calldata instruction,
         address token,
         uint256 amount
-    ) external {
+    ) external override {
         // Check if the expected data hash is valid
         _isValidExpectedDataHash(msg.data);
         _clearExpectedDataHash();
@@ -316,7 +319,7 @@ contract FlashloanAggregator is
     }
 
     /// @inheritdoc IMorphoFlashLoanCallback
-    function onMorphoFlashLoan(uint256 assets, bytes calldata data) external {
+    function onMorphoFlashLoan(uint256 assets, bytes calldata data) external override {
         // Check if the expected data hash is valid
         _isValidExpectedDataHash(data);
         _clearExpectedDataHash();
@@ -340,6 +343,7 @@ contract FlashloanAggregator is
     /// @inheritdoc IERC3156FlashBorrower
     function onFlashLoan(address initiator, address token, uint256 amount, uint256 fee, bytes calldata data)
         external
+        override
         returns (bytes32)
     {
         // Check if the caller of this is the DSS Flash
@@ -370,6 +374,7 @@ contract FlashloanAggregator is
     /// @inheritdoc IFlashLoanSimpleReceiver
     function executeOperation(address asset, uint256 amount, uint256 premium, address initiator, bytes calldata params)
         external
+        override
         returns (bool)
     {
         // Get the Aave V3 pool address
@@ -397,12 +402,12 @@ contract FlashloanAggregator is
     }
 
     /// @inheritdoc IFlashLoanSimpleReceiver
-    function ADDRESSES_PROVIDER() external view returns (IPoolAddressesProvider) {
+    function ADDRESSES_PROVIDER() external view override returns (IPoolAddressesProvider) {
         return IPoolAddressesProvider(aaveV3AddressProvider);
     }
 
     /// @inheritdoc IFlashLoanSimpleReceiver
-    function POOL() external view returns (IPool) {
+    function POOL() external view override returns (IPool) {
         return IPool(IPoolAddressesProvider(aaveV3AddressProvider).getPool());
     }
 }

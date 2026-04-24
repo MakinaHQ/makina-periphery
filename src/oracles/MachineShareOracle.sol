@@ -21,7 +21,7 @@ import {CoreErrors} from "../libraries/Errors.sol";
 contract MachineShareOracle is MakinaContext, Initializable, IMachineShareOracle {
     using Math for uint256;
 
-    // @custom:storage-location erc7201:makina.storage.MachineShareOracle
+    /// @custom:storage-location erc7201:makina.storage.MachineShareOracle
     struct MachineShareOracleStorage {
         address _shareOwner;
         bool _isShareOwnerPdv;
@@ -64,7 +64,7 @@ contract MachineShareOracle is MakinaContext, Initializable, IMachineShareOracle
         address shareToken = IShareTokenOwner(_shareOwner).shareToken();
         address accountingToken = IShareTokenOwner(_shareOwner).accountingToken();
 
-        uint8 atDecimals = DecimalsUtils._getDecimals(accountingToken);
+        uint8 atDecimals = IERC20Metadata(accountingToken).decimals();
         if (_decimals < atDecimals) {
             revert CoreErrors.InvalidDecimals();
         }
@@ -106,7 +106,7 @@ contract MachineShareOracle is MakinaContext, Initializable, IMachineShareOracle
             address accountingToken = IShareTokenOwner($._shareOwner).accountingToken();
             uint256 price_d_a =
                 IOracleRegistry(IHubCoreRegistry(registry).oracleRegistry()).getPrice(depositToken, accountingToken);
-            uint256 dtUnit = 10 ** DecimalsUtils._getDecimals(depositToken);
+            uint256 dtUnit = 10 ** IERC20Metadata(depositToken).decimals();
             uint256 dtBal = IERC20Metadata(depositToken).balanceOf($._shareOwner);
             sharePrice = DecimalsUtils.SHARE_TOKEN_UNIT
                 .mulDiv((dtBal * price_d_a) + dtUnit, (stSupply + 10 ** $._shareTokenDecimalsOffset) * dtUnit);

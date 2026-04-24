@@ -202,11 +202,12 @@ contract FlashloanAggregator is
     /// @notice Function to request a flashloan from Maker DSS Flash.
     /// @param request The request for the flashloan.
     function _requestDssFlashloan(FlashloanRequest calldata request) internal {
-        // Check that the Maker DSS Flash is not address(0).
+        if (dai == address(0)) {
+            revert DaiNotSet();
+        }
         if (dssFlash == address(0)) {
             revert DssFlashNotSet();
         }
-        // Check that the token is DAI.
         if (request.token != dai) {
             revert InvalidToken();
         }

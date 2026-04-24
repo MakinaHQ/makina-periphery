@@ -43,6 +43,9 @@ interface IFlashloanAggregator {
     /// @notice Error thrown when the Morpho pool is not set.
     error MorphoPoolNotSet();
 
+    /// @notice Error thrown when the DAI token is not set.
+    error DaiNotSet();
+
     /// @notice Error thrown when the Maker DSS Flash is not set.
     error DssFlashNotSet();
 

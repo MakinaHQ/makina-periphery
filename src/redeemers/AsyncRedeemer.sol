@@ -129,12 +129,10 @@ contract AsyncRedeemer is ERC721Upgradeable, ReentrancyGuard, MachinePeriphery, 
     {
         AsyncRedeemerStorage storage $ = _getAsyncRedeemerStorage();
 
-        uint256 requestId = $._nextRequestId++;
-
         address _machine = machine();
 
         if (shares < $._minRedeemAmount) {
-            revert Errors.AmountToolow();
+            revert Errors.AmountTooLow();
         }
 
         uint256 assets = _previewRedeem(shares);
@@ -143,12 +141,14 @@ contract AsyncRedeemer is ERC721Upgradeable, ReentrancyGuard, MachinePeriphery, 
             revert CoreErrors.SlippageProtection();
         }
 
+        uint256 requestId = $._nextRequestId++;
+
         $._requests[requestId] = IAsyncRedeemer.RedeemRequest(shares, assets, block.timestamp);
 
         IERC20(IMachine(_machine).shareToken()).safeTransferFrom(msg.sender, address(this), shares);
         _safeMint(receiver, requestId);
 
-        emit RedeemRequestCreated(uint256(requestId), shares, receiver);
+        emit RedeemRequestCreated(requestId, shares, receiver);
 
         return requestId;
     }
@@ -214,7 +214,7 @@ contract AsyncRedeemer is ERC721Upgradeable, ReentrancyGuard, MachinePeriphery, 
 
         IERC20(IMachine(machine()).accountingToken()).safeTransfer(receiver, assets);
 
-        emit RedeemRequestClaimed(uint256(requestId), shares, assets, receiver);
+        emit RedeemRequestClaimed(requestId, shares, assets, receiver);
 
         return assets;
     }
@@ -227,10 +227,10 @@ contract AsyncRedeemer is ERC721Upgradeable, ReentrancyGuard, MachinePeriphery, 
     }
 
     /// @inheritdoc IAsyncRedeemer
-    function setMinRedeemAmount(uint256 newMinAmount) external override onlyRiskManagerTimelock {
+    function setMinRedeemAmount(uint256 newMinRedeemAmount) external override onlyRiskManagerTimelock {
         AsyncRedeemerStorage storage $ = _getAsyncRedeemerStorage();
-        emit MinRedeemAmountChanged($._minRedeemAmount, newMinAmount);
-        $._minRedeemAmount = newMinAmount;
+        emit MinRedeemAmountChanged($._minRedeemAmount, newMinRedeemAmount);
+        $._minRedeemAmount = newMinRedeemAmount;
     }
 
     /// @inheritdoc IWhitelist

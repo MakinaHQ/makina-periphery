@@ -6,7 +6,8 @@ This is the list of role permissions in Makina Periphery contracts. These roles 
 
 ### HubPeripheryRegistry
 
-- `INFRA_CONFIG_ROLE` (roleId `1`)
+- `INFRA_UPGRADE_ROLE` (roleId `6`)
+  - Can upgrade implementation via associated ProxyAdmin.
   - Can set address of HubPeripheryFactory.
   - Can set address of depositor Beacons.
   - Can set address of redeemer Beacons.
@@ -14,6 +15,9 @@ This is the list of role permissions in Makina Periphery contracts. These roles 
   - Can set address of SecurityModule Beacon.
 
 ### HubPeripheryFactory
+
+- `INFRA_UPGRADE_ROLE` (roleId `6`)
+  - Can upgrade implementation via associated ProxyAdmin.
 
 - `STRATEGY_DEPLOYMENT_ROLE` (roleId `2`)
   - Can deploy depositors.
@@ -29,7 +33,19 @@ This is the list of role permissions in Makina Periphery contracts. These roles 
   - Can activate and deactivate whitelist.
   - Can add or remove users from the whitelist.
 
-### AsyncRedeemManager
+### AsyncRedeemer
+
+- **Mechanic**
+  - Can finalize redemption requests, provided that the requests have reached their finalisation delay and that the machine is not in recovery mode.
+
+- **Risk Manager**
+  - Can activate and deactivate whitelist.
+  - Can add or remove users from the whitelist.
+
+- **Risk Manager Timelock**
+  - Can set the request finalisation delay.
+
+### AsyncRedeemerFee
 
 - **Mechanic**
   - Can finalize redemption requests, provided that the requests have reached their finalisation delay and that the machine is not in recovery mode.
@@ -42,21 +58,9 @@ This is the list of role permissions in Makina Periphery contracts. These roles 
   - Can set the request finalisation delay.
   - Can set the redeem fee rate, up to the max allowed value.
 
-  ### AsyncRedeemManagerFee
-
-- **Mechanic**
-  - Can finalize redemption requests, provided that the requests have reached their finalisation delay and that the machine is not in recovery mode.
-
-- **Risk Manager**
-  - Can activate and deactivate whitelist.
-  - Can add or remove users from the whitelist.
-
-- **Risk Manager Timelock**
-  - Can set the request finalisation delay.
-
 ### WatermarkFeeManager
 
-- `STRATEGY_FEE_CONFIG_ROLE` (roleId `3`)
+- `STRATEGY_FEE_CONFIG_ROLE` (roleId `5`)
   - Can reset the share price watermark to a value below the current one.
   - Can set the fee rates.
   - Can define the allocation of fees to different receivers.
@@ -73,6 +77,18 @@ This is the list of role permissions in Makina Periphery contracts. These roles 
   - Can set the minimum machine share balance that must remain in the vault after a slashing event.
 
 ### MachineShareOracleFactory
+
+- `INFRA_UPGRADE_ROLE` (roleId `6`)
+  - Can upgrade implementation via associated ProxyAdmin.
+  - Can set the machine share oracle beacon.
+
+- `INFRA_CONFIG_ROLE` (roleId `1`)
+  - Can deploy an oracle.
+
+### MetaMorphoOracleFactory
+
+- `INFRA_UPGRADE_ROLE` (roleId `6`)
+  - Can upgrade implementation via associated ProxyAdmin.
 
 - `INFRA_CONFIG_ROLE` (roleId `1`)
   - Can register and unregister Morpho factories.

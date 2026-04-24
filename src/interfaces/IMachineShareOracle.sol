@@ -20,7 +20,7 @@ interface IMachineShareOracle {
     /// @notice Address of the share owner (machine or pre-deposit vault).
     function shareOwner() external view returns (address);
 
-    /// @notice Returns the price of one machine share token expressed in machine accounting tokens
+    /// @notice Returns the price of one machine share token expressed in machine accounting tokens.
     /// @dev The price is expressed with `decimals` precision.
     /// @return sharePrice The price of one machine share token expressed in machine accounting tokens, scaled to `decimals` precision.
     function getSharePrice() external view returns (uint256 sharePrice);

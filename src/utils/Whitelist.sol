@@ -38,7 +38,7 @@ abstract contract Whitelist is Initializable, IWhitelist {
     }
 
     /// @inheritdoc IWhitelist
-    function isWhitelistEnabled() public view returns (bool) {
+    function isWhitelistEnabled() public view override returns (bool) {
         return _getWhitelistStorage()._isWhitelistEnabled;
     }
 

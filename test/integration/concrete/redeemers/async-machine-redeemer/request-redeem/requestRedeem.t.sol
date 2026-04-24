@@ -23,8 +23,8 @@ abstract contract RequestRedeem_Integration_Concrete_Test is AsyncRedeemer_Share
         asyncRedeemer.requestRedeem(0, address(0), 0);
     }
 
-    function test_RevertWhen_AmountToolow() public withMachine(address(machine)) {
-        vm.expectRevert(Errors.AmountToolow.selector);
+    function test_RevertWhen_AmountTooLow() public withMachine(address(machine)) {
+        vm.expectRevert(Errors.AmountTooLow.selector);
         asyncRedeemer.requestRedeem(DEFAULT_MIN_REDEEM_AMOUNT - 1, address(0), 0);
     }
 

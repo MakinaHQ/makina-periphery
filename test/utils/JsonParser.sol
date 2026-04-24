@@ -57,12 +57,14 @@ abstract contract JsonParser {
             ),
             initialSmFeeRatePerSecond: vm.parseJsonUint(inputJson, string.concat(key, ".initialSmFeeRatePerSecond")),
             initialPerfFeeRate: vm.parseJsonUint(inputJson, string.concat(key, ".initialPerfFeeRate")),
-            initialMgmtFeeSplitBps: vm.parseJsonUintArray(inputJson, string.concat(key, ".initialMgmtFeeSplitBps")),
             initialMgmtFeeReceivers: vm.parseJsonAddressArray(
                 inputJson, string.concat(key, ".initialMgmtFeeReceivers")
             ),
-            initialPerfFeeSplitBps: vm.parseJsonUintArray(inputJson, string.concat(key, ".initialPerfFeeSplitBps")),
-            initialPerfFeeReceivers: vm.parseJsonAddressArray(inputJson, string.concat(key, ".initialPerfFeeReceivers"))
+            initialMgmtFeeSplitBps: vm.parseJsonUintArray(inputJson, string.concat(key, ".initialMgmtFeeSplitBps")),
+            initialPerfFeeReceivers: vm.parseJsonAddressArray(
+                inputJson, string.concat(key, ".initialPerfFeeReceivers")
+            ),
+            initialPerfFeeSplitBps: vm.parseJsonUintArray(inputJson, string.concat(key, ".initialPerfFeeSplitBps"))
         });
     }
 }

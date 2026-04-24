@@ -21,7 +21,7 @@ import {CoreErrors} from "../libraries/Errors.sol";
 contract MachineShareOracle is MakinaContext, Initializable, IMachineShareOracle {
     using Math for uint256;
 
-    // @custom:storage-location erc7201:makina.storage.MachineShareOracle
+    /// @custom:storage-location erc7201:makina.storage.MachineShareOracle
     struct MachineShareOracleStorage {
         address _shareOwner;
         bool _isShareOwnerPdv;

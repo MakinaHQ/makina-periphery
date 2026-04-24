@@ -19,18 +19,18 @@ interface IWatermarkFeeManager is IFeeManager, ISecurityModuleReference, IMachin
     /// @param initialMgmtFeeRatePerSecond Management fee rate per second, in 18 decimals precision.
     /// @param initialSmFeeRatePerSecond Security module fee rate per second, in 18 decimals precision.
     /// @param initialPerfFeeRate Performance fee rate on profit, in 18 decimals precision.
-    /// @param initialMgmtFeeSplitBps Fixed fee split between receivers in basis points. Values must sum to 10_000.
-    /// @param initialMgmtFeeReceivers Fixed fee receivers.
+    /// @param initialMgmtFeeSplitBps Management fee split between receivers in basis points. Values must sum to 10_000.
+    /// @param initialMgmtFeeReceivers Management fee receivers.
     /// @param initialPerfFeeSplitBps Performance fee split between receivers in basis points. Values must sum to 10_000.
     /// @param initialPerfFeeReceivers Performance fee receivers.
     struct WatermarkFeeManagerInitParams {
         uint256 initialMgmtFeeRatePerSecond;
         uint256 initialSmFeeRatePerSecond;
         uint256 initialPerfFeeRate;
-        uint256[] initialMgmtFeeSplitBps;
         address[] initialMgmtFeeReceivers;
-        uint256[] initialPerfFeeSplitBps;
+        uint256[] initialMgmtFeeSplitBps;
         address[] initialPerfFeeReceivers;
+        uint256[] initialPerfFeeSplitBps;
     }
 
     /// @notice Management fee rate per second, 1e18 = 100%.
@@ -42,10 +42,10 @@ interface IWatermarkFeeManager is IFeeManager, ISecurityModuleReference, IMachin
     /// @notice Performance fee rate on profit, 1e18 = 100%.
     function perfFeeRate() external view returns (uint256);
 
-    /// @notice Fixed fee receivers.
+    /// @notice Management fee receivers.
     function mgmtFeeReceivers() external view returns (address[] memory);
 
-    /// @notice Fixed fee split between receivers in basis points. Values must sum to 10_000.
+    /// @notice Management fee split between receivers in basis points. Values must sum to 10_000.
     function mgmtFeeSplitBps() external view returns (uint256[] memory);
 
     /// @notice Performance fee receivers.
@@ -72,9 +72,9 @@ interface IWatermarkFeeManager is IFeeManager, ISecurityModuleReference, IMachin
     /// @param newPerfFeeRate The new performance fee rate on profit. 1e18 = 100%.
     function setPerfFeeRate(uint256 newPerfFeeRate) external;
 
-    /// @notice Sets the fixed fee split and receivers.
-    /// @param newMgmtFeeReceivers The new fixed fee receivers.
-    /// @param newMgmtFeeSplitBps The new fixed fee split between receivers in basis points. Values must sum to 10_000.
+    /// @notice Sets the management fee split and receivers.
+    /// @param newMgmtFeeReceivers The new management fee receivers.
+    /// @param newMgmtFeeSplitBps The new management fee split between receivers in basis points. Values must sum to 10_000.
     function setMgmtFeeSplit(address[] calldata newMgmtFeeReceivers, uint256[] calldata newMgmtFeeSplitBps) external;
 
     /// @notice Sets the performance fee split and receivers.

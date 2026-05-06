@@ -11,7 +11,7 @@ import {IMetaMorphoFactory} from "../interfaces/IMetaMorphoFactory.sol";
 import {IMetaMorphoOracleFactory} from "../interfaces/IMetaMorphoOracleFactory.sol";
 
 contract MetaMorphoOracleFactory is AccessManagedUpgradeable, IMetaMorphoOracleFactory {
-    // @custom:storage-location erc7201:makina.storage.MetaMorphoOracleFactory
+    /// @custom:storage-location erc7201:makina.storage.MetaMorphoOracleFactory
     struct MetaMorphoOracleFactoryStorage {
         mapping(address oracle => bool isOracle) _isOracle;
         mapping(address factory => bool isFactory) _isMorphoFactory;
@@ -36,13 +36,13 @@ contract MetaMorphoOracleFactory is AccessManagedUpgradeable, IMetaMorphoOracleF
     }
 
     /// @inheritdoc IMetaMorphoOracleFactory
-    function isMorphoFactory(address morphoFactory) external view returns (bool) {
+    function isMorphoFactory(address morphoFactory) external view override returns (bool) {
         MetaMorphoOracleFactoryStorage storage $ = _getMetaMorphoOracleFactoryStorage();
         return $._isMorphoFactory[morphoFactory];
     }
 
     /// @inheritdoc IMetaMorphoOracleFactory
-    function isOracle(address oracle) external view returns (bool) {
+    function isOracle(address oracle) external view override returns (bool) {
         MetaMorphoOracleFactoryStorage storage $ = _getMetaMorphoOracleFactoryStorage();
         return $._isOracle[oracle];
     }

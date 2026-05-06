@@ -54,7 +54,7 @@ abstract contract Fork_Test is Base, Test, Core_Base.Base {
         chainId = ChainsInfo.CHAIN_ID_ETHEREUM;
         ChainsInfo.ChainInfo memory chainInfo = ChainsInfo.getChainInfo(chainId);
 
-        vm.createSelectFork({urlOrAlias: chainInfo.foundryAlias});
+        vm.createSelectFork({urlOrAlias: chainInfo.foundryAlias, blockNumber: 24906014});
 
         string memory coreInputPath = string.concat(vm.projectRoot(), "/lib/makina-core/test/fork/constants/");
         string memory coreInputJson = vm.readFile(string.concat(coreInputPath, chainInfo.constantsFilename));

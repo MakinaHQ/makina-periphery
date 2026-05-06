@@ -1,4 +1,4 @@
-/// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: MIT
 pragma solidity 0.8.28;
 
 import {IERC4626} from "@openzeppelin/contracts/interfaces/IERC4626.sol";
@@ -38,7 +38,7 @@ contract ERC4626Oracle is AggregatorV2V3Interface {
     /// @notice Scaling factor numerator used to adjust price to the desired decimals.
     uint256 public immutable SCALING_NUMERATOR;
 
-    /// @notice Creates a new ERC4626Wrapper for a given ERC4626 vault.
+    /// @notice Constructor for the ERC4626Oracle.
     /// @param _vault The ERC4626 vault.
     /// @param _decimals The decimals to use for the price.
     constructor(IERC4626 _vault, uint8 _decimals) {

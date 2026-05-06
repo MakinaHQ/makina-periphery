@@ -3,10 +3,10 @@
     "initialMgmtFeeRatePerSecond": 0,
     "initialSmFeeRatePerSecond": 0,
     "initialPerfFeeRate": 0,
-    "initialMgmtFeeSplitBps": [0],
     "initialMgmtFeeReceivers": ["0x0000000000000000000000000000000000000000"],
-    "initialPerfFeeSplitBps": [0],
-    "initialPerfFeeReceivers": ["0x0000000000000000000000000000000000000000"]
+    "initialMgmtFeeSplitBps": [0],
+    "initialPerfFeeReceivers": ["0x0000000000000000000000000000000000000000"],
+    "initialPerfFeeSplitBps": [0]
   },
   "securityModule": "0x0000000000000000000000000000000000000000"
 }

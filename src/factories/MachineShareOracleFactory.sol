@@ -10,7 +10,7 @@ import {IMachineShareOracle} from "../interfaces/IMachineShareOracle.sol";
 import {IMachineShareOracleFactory} from "../interfaces/IMachineShareOracleFactory.sol";
 
 contract MachineShareOracleFactory is AccessManagedUpgradeable, IMachineShareOracleFactory {
-    // @custom:storage-location erc7201:makina.storage.MachineShareOracleFactory
+    /// @custom:storage-location erc7201:makina.storage.MachineShareOracleFactory
     struct MachineShareOracleFactoryStorage {
         mapping(address oracle => bool isOracle) _isMachineShareOracle;
         address _machineShareOracleBeacon;
@@ -36,17 +36,22 @@ contract MachineShareOracleFactory is AccessManagedUpgradeable, IMachineShareOra
     }
 
     /// @inheritdoc IMachineShareOracleFactory
-    function machineShareOracleBeacon() external view returns (address) {
+    function machineShareOracleBeacon() external view override returns (address) {
         return _getMachineShareOracleFactoryStorage()._machineShareOracleBeacon;
     }
 
     /// @inheritdoc IMachineShareOracleFactory
-    function isMachineShareOracle(address oracle) external view returns (bool) {
+    function isMachineShareOracle(address oracle) external view override returns (bool) {
         return _getMachineShareOracleFactoryStorage()._isMachineShareOracle[oracle];
     }
 
     /// @inheritdoc IMachineShareOracleFactory
-    function createMachineShareOracle(address shareOwner, uint8 decimals) external restricted returns (address) {
+    function createMachineShareOracle(address shareOwner, uint8 decimals)
+        external
+        override
+        restricted
+        returns (address)
+    {
         MachineShareOracleFactoryStorage storage $ = _getMachineShareOracleFactoryStorage();
 
         address oracle = address(
@@ -62,7 +67,7 @@ contract MachineShareOracleFactory is AccessManagedUpgradeable, IMachineShareOra
     }
 
     /// @inheritdoc IMachineShareOracleFactory
-    function setMachineShareOracleBeacon(address _machineShareOracleBeacon) external restricted {
+    function setMachineShareOracleBeacon(address _machineShareOracleBeacon) external override restricted {
         MachineShareOracleFactoryStorage storage $ = _getMachineShareOracleFactoryStorage();
         emit MachineShareOracleBeaconChanged($._machineShareOracleBeacon, _machineShareOracleBeacon);
         $._machineShareOracleBeacon = _machineShareOracleBeacon;

@@ -71,7 +71,7 @@ contract SecurityModule is ERC20Upgradeable, ReentrancyGuard, MachinePeriphery, 
         $._cooldownReceipt = _cooldownReceipt;
     }
 
-    modifier NotSlashingMode() {
+    modifier notSlashingMode() {
         if (_getSecurityModuleStorage()._slashingMode) {
             revert Errors.SlashingSettlementOngoing();
         }
@@ -165,7 +165,7 @@ contract SecurityModule is ERC20Upgradeable, ReentrancyGuard, MachinePeriphery, 
     }
 
     /// @inheritdoc ISecurityModule
-    function previewLock(uint256 assets) public view override NotSlashingMode returns (uint256) {
+    function previewLock(uint256 assets) public view override notSlashingMode returns (uint256) {
         return convertToShares(assets);
     }
 
@@ -174,11 +174,11 @@ contract SecurityModule is ERC20Upgradeable, ReentrancyGuard, MachinePeriphery, 
         external
         override
         nonReentrant
-        NotSlashingMode
+        notSlashingMode
         returns (uint256)
     {
         address caller = msg.sender;
-        uint256 shares = previewLock(assets);
+        uint256 shares = convertToShares(assets);
 
         if (shares < minShares) {
             revert CoreErrors.SlippageProtection();

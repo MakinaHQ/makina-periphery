@@ -43,6 +43,9 @@ interface IFlashloanAggregator {
     /// @notice Error thrown when the Morpho pool is not set.
     error MorphoPoolNotSet();
 
+    /// @notice Error thrown when the DAI token is not set.
+    error DaiNotSet();
+
     /// @notice Error thrown when the Maker DSS Flash is not set.
     error DssFlashNotSet();
 
@@ -81,4 +84,16 @@ interface IFlashloanAggregator {
     /// @notice The function to request a flash loan.
     /// @param request The request for the flash loan.
     function requestFlashloan(FlashloanRequest calldata request) external;
+
+    /// @notice Callback handler for Balancer V3 flashloan.
+    /// @param caliber The address of the Caliber contract that initiated the flashloan.
+    /// @param instruction The instruction to execute.
+    /// @param token The token borrowed.
+    /// @param amount The amount borrowed.
+    function balancerV3FlashloanCallback(
+        address caliber,
+        ICaliber.Instruction calldata instruction,
+        address token,
+        uint256 amount
+    ) external;
 }

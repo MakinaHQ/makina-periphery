@@ -243,6 +243,10 @@ abstract contract Base is ProxyUtils, JsonParser {
             .setTargetFunctionRole(address(deployment.asyncRedeemerBeacon), beaconSelectors, Roles.INFRA_UPGRADE_ROLE);
         IAccessManager(accessManager)
             .setTargetFunctionRole(
+                address(deployment.asyncRedeemerFeeBeacon), beaconSelectors, Roles.INFRA_UPGRADE_ROLE
+            );
+        IAccessManager(accessManager)
+            .setTargetFunctionRole(
                 address(deployment.watermarkFeeManagerBeacon), beaconSelectors, Roles.INFRA_UPGRADE_ROLE
             );
         IAccessManager(accessManager)
@@ -253,7 +257,7 @@ abstract contract Base is ProxyUtils, JsonParser {
             );
 
         // HubPeripheryRegistry
-        bytes4[] memory hubPeripheryRegistrySelectors = new bytes4[](10);
+        bytes4[] memory hubPeripheryRegistrySelectors = new bytes4[](5);
         hubPeripheryRegistrySelectors[0] = IHubPeripheryRegistry.setPeripheryFactory.selector;
         hubPeripheryRegistrySelectors[1] = IHubPeripheryRegistry.setDepositorBeacon.selector;
         hubPeripheryRegistrySelectors[2] = IHubPeripheryRegistry.setRedeemerBeacon.selector;

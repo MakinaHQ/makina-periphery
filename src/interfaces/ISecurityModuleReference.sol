@@ -6,6 +6,6 @@ interface ISecurityModuleReference {
     function securityModule() external view returns (address);
 
     /// @notice Sets the security module address.
-    /// @param securityModule The address of the security module.
-    function setSecurityModule(address securityModule) external;
+    /// @param _securityModule The address of the security module.
+    function setSecurityModule(address _securityModule) external;
 }

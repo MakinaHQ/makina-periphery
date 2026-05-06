@@ -2,7 +2,7 @@
 
 This repository contains the periphery smart contracts of the Makina Protocol.
 
-See `SPECIFICATION.md` and `PERMISSIONS.md` for more details.
+See `SPECIFICATIONS.md` and `PERMISSIONS.md` for more details.
 
 ## Contracts Overview
 

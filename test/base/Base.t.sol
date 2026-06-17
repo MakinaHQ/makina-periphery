@@ -28,6 +28,7 @@ import {SwapModule} from "@makina-core/swap/SwapModule.sol";
 import {TokenRegistry} from "@makina-core/registries/TokenRegistry.sol";
 
 import {Constants} from "../utils/Constants.sol";
+import {DirectDepositorPausable} from "../../src/depositors/DirectDepositorPausable.sol";
 import {FlashloanAggregator} from "../../src/flashloans/FlashloanAggregator.sol";
 import {HubPeripheryRegistry} from "../../src/registries/HubPeripheryRegistry.sol";
 import {HubPeripheryFactory} from "../../src/factories/HubPeripheryFactory.sol";
@@ -64,6 +65,7 @@ abstract contract Base_Test is Base, Test, Constants, Core_Base.Base, Core_Const
 
     // Machine Depositors
     UpgradeableBeacon internal directDepositorBeacon;
+    UpgradeableBeacon internal directDepositorPausableBeacon;
 
     // Machine Redeemers
     UpgradeableBeacon internal asyncRedeemerBeacon;
@@ -182,10 +184,17 @@ abstract contract Base_Hub_Test is Base_Test {
         registerHubPeripheryFactory(address(hubPeripheryRegistry), address(hubPeripheryFactory));
         registerSecurityModuleBeacon(address(hubPeripheryRegistry), address(securityModuleBeacon));
 
-        uint16[] memory mdImplemIds = new uint16[](1);
+        // Deploy a DirectDepositorPausable implementation and beacon for test coverage of the pausable variant.
+        directDepositorPausableBeacon = new UpgradeableBeacon(
+            address(new DirectDepositorPausable(address(hubPeripheryRegistry))), address(accessManager)
+        );
+
+        uint16[] memory mdImplemIds = new uint16[](2);
         mdImplemIds[0] = DIRECT_DEPOSITOR_IMPLEM_ID;
-        address[] memory mdBeacons = new address[](1);
+        mdImplemIds[1] = DIRECT_DEPOSITOR_PAUSABLE_IMPLEM_ID;
+        address[] memory mdBeacons = new address[](2);
         mdBeacons[0] = address(peripheryDeployment.directDepositorBeacon);
+        mdBeacons[1] = address(directDepositorPausableBeacon);
         registerDepositorBeacons(address(hubPeripheryRegistry), mdImplemIds, mdBeacons);
 
         uint16[] memory mrImplemIds = new uint16[](2);

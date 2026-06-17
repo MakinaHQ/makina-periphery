@@ -10,6 +10,7 @@ abstract contract Constants {
 
     // Depositors
     uint16 internal constant DIRECT_DEPOSITOR_IMPLEM_ID = 1001;
+    uint16 internal constant DIRECT_DEPOSITOR_PAUSABLE_IMPLEM_ID = 1002;
 
     // Redeemers
     uint16 internal constant ASYNC_REDEEMER_IMPLEM_ID = 2001;

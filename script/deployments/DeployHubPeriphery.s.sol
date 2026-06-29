@@ -10,6 +10,7 @@ contract DeployHubPeriphery is DeployPeriphery {
 
     address internal accessManager;
     address internal hubCoreRegistry;
+    address internal sanctionsOracle;
     FlashloanProviders internal flProviders;
 
     HubPeriphery private _hubPeriphery;
@@ -37,6 +38,7 @@ contract DeployHubPeriphery is DeployPeriphery {
     function _deploySetupBefore() public override {
         accessManager = vm.parseJsonAddress(inputJson, ".accessManager");
         hubCoreRegistry = vm.parseJsonAddress(inputJson, ".hubCoreRegistry");
+        sanctionsOracle = vm.parseJsonAddress(inputJson, ".sanctionsOracle");
         flProviders = parseFlashloanProviders(inputJson, ".flashloanProviders");
 
         // start broadcasting transactions
@@ -46,7 +48,7 @@ contract DeployHubPeriphery is DeployPeriphery {
     }
 
     function _coreSetup() public override {
-        _hubPeriphery = deployHubPeriphery(accessManager, hubCoreRegistry, flProviders);
+        _hubPeriphery = deployHubPeriphery(accessManager, hubCoreRegistry, sanctionsOracle, flProviders);
     }
 
     function _deploySetupAfter() public override {

@@ -21,7 +21,12 @@ abstract contract AsyncRedeemer_Integration_Concrete_Test is AsyncRedeemer_Share
         asyncRedeemer = IAsyncRedeemer(
             hubPeripheryFactory.createRedeemer(
                 ASYNC_REDEEMER_IMPLEM_ID,
-                abi.encode(DEFAULT_FINALIZATION_DELAY, DEFAULT_MIN_REDEEM_AMOUNT, DEFAULT_INITIAL_WHITELIST_STATUS)
+                abi.encode(
+                    DEFAULT_FINALIZATION_DELAY,
+                    DEFAULT_MIN_REDEEM_AMOUNT,
+                    DEFAULT_INITIAL_WHITELIST_STATUS,
+                    DEFAULT_INITIAL_SANCTIONS_CHECK_STATUS
+                )
             )
         );
 

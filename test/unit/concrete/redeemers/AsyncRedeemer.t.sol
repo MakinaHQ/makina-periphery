@@ -6,6 +6,7 @@ import {Machine} from "@makina-core/machine/Machine.sol";
 import {CoreErrors} from "src/libraries/Errors.sol";
 import {IAsyncRedeemer} from "src/interfaces/IAsyncRedeemer.sol";
 import {IMachinePeriphery} from "src/interfaces/IMachinePeriphery.sol";
+import {ISanctionsList} from "src/interfaces/ISanctionsList.sol";
 import {IWhitelist} from "src/interfaces/IWhitelist.sol";
 import {AsyncRedeemer} from "src/redeemers/AsyncRedeemer.sol";
 
@@ -13,6 +14,7 @@ import {
     MachinePeriphery_Util_Concrete_Test,
     Getter_Setter_MachinePeriphery_Util_Concrete_Test
 } from "../machine-periphery/MachinePeriphery.t.sol";
+import {SanctionsList_Unit_Concrete_Test} from "../sanctions-list/SanctionsList.t.sol";
 import {Whitelist_Unit_Concrete_Test} from "../whitelist/Whitelist.t.sol";
 import {Unit_Concrete_Test} from "../UnitConcrete.t.sol";
 
@@ -27,7 +29,12 @@ abstract contract AsyncRedeemer_Util_Concrete_Test is MachinePeriphery_Util_Conc
         asyncRedeemer = AsyncRedeemer(
             hubPeripheryFactory.createRedeemer(
                 ASYNC_REDEEMER_IMPLEM_ID,
-                abi.encode(DEFAULT_FINALIZATION_DELAY, DEFAULT_MIN_REDEEM_AMOUNT, DEFAULT_INITIAL_WHITELIST_STATUS)
+                abi.encode(
+                    DEFAULT_FINALIZATION_DELAY,
+                    DEFAULT_MIN_REDEEM_AMOUNT,
+                    DEFAULT_INITIAL_WHITELIST_STATUS,
+                    DEFAULT_INITIAL_SANCTIONS_CHECK_STATUS
+                )
             )
         );
 
@@ -41,6 +48,19 @@ contract Whitelist_AsyncRedeemer_Util_Concrete_Test is Whitelist_Unit_Concrete_T
     function setUp() public override(Whitelist_Unit_Concrete_Test, AsyncRedeemer_Util_Concrete_Test) {
         AsyncRedeemer_Util_Concrete_Test.setUp();
         whitelist = IWhitelist(address(asyncRedeemer));
+
+        vm.prank(dao);
+        hubPeripheryFactory.setMachine(address(asyncRedeemer), address(machine));
+    }
+}
+
+contract SanctionsList_AsyncRedeemer_Util_Concrete_Test is
+    SanctionsList_Unit_Concrete_Test,
+    AsyncRedeemer_Util_Concrete_Test
+{
+    function setUp() public override(SanctionsList_Unit_Concrete_Test, AsyncRedeemer_Util_Concrete_Test) {
+        AsyncRedeemer_Util_Concrete_Test.setUp();
+        sanctionsList = ISanctionsList(address(asyncRedeemer));
 
         vm.prank(dao);
         hubPeripheryFactory.setMachine(address(asyncRedeemer), address(machine));

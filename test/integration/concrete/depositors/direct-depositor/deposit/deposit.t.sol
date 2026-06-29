@@ -13,17 +13,27 @@ contract Deposit_Integration_Concrete_Test is DirectDepositor_Integration_Concre
         directDepositor.deposit(0, address(0), 0, 0);
     }
 
-    function test_RevertWhen_UserNotWhitelisted() public withMachine(address(machine)) withWhitelistEnabled {
+    function test_RevertWhen_UserNotWhitelisted_WithWhitelistEnabled()
+        public
+        withMachine(address(machine))
+        withWhitelistEnabled
+    {
         vm.expectRevert(CoreErrors.UnauthorizedCaller.selector);
+        directDepositor.deposit(0, address(0), 0, 0);
+    }
+
+    function test_RevertWhen_CallerSanctioned_WithSanctionsCheckEnabled()
+        public
+        withMachine(address(machine))
+        withSanctionsCheckEnabled
+        withSanctionedUser(address(this))
+    {
+        vm.expectRevert(Errors.SanctionedCaller.selector);
         directDepositor.deposit(0, address(0), 0, 0);
     }
 
     function test_Deposit() public withMachine(address(machine)) {
         _test_Deposit();
-    }
-
-    function test_Deposit_WithReferral() public withMachine(address(machine)) {
-        _test_Deposit_WithReferral();
     }
 
     function test_Deposit_WithWhitelistEnabled()
@@ -35,12 +45,11 @@ contract Deposit_Integration_Concrete_Test is DirectDepositor_Integration_Concre
         _test_Deposit();
     }
 
-    function test_Deposit_WithWhitelistEnabled_WithReferral()
-        public
-        withMachine(address(machine))
-        withWhitelistEnabled
-        withWhitelistedUser(address(this))
-    {
+    function test_Deposit_WithSanctionsCheckEnabled() public withMachine(address(machine)) withSanctionsCheckEnabled {
+        _test_Deposit();
+    }
+
+    function test_Deposit_WithReferral() public withMachine(address(machine)) {
         _test_Deposit_WithReferral();
     }
 

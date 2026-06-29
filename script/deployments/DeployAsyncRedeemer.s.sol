@@ -19,6 +19,7 @@ contract DeployAsyncRedeemer is Base, Script {
     uint256 public finalizationDelay;
     uint256 public minRedeemAmount;
     bool public whitelistStatus;
+    bool public sanctionsCheckStatus;
 
     address public deployedInstance;
 
@@ -57,6 +58,7 @@ contract DeployAsyncRedeemer is Base, Script {
         finalizationDelay = vm.parseJsonUint(inputJson, ".finalizationDelay");
         minRedeemAmount = vm.parseJsonUint(inputJson, ".minRedeemAmount");
         whitelistStatus = vm.parseJsonBool(inputJson, ".whitelistStatus");
+        sanctionsCheckStatus = vm.parseJsonBool(inputJson, ".sanctionsCheckStatus");
 
         address sender = vm.envOr("TEST_SENDER", address(0));
         if (sender != address(0)) {
@@ -66,7 +68,9 @@ contract DeployAsyncRedeemer is Base, Script {
         }
 
         deployedInstance = IHubPeripheryFactory(vm.parseJsonAddress(deploymentOutputJson, ".HubPeripheryFactory"))
-            .createRedeemer(implemId, abi.encode(finalizationDelay, minRedeemAmount, whitelistStatus));
+            .createRedeemer(
+                implemId, abi.encode(finalizationDelay, minRedeemAmount, whitelistStatus, sanctionsCheckStatus)
+            );
 
         vm.stopBroadcast();
 

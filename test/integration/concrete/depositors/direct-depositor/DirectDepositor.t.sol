@@ -16,7 +16,8 @@ contract DirectDepositor_Integration_Concrete_Test is MachinePeriphery_Integrati
         vm.prank(dao);
         directDepositor = DirectDepositor(
             hubPeripheryFactory.createDepositor(
-                DIRECT_DEPOSITOR_IMPLEM_ID, abi.encode(DEFAULT_INITIAL_WHITELIST_STATUS)
+                DIRECT_DEPOSITOR_IMPLEM_ID,
+                abi.encode(DEFAULT_INITIAL_WHITELIST_STATUS, DEFAULT_INITIAL_SANCTIONS_CHECK_STATUS)
             )
         );
 
@@ -44,6 +45,19 @@ contract DirectDepositor_Integration_Concrete_Test is MachinePeriphery_Integrati
 
         vm.prank(riskManager);
         directDepositor.setWhitelistedUsers(users, true);
+
+        _;
+    }
+
+    modifier withSanctionsCheckEnabled() {
+        vm.prank(riskManager);
+        directDepositor.setSanctionsCheckStatus(true);
+
+        _;
+    }
+
+    modifier withSanctionedUser(address _user) {
+        sanctionsOracle.setSanctioned(_user, true);
 
         _;
     }

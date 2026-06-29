@@ -2,6 +2,7 @@
 pragma solidity 0.8.28;
 
 import {IAsyncRedeemer} from "src/interfaces/IAsyncRedeemer.sol";
+import {ISanctionsList} from "src/interfaces/ISanctionsList.sol";
 import {IWhitelist} from "src/interfaces/IWhitelist.sol";
 
 import {MachinePeriphery_Integration_Concrete_Test} from "../../machine-periphery/MachinePeriphery.t.sol";
@@ -37,6 +38,19 @@ abstract contract AsyncRedeemer_Shared_Integration_Concrete_Test is MachinePerip
 
         vm.prank(riskManager);
         IWhitelist(address(asyncRedeemer)).setWhitelistedUsers(users, true);
+
+        _;
+    }
+
+    modifier withSanctionsCheckEnabled() {
+        vm.prank(riskManager);
+        ISanctionsList(address(asyncRedeemer)).setSanctionsCheckStatus(true);
+
+        _;
+    }
+
+    modifier withSanctionedUser(address _user) {
+        sanctionsOracle.setSanctioned(_user, true);
 
         _;
     }

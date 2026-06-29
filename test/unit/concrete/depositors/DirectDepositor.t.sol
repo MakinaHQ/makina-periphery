@@ -4,6 +4,7 @@ pragma solidity 0.8.28;
 import {Machine} from "@makina-core/machine/Machine.sol";
 
 import {IMachinePeriphery} from "src/interfaces/IMachinePeriphery.sol";
+import {ISanctionsList} from "src/interfaces/ISanctionsList.sol";
 import {IWhitelist} from "src/interfaces/IWhitelist.sol";
 import {DirectDepositor} from "src/depositors/DirectDepositor.sol";
 
@@ -11,6 +12,7 @@ import {
     MachinePeriphery_Util_Concrete_Test,
     Getter_Setter_MachinePeriphery_Util_Concrete_Test
 } from "../machine-periphery/MachinePeriphery.t.sol";
+import {SanctionsList_Unit_Concrete_Test} from "../sanctions-list/SanctionsList.t.sol";
 import {Whitelist_Unit_Concrete_Test} from "../whitelist/Whitelist.t.sol";
 import {Unit_Concrete_Test} from "../UnitConcrete.t.sol";
 
@@ -24,7 +26,8 @@ abstract contract DirectDepositor_Util_Concrete_Test is MachinePeriphery_Util_Co
         vm.prank(dao);
         directDepositor = DirectDepositor(
             hubPeripheryFactory.createDepositor(
-                DIRECT_DEPOSITOR_IMPLEM_ID, abi.encode(DEFAULT_INITIAL_WHITELIST_STATUS)
+                DIRECT_DEPOSITOR_IMPLEM_ID,
+                abi.encode(DEFAULT_INITIAL_WHITELIST_STATUS, DEFAULT_INITIAL_SANCTIONS_CHECK_STATUS)
             )
         );
 
@@ -41,6 +44,19 @@ contract Whitelist_DirectDepositor_Util_Concrete_Test is
     function setUp() public override(Whitelist_Unit_Concrete_Test, DirectDepositor_Util_Concrete_Test) {
         DirectDepositor_Util_Concrete_Test.setUp();
         whitelist = IWhitelist(address(directDepositor));
+
+        vm.prank(dao);
+        hubPeripheryFactory.setMachine(address(directDepositor), address(machine));
+    }
+}
+
+contract SanctionsList_DirectDepositor_Util_Concrete_Test is
+    SanctionsList_Unit_Concrete_Test,
+    DirectDepositor_Util_Concrete_Test
+{
+    function setUp() public override(SanctionsList_Unit_Concrete_Test, DirectDepositor_Util_Concrete_Test) {
+        DirectDepositor_Util_Concrete_Test.setUp();
+        sanctionsList = ISanctionsList(address(directDepositor));
 
         vm.prank(dao);
         hubPeripheryFactory.setMachine(address(directDepositor), address(machine));

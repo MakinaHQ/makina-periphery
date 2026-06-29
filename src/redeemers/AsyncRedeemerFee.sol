@@ -32,7 +32,7 @@ contract AsyncRedeemerFee is AsyncRedeemer, IAsyncRedeemerFee {
         }
     }
 
-    constructor(address _registry) AsyncRedeemer(_registry) {}
+    constructor(address _registry, address _sanctionsOracle) AsyncRedeemer(_registry, _sanctionsOracle) {}
 
     /// @inheritdoc IMachinePeriphery
     function initialize(bytes calldata data) external virtual override(AsyncRedeemer, IMachinePeriphery) initializer {
@@ -42,9 +42,10 @@ contract AsyncRedeemerFee is AsyncRedeemer, IAsyncRedeemerFee {
             uint256 _finalizationDelay,
             uint256 _minRedeemAmount,
             bool _whitelistStatus,
+            bool _sanctionsCheckStatus,
             uint256 _redeemFeeRate,
             uint256 _maxRedeemFeeRate
-        ) = abi.decode(data, (uint256, uint256, bool, uint256, uint256));
+        ) = abi.decode(data, (uint256, uint256, bool, bool, uint256, uint256));
 
         if (_redeemFeeRate > _maxRedeemFeeRate || _maxRedeemFeeRate > MAX_FEE_RATE) {
             revert Errors.MaxFeeRateValueExceeded();
@@ -52,7 +53,7 @@ contract AsyncRedeemerFee is AsyncRedeemer, IAsyncRedeemerFee {
         $._redeemFeeRate = _redeemFeeRate;
         $._maxRedeemFeeRate = _maxRedeemFeeRate;
 
-        __AsyncRedeemer_init(_finalizationDelay, _minRedeemAmount, _whitelistStatus);
+        __AsyncRedeemer_init(_finalizationDelay, _minRedeemAmount, _whitelistStatus, _sanctionsCheckStatus);
     }
 
     /// @inheritdoc IAsyncRedeemerFee

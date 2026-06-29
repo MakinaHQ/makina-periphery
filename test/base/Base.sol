@@ -43,10 +43,12 @@ abstract contract Base is ProxyUtils, JsonParser {
     /// HUB PERIPHERY DEPLOYMENTS
     ///
 
-    function deployHubPeriphery(address accessManager, address hubCoreRegistry, FlashloanProviders memory flProviders)
-        internal
-        returns (HubPeriphery memory deployment)
-    {
+    function deployHubPeriphery(
+        address accessManager,
+        address hubCoreRegistry,
+        address sanctionsOracle,
+        FlashloanProviders memory flProviders
+    ) internal returns (HubPeriphery memory deployment) {
         {
             address caliberFactory = ICoreRegistry(hubCoreRegistry).coreFactory();
             deployment.flashloanAggregator = deployFlashloanAggregator(caliberFactory, flProviders);
@@ -80,17 +82,20 @@ abstract contract Base is ProxyUtils, JsonParser {
         }
 
         {
-            address directDepositorImplemAddr = address(new DirectDepositor(address(deployment.hubPeripheryRegistry)));
+            address directDepositorImplemAddr =
+                address(new DirectDepositor(address(deployment.hubPeripheryRegistry), sanctionsOracle));
             deployment.directDepositorBeacon = new UpgradeableBeacon(directDepositorImplemAddr, accessManager);
         }
 
         {
-            address asyncRedeemerImplemAddr = address(new AsyncRedeemer(address(deployment.hubPeripheryRegistry)));
+            address asyncRedeemerImplemAddr =
+                address(new AsyncRedeemer(address(deployment.hubPeripheryRegistry), sanctionsOracle));
             deployment.asyncRedeemerBeacon = new UpgradeableBeacon(asyncRedeemerImplemAddr, accessManager);
         }
 
         {
-            address asyncRedeemerFeeImplemAddr = address(new AsyncRedeemerFee(address(deployment.hubPeripheryRegistry)));
+            address asyncRedeemerFeeImplemAddr =
+                address(new AsyncRedeemerFee(address(deployment.hubPeripheryRegistry), sanctionsOracle));
             deployment.asyncRedeemerFeeBeacon = new UpgradeableBeacon(asyncRedeemerFeeImplemAddr, accessManager);
         }
 

@@ -29,6 +29,7 @@ library Errors {
     error NotMachine();
     error NotRedeemer();
     error NotSecurityModule();
+    error SanctionedCaller();
     error SecurityModuleAlreadySet();
     error SlashingSettlementOngoing();
     error ZeroMachineAddress();

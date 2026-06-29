@@ -33,6 +33,7 @@ import {HubPeripheryRegistry} from "../../src/registries/HubPeripheryRegistry.so
 import {HubPeripheryFactory} from "../../src/factories/HubPeripheryFactory.sol";
 import {MachineShareOracleFactory} from "../../src/factories/MachineShareOracleFactory.sol";
 import {MetaMorphoOracleFactory} from "../../src/factories/MetaMorphoOracleFactory.sol";
+import {MockChainalysisSanctionsList} from "../mocks/MockChainalysisSanctionsList.sol";
 
 import {Base} from "./Base.sol";
 
@@ -74,6 +75,9 @@ abstract contract Base_Test is Base, Test, Constants, Core_Base.Base, Core_Const
 
     // Security Module
     UpgradeableBeacon internal securityModuleBeacon;
+
+    // Chainalysis sanctions oracle
+    MockChainalysisSanctionsList internal sanctionsOracle;
 
     // MetaMorpho Oracle Factory
     MetaMorphoOracleFactory internal metaMorphoOracleFactory;
@@ -153,10 +157,14 @@ abstract contract Base_Hub_Test is Base_Test {
 
         setupHubCoreRegistry(coreDeployment);
 
+        // Chainalysis sanctions oracle
+        sanctionsOracle = new MockChainalysisSanctionsList();
+
         // Hub Periphery
         HubPeriphery memory peripheryDeployment = deployHubPeriphery(
             address(accessManager),
             address(hubCoreRegistry),
+            address(sanctionsOracle),
             FlashloanProviders({
                 balancerV2Pool: balancerV2Pool,
                 balancerV3Pool: balancerV3Pool,

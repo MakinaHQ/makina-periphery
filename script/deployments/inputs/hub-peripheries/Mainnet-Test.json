@@ -1,6 +1,7 @@
 {
   "accessManager": "0x4B3336630e591D36ca81f0c25b798895289dDD30",
   "hubCoreRegistry": "0x41EeA04d79F276ba2CbeCaCEaebf5A9F20Aa0662",
+  "sanctionsOracle": "0x40C57923924B5c5c5455c48D93317139ADDaC8fb",
   "flashloanProviders": {
     "balancerV2Pool": "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
     "balancerV3Pool": "0xbA1333333333a1BA1108E8412f11850A5C319bA9",

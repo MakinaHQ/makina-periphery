@@ -16,8 +16,8 @@ import {ICaliber} from "@makina-core/interfaces/ICaliber.sol";
 import {IMachine} from "@makina-core/interfaces/IMachine.sol";
 import {IMakinaGovernable} from "@makina-core/interfaces/IMakinaGovernable.sol";
 import {IPreDepositVault} from "@makina-core/interfaces/IPreDepositVault.sol";
+import {ISpokeSnapshotConsumer} from "@makina-core/interfaces/ISpokeSnapshotConsumer.sol";
 import {Caliber} from "@makina-core/caliber/Caliber.sol";
-import {ChainRegistry} from "@makina-core/registries/ChainRegistry.sol";
 import {HubCoreRegistry} from "@makina-core/registries/HubCoreRegistry.sol";
 import {HubCoreFactory} from "@makina-core/factories/HubCoreFactory.sol";
 import {Machine} from "@makina-core/machine/Machine.sol";
@@ -131,7 +131,6 @@ abstract contract Base_Hub_Test is Base_Test {
 
     // Hub Core
     HubCoreRegistry internal hubCoreRegistry;
-    ChainRegistry internal chainRegistry;
     HubCoreFactory internal hubCoreFactory;
 
     function setUp() public virtual override {
@@ -152,7 +151,6 @@ abstract contract Base_Hub_Test is Base_Test {
         swapModule = coreDeployment.swapModule;
         hubCoreRegistry = coreDeployment.hubCoreRegistry;
         tokenRegistry = coreDeployment.tokenRegistry;
-        chainRegistry = coreDeployment.chainRegistry;
         hubCoreFactory = coreDeployment.hubCoreFactory;
 
         setupHubCoreRegistry(coreDeployment);
@@ -279,6 +277,7 @@ abstract contract Base_Hub_Test is Base_Test {
                     initialRestrictedAccountingMode: false,
                     initialAccountingAgents: new address[](0)
                 }),
+                ISpokeSnapshotConsumer.SpokeSnapshotConsumerInitParams({initialCreWorkflowIds: new bytes32[](0)}),
                 new IBridgeAdapterFactory.BridgeAdapterInitParams[](0),
                 _preDepositVault,
                 TEST_DEPLOYMENT_SALT,
@@ -326,6 +325,7 @@ abstract contract Base_Hub_Test is Base_Test {
                     initialRestrictedAccountingMode: false,
                     initialAccountingAgents: new address[](0)
                 }),
+                ISpokeSnapshotConsumer.SpokeSnapshotConsumerInitParams({initialCreWorkflowIds: new bytes32[](0)}),
                 new IBridgeAdapterFactory.BridgeAdapterInitParams[](0),
                 _accountingToken,
                 DEFAULT_MACHINE_SHARE_TOKEN_NAME,

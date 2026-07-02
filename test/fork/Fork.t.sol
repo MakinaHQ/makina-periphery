@@ -9,7 +9,6 @@ import {
 
 import "@makina-core-test/base/Base.sol" as Core_Base;
 import {ChainsInfo} from "@makina-core-test/utils/ChainsInfo.sol";
-import {ChainRegistry} from "@makina-core/registries/ChainRegistry.sol";
 import {HubCoreRegistry} from "@makina-core/registries/HubCoreRegistry.sol";
 import {HubCoreFactory} from "@makina-core/factories/HubCoreFactory.sol";
 import {OracleRegistry} from "@makina-core/registries/OracleRegistry.sol";
@@ -42,7 +41,6 @@ abstract contract Fork_Test is Base, Test, Core_Base.Base {
     TokenRegistry internal tokenRegistry;
     SwapModule internal swapModule;
     HubCoreRegistry internal hubCoreRegistry;
-    ChainRegistry internal chainRegistry;
     HubCoreFactory internal hubCoreFactory;
 
     // Hub Periphery

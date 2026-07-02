@@ -2,6 +2,7 @@
   "finalizationDelay": 0,
   "minRedeemAmount": 0,
   "whitelistStatus": false,
+  "sanctionsCheckStatus": false,
   "redeemFeeRate": 0,
   "maxRedeemFeeRate": 0
 }

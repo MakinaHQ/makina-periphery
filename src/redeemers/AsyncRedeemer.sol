@@ -12,12 +12,21 @@ import {IMachine} from "@makina-core/interfaces/IMachine.sol";
 
 import {Errors, CoreErrors} from "../libraries/Errors.sol";
 import {MachinePeriphery} from "../utils/MachinePeriphery.sol";
+import {SanctionsList} from "../utils/SanctionsList.sol";
 import {Whitelist} from "../utils/Whitelist.sol";
 import {IAsyncRedeemer} from "../interfaces/IAsyncRedeemer.sol";
 import {IMachinePeriphery} from "../interfaces/IMachinePeriphery.sol";
+import {ISanctionsList} from "../interfaces/ISanctionsList.sol";
 import {IWhitelist} from "../interfaces/IWhitelist.sol";
 
-contract AsyncRedeemer is ERC721Upgradeable, ReentrancyGuard, MachinePeriphery, Whitelist, IAsyncRedeemer {
+contract AsyncRedeemer is
+    ERC721Upgradeable,
+    ReentrancyGuard,
+    MachinePeriphery,
+    SanctionsList,
+    Whitelist,
+    IAsyncRedeemer
+{
     using Math for uint256;
     using SafeERC20 for IERC20;
 
@@ -40,20 +49,25 @@ contract AsyncRedeemer is ERC721Upgradeable, ReentrancyGuard, MachinePeriphery, 
         }
     }
 
-    constructor(address _registry) MachinePeriphery(_registry) {}
+    constructor(address _registry, address _sanctionsOracle)
+        MachinePeriphery(_registry)
+        SanctionsList(_sanctionsOracle)
+    {}
 
     /// @inheritdoc IMachinePeriphery
     function initialize(bytes calldata data) external virtual override initializer {
-        (uint256 _finalizationDelay, uint256 _minRedeemAmount, bool _whitelistStatus) =
-            abi.decode(data, (uint256, uint256, bool));
+        (uint256 _finalizationDelay, uint256 _minRedeemAmount, bool _whitelistStatus, bool _sanctionsCheckStatus) =
+            abi.decode(data, (uint256, uint256, bool, bool));
 
-        __AsyncRedeemer_init(_finalizationDelay, _minRedeemAmount, _whitelistStatus);
+        __AsyncRedeemer_init(_finalizationDelay, _minRedeemAmount, _whitelistStatus, _sanctionsCheckStatus);
     }
 
-    function __AsyncRedeemer_init(uint256 _finalizationDelay, uint256 _minRedeemAmount, bool _whitelistStatus)
-        internal
-        onlyInitializing
-    {
+    function __AsyncRedeemer_init(
+        uint256 _finalizationDelay,
+        uint256 _minRedeemAmount,
+        bool _whitelistStatus,
+        bool _sanctionsCheckStatus
+    ) internal onlyInitializing {
         AsyncRedeemerStorage storage $ = _getAsyncRedeemerStorage();
 
         $._finalizationDelay = _finalizationDelay;
@@ -61,6 +75,7 @@ contract AsyncRedeemer is ERC721Upgradeable, ReentrancyGuard, MachinePeriphery, 
         $._nextRequestId = 1;
 
         __Whitelist_init(_whitelistStatus);
+        __SanctionsList_init(_sanctionsCheckStatus);
         __ERC721_init("Makina Redeem Queue NFT", "MakinaRedeemQueueNFT");
     }
 
@@ -124,6 +139,7 @@ contract AsyncRedeemer is ERC721Upgradeable, ReentrancyGuard, MachinePeriphery, 
         virtual
         override
         nonReentrant
+        sanctionsCheck
         whitelistCheck
         returns (uint256)
     {
@@ -197,7 +213,14 @@ contract AsyncRedeemer is ERC721Upgradeable, ReentrancyGuard, MachinePeriphery, 
     }
 
     /// @inheritdoc IAsyncRedeemer
-    function claimAssets(uint256 requestId) external override nonReentrant whitelistCheck returns (uint256) {
+    function claimAssets(uint256 requestId)
+        external
+        override
+        nonReentrant
+        sanctionsCheck
+        whitelistCheck
+        returns (uint256)
+    {
         AsyncRedeemerStorage storage $ = _getAsyncRedeemerStorage();
 
         address receiver = ownerOf(requestId);
@@ -241,6 +264,11 @@ contract AsyncRedeemer is ERC721Upgradeable, ReentrancyGuard, MachinePeriphery, 
     /// @inheritdoc IWhitelist
     function setWhitelistedUsers(address[] calldata users, bool whitelisted) external override onlyRiskManager {
         _setWhitelistedUsers(users, whitelisted);
+    }
+
+    /// @inheritdoc ISanctionsList
+    function setSanctionsCheckStatus(bool enabled) external override onlyRiskManager {
+        _setSanctionsCheckStatus(enabled);
     }
 
     /// @dev Checks that the request exists, is finalized, and has not yet been claimed.

@@ -2,6 +2,7 @@
   "finalizationDelay": 604800,
   "minRedeemAmount": 100,
   "whitelistStatus": true,
+  "sanctionsCheckStatus": true,
   "redeemFeeRate": 5000000000000000,
   "maxRedeemFeeRate": 100000000000000000
 }

@@ -19,6 +19,7 @@ contract DeployAsyncRedeemerFee is Base, Script {
     uint256 public finalizationDelay;
     uint256 public minRedeemAmount;
     bool public whitelistStatus;
+    bool public sanctionsCheckStatus;
     uint256 public redeemFeeRate;
     uint256 public maxRedeemFeeRate;
 
@@ -59,6 +60,7 @@ contract DeployAsyncRedeemerFee is Base, Script {
         finalizationDelay = vm.parseJsonUint(inputJson, ".finalizationDelay");
         minRedeemAmount = vm.parseJsonUint(inputJson, ".minRedeemAmount");
         whitelistStatus = vm.parseJsonBool(inputJson, ".whitelistStatus");
+        sanctionsCheckStatus = vm.parseJsonBool(inputJson, ".sanctionsCheckStatus");
         redeemFeeRate = vm.parseJsonUint(inputJson, ".redeemFeeRate");
         maxRedeemFeeRate = vm.parseJsonUint(inputJson, ".maxRedeemFeeRate");
 
@@ -72,7 +74,14 @@ contract DeployAsyncRedeemerFee is Base, Script {
         deployedInstance = IHubPeripheryFactory(vm.parseJsonAddress(deploymentOutputJson, ".HubPeripheryFactory"))
             .createRedeemer(
                 implemId,
-                abi.encode(finalizationDelay, minRedeemAmount, whitelistStatus, redeemFeeRate, maxRedeemFeeRate)
+                abi.encode(
+                    finalizationDelay,
+                    minRedeemAmount,
+                    whitelistStatus,
+                    sanctionsCheckStatus,
+                    redeemFeeRate,
+                    maxRedeemFeeRate
+                )
             );
 
         vm.stopBroadcast();

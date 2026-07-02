@@ -32,6 +32,7 @@ This is the list of role permissions in Makina Periphery contracts. These roles 
 - **Risk Manager**
   - Can activate and deactivate whitelist.
   - Can add or remove users from the whitelist.
+  - Can enable and disable sanctions screening.
 
 ### AsyncRedeemer
 
@@ -41,6 +42,7 @@ This is the list of role permissions in Makina Periphery contracts. These roles 
 - **Risk Manager**
   - Can activate and deactivate whitelist.
   - Can add or remove users from the whitelist.
+  - Can enable and disable sanctions screening.
 
 - **Risk Manager Timelock**
   - Can set the request finalisation delay.
@@ -53,6 +55,7 @@ This is the list of role permissions in Makina Periphery contracts. These roles 
 - **Risk Manager**
   - Can activate and deactivate whitelist.
   - Can add or remove users from the whitelist.
+  - Can enable and disable sanctions screening.
 
 - **Risk Manager Timelock**
   - Can set the request finalisation delay.

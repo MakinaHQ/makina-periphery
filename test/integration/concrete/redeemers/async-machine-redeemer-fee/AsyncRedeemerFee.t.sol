@@ -28,6 +28,7 @@ abstract contract AsyncRedeemerFee_Integration_Concrete_Test is AsyncRedeemer_Sh
                     DEFAULT_FINALIZATION_DELAY,
                     DEFAULT_MIN_REDEEM_AMOUNT,
                     DEFAULT_INITIAL_WHITELIST_STATUS,
+                    DEFAULT_INITIAL_SANCTIONS_CHECK_STATUS,
                     DEFAULT_REDEEM_FEE_RATE,
                     DEFAULT_MAX_REDEEM_FEE_RATE
                 )

@@ -1,3 +1,4 @@
 {
-  "whitelistStatus": true
+  "whitelistStatus": true,
+  "sanctionsCheckStatus": true
 }

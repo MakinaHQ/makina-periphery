@@ -25,6 +25,9 @@ abstract contract Constants {
     // Whitelist
     bool internal constant DEFAULT_INITIAL_WHITELIST_STATUS = false;
 
+    // Sanctions
+    bool internal constant DEFAULT_INITIAL_SANCTIONS_CHECK_STATUS = false;
+
     // Redeemers
     uint256 internal constant DEFAULT_FINALIZATION_DELAY = 1 hours;
     uint256 internal constant DEFAULT_MIN_REDEEM_AMOUNT = 100;

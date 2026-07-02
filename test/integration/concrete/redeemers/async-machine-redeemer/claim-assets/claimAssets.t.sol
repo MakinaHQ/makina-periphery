@@ -21,6 +21,15 @@ abstract contract ClaimAssets_Integration_Concrete_Test is AsyncRedeemer_Shared_
         asyncRedeemer.claimAssets(1);
     }
 
+    function test_RevertWhen_CallerSanctioned_WithSanctionsCheckEnabled()
+        public
+        withSanctionsCheckEnabled
+        withSanctionedUser(address(this))
+    {
+        vm.expectRevert(Errors.SanctionedCaller.selector);
+        asyncRedeemer.claimAssets(1);
+    }
+
     function test_RevertWhen_NonExistentRequest() public {
         uint256 requestId = 1;
         vm.expectRevert(abi.encodeWithSelector(IERC721Errors.ERC721NonexistentToken.selector, requestId));

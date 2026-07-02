@@ -7,18 +7,24 @@ import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
 import {IMachine} from "@makina-core/interfaces/IMachine.sol";
 
 import {IDirectDepositor} from "../interfaces/IDirectDepositor.sol";
+import {ISanctionsList} from "../interfaces/ISanctionsList.sol";
 import {IWhitelist} from "../interfaces/IWhitelist.sol";
 import {MachinePeriphery} from "../utils/MachinePeriphery.sol";
+import {SanctionsList} from "../utils/SanctionsList.sol";
 import {Whitelist} from "../utils/Whitelist.sol";
 
-contract DirectDepositor is MachinePeriphery, Whitelist, IDirectDepositor {
+contract DirectDepositor is MachinePeriphery, SanctionsList, Whitelist, IDirectDepositor {
     using SafeERC20 for IERC20;
 
-    constructor(address _registry) MachinePeriphery(_registry) {}
+    constructor(address _registry, address _sanctionsOracle)
+        MachinePeriphery(_registry)
+        SanctionsList(_sanctionsOracle)
+    {}
 
     function initialize(bytes calldata data) external virtual override initializer {
-        (bool _whitelistStatus) = abi.decode(data, (bool));
+        (bool _whitelistStatus, bool _sanctionsCheckStatus) = abi.decode(data, (bool, bool));
         __Whitelist_init(_whitelistStatus);
+        __SanctionsList_init(_sanctionsCheckStatus);
     }
 
     /// @inheritdoc IDirectDepositor
@@ -26,6 +32,7 @@ contract DirectDepositor is MachinePeriphery, Whitelist, IDirectDepositor {
         public
         virtual
         override
+        sanctionsCheck
         whitelistCheck
         returns (uint256)
     {
@@ -46,5 +53,10 @@ contract DirectDepositor is MachinePeriphery, Whitelist, IDirectDepositor {
     /// @inheritdoc IWhitelist
     function setWhitelistedUsers(address[] calldata users, bool whitelisted) external override onlyRiskManager {
         _setWhitelistedUsers(users, whitelisted);
+    }
+
+    /// @inheritdoc ISanctionsList
+    function setSanctionsCheckStatus(bool enabled) external override onlyRiskManager {
+        _setSanctionsCheckStatus(enabled);
     }
 }

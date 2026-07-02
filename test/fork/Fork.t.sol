@@ -88,7 +88,7 @@ abstract contract Fork_Test is Base, Test, Core_Base.Base {
 
         // Hub Periphery
         HubPeriphery memory peripheryDeployment =
-            deployHubPeriphery(address(accessManager), address(hubCoreRegistry), flashloanProviders);
+            deployHubPeriphery(address(accessManager), address(hubCoreRegistry), address(0), flashloanProviders);
         flashloanAggregator = peripheryDeployment.flashloanAggregator;
         hubPeripheryRegistry = peripheryDeployment.hubPeripheryRegistry;
         hubPeripheryFactory = peripheryDeployment.hubPeripheryFactory;

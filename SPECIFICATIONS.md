@@ -9,13 +9,13 @@ Each implementation is assigned an implementation ID, which maps to a beacon in 
 
 A Depositor is a contract through which users deposit into the associated machine.
 
-- **DirectDepositor (ID = 1001):** This implementation directly forwards deposit calls to the associated machine, with support for user whitelisting.
+- **DirectDepositor (ID = 1001):** This implementation directly forwards deposit calls to the associated machine, with support for user whitelisting and sanctions screening.
 
 ### Redeemers
 
 A Redeemer is a contract through which users redeem shares of the associated machine.
 
-- **AsyncRedeemer (ID = 2001):** Implements ERC-721 to manage asynchronous redemption requests via a FIFO queue, with support for user whitelisting.
+- **AsyncRedeemer (ID = 2001):** Implements ERC-721 to manage asynchronous redemption requests via a FIFO queue, with support for user whitelisting and sanctions screening.
 
 - **AsyncRedeemerFee (ID = 2002):** Extends **AsyncRedeemer** with the support of a redeem fee.
 
@@ -24,6 +24,10 @@ A Redeemer is a contract through which users redeem shares of the associated mac
 The fee manager is the contract that performs fee calculation, and dispatches them to designated receivers.
 
 - **WatermarkFeeManager (ID = 3001):** Calculates both fixed fees (management fee + security module fee) and a variable performance fee. A high watermark mechanism ensures performance fees are charged only when the current share price exceeds the stored watermark.
+
+### Sanctions Screening
+
+Depositors and redeemers can screen the caller against the [Chainalysis sanctions oracle](https://go.chainalysis.com/chainalysis-oracle-docs.html), rejecting any address flagged as sanctioned. This check is independent from, and complementary to, the user whitelist. Both are optional.
 
 ## Security Module
 

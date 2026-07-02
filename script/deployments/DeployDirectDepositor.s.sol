@@ -17,6 +17,7 @@ contract DeployDirectDepositor is Base, Script {
     string public outputPath;
 
     bool public whitelistStatus;
+    bool public sanctionsCheckStatus;
 
     address public deployedInstance;
 
@@ -53,6 +54,7 @@ contract DeployDirectDepositor is Base, Script {
         uint16 implemId = uint16(vm.parseJsonUint(implemIdsInputJson, ".directDepositorImplemId"));
 
         whitelistStatus = vm.parseJsonBool(inputJson, ".whitelistStatus");
+        sanctionsCheckStatus = vm.parseJsonBool(inputJson, ".sanctionsCheckStatus");
 
         address sender = vm.envOr("TEST_SENDER", address(0));
         if (sender != address(0)) {
@@ -62,7 +64,7 @@ contract DeployDirectDepositor is Base, Script {
         }
 
         deployedInstance = IHubPeripheryFactory(vm.parseJsonAddress(deploymentOutputJson, ".HubPeripheryFactory"))
-            .createDepositor(implemId, abi.encode(whitelistStatus));
+            .createDepositor(implemId, abi.encode(whitelistStatus, sanctionsCheckStatus));
 
         vm.stopBroadcast();
 

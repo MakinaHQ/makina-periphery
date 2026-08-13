@@ -35,7 +35,7 @@ contract DeployHubPeriphery is DeployPeriphery {
         return _hubPeriphery;
     }
 
-    function _deploySetupBefore() public override {
+    function _deploySetupBefore() internal override {
         accessManager = vm.parseJsonAddress(inputJson, ".accessManager");
         hubCoreRegistry = vm.parseJsonAddress(inputJson, ".hubCoreRegistry");
         sanctionsOracle = vm.parseJsonAddress(inputJson, ".sanctionsOracle");
@@ -47,11 +47,11 @@ contract DeployHubPeriphery is DeployPeriphery {
         (, deployer,) = vm.readCallers();
     }
 
-    function _coreSetup() public override {
+    function _coreSetup() internal override {
         _hubPeriphery = deployHubPeriphery(accessManager, hubCoreRegistry, sanctionsOracle, flProviders);
     }
 
-    function _deploySetupAfter() public override {
+    function _deploySetupAfter() internal override {
         // finish broadcasting transactions
         vm.stopBroadcast();
 

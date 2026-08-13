@@ -51,6 +51,8 @@ forge build
 
 ### Test
 
+Some tests involve network forking. To run them, the `MAINNET_RPC_URL` variable must be set in a .env file located at the project root.
+
 ```shell
 forge test
 ```

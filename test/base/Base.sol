@@ -2,6 +2,7 @@
 pragma solidity 0.8.28;
 
 import {IAccessManager} from "@openzeppelin/contracts/access/manager/IAccessManager.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {ProxyAdmin} from "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
 import {TransparentUpgradeableProxy} from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 import {UpgradeableBeacon} from "@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol";
@@ -152,8 +153,7 @@ abstract contract Base is ProxyUtils, JsonParser, SaltDomains, Core_Base.Base {
 
     function setupHubPeripheryAMFunctionRoles(address accessManager, HubPeriphery memory deployment) internal {
         // Transparent Proxy Admins
-        bytes4[] memory proxyAdminSelectors = new bytes4[](1);
-        proxyAdminSelectors[0] = ProxyAdmin.upgradeAndCall.selector;
+        bytes4[] memory proxyAdminSelectors = _proxyAdminAMSelectors();
         IAccessManager(accessManager)
             .setTargetFunctionRole(
                 getProxyAdmin(address(deployment.hubPeripheryRegistry)), proxyAdminSelectors, Roles.INFRA_UPGRADE_ROLE
@@ -176,8 +176,7 @@ abstract contract Base is ProxyUtils, JsonParser, SaltDomains, Core_Base.Base {
             );
 
         // Upgradeable Beacons
-        bytes4[] memory beaconSelectors = new bytes4[](1);
-        beaconSelectors[0] = UpgradeableBeacon.upgradeTo.selector;
+        bytes4[] memory beaconSelectors = _beaconAMSelectors();
         IAccessManager(accessManager)
             .setTargetFunctionRole(address(deployment.directDepositorBeacon), beaconSelectors, Roles.INFRA_UPGRADE_ROLE);
         IAccessManager(accessManager)

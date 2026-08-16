@@ -2,10 +2,12 @@
 pragma solidity 0.8.28;
 
 import {IAccessManager} from "@openzeppelin/contracts/access/manager/IAccessManager.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {ProxyAdmin} from "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
 import {TransparentUpgradeableProxy} from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 import {UpgradeableBeacon} from "@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol";
 
+import "@makina-core-test/base/Base.sol" as Core_Base;
 import {ProxyUtils} from "@makina-core-test/utils/ProxyUtils.sol";
 import {ICoreRegistry} from "@makina-core/interfaces/ICoreRegistry.sol";
 import {Roles} from "@makina-core/libraries/Roles.sol";
@@ -21,10 +23,11 @@ import {JsonParser} from "../utils/JsonParser.sol";
 import {MachineShareOracle} from "../../src/oracles/MachineShareOracle.sol";
 import {MachineShareOracleFactory} from "../../src/factories/MachineShareOracleFactory.sol";
 import {MetaMorphoOracleFactory} from "../../src/factories/MetaMorphoOracleFactory.sol";
+import {SaltDomains} from "../utils/SaltDomains.sol";
 import {SecurityModule} from "../../src/security-module/SecurityModule.sol";
 import {WatermarkFeeManager} from "../../src/fee-managers/WatermarkFeeManager.sol";
 
-abstract contract Base is ProxyUtils, JsonParser {
+abstract contract Base is ProxyUtils, JsonParser, SaltDomains, Core_Base.Base {
     struct HubPeriphery {
         FlashloanAggregator flashloanAggregator;
         HubPeripheryRegistry hubPeripheryRegistry;
@@ -49,112 +52,46 @@ abstract contract Base is ProxyUtils, JsonParser {
         address sanctionsOracle,
         FlashloanProviders memory flProviders
     ) internal returns (HubPeriphery memory deployment) {
-        {
-            address caliberFactory = ICoreRegistry(hubCoreRegistry).coreFactory();
-            deployment.flashloanAggregator = deployFlashloanAggregator(caliberFactory, flProviders);
-        }
+        // Flashloan Aggregator
+        deployment.flashloanAggregator =
+            _deployFlashloanAggregator(ICoreRegistry(hubCoreRegistry).coreFactory(), flProviders);
 
-        {
-            address hubPeripheryRegistryImplemAddr = address(new HubPeripheryRegistry());
-            deployment.hubPeripheryRegistry = HubPeripheryRegistry(
-                address(
-                    new TransparentUpgradeableProxy(
-                        hubPeripheryRegistryImplemAddr,
-                        accessManager,
-                        abi.encodeCall(HubPeripheryRegistry.initialize, (accessManager))
-                    )
-                )
-            );
-        }
+        // Hub Periphery Registry
+        deployment.hubPeripheryRegistry = _deployHubPeripheryRegistry(accessManager, accessManager);
 
-        {
-            address hubPeripheryFactoryImplemAddr =
-                address(new HubPeripheryFactory(address(deployment.hubPeripheryRegistry)));
-            deployment.hubPeripheryFactory = HubPeripheryFactory(
-                address(
-                    new TransparentUpgradeableProxy(
-                        hubPeripheryFactoryImplemAddr,
-                        accessManager,
-                        abi.encodeCall(HubPeripheryFactory.initialize, (accessManager))
-                    )
-                )
-            );
-        }
+        // Hub Periphery Factory
+        deployment.hubPeripheryFactory =
+            _deployHubPeripheryFactory(accessManager, address(deployment.hubPeripheryRegistry), accessManager);
 
-        {
-            address directDepositorImplemAddr =
-                address(new DirectDepositor(address(deployment.hubPeripheryRegistry), sanctionsOracle));
-            deployment.directDepositorBeacon = new UpgradeableBeacon(directDepositorImplemAddr, accessManager);
-        }
+        // Direct Depositor Beacon
+        deployment.directDepositorBeacon =
+            _deployDirectDepositorBeacon(accessManager, address(deployment.hubPeripheryRegistry), sanctionsOracle);
 
-        {
-            address asyncRedeemerImplemAddr =
-                address(new AsyncRedeemer(address(deployment.hubPeripheryRegistry), sanctionsOracle));
-            deployment.asyncRedeemerBeacon = new UpgradeableBeacon(asyncRedeemerImplemAddr, accessManager);
-        }
+        // Async Redeemer Beacon
+        deployment.asyncRedeemerBeacon =
+            _deployAsyncRedeemerBeacon(accessManager, address(deployment.hubPeripheryRegistry), sanctionsOracle);
 
-        {
-            address asyncRedeemerFeeImplemAddr =
-                address(new AsyncRedeemerFee(address(deployment.hubPeripheryRegistry), sanctionsOracle));
-            deployment.asyncRedeemerFeeBeacon = new UpgradeableBeacon(asyncRedeemerFeeImplemAddr, accessManager);
-        }
+        // Async Redeemer Fee Beacon
+        deployment.asyncRedeemerFeeBeacon =
+            _deployAsyncRedeemerFeeBeacon(accessManager, address(deployment.hubPeripheryRegistry), sanctionsOracle);
 
-        {
-            address watermarkFeeManagerImplemAddr =
-                address(new WatermarkFeeManager(address(deployment.hubPeripheryRegistry)));
-            deployment.watermarkFeeManagerBeacon = new UpgradeableBeacon(watermarkFeeManagerImplemAddr, accessManager);
-        }
+        // Watermark Fee Manager Beacon
+        deployment.watermarkFeeManagerBeacon =
+            _deployWatermarkFeeManagerBeacon(accessManager, address(deployment.hubPeripheryRegistry));
 
-        {
-            address securityModuleImplemAddr = address(new SecurityModule(address(deployment.hubPeripheryRegistry)));
-            deployment.securityModuleBeacon = new UpgradeableBeacon(securityModuleImplemAddr, accessManager);
-        }
+        // Security Module Beacon
+        deployment.securityModuleBeacon =
+            _deploySecurityModuleBeacon(accessManager, address(deployment.hubPeripheryRegistry));
 
-        {
-            address metaMorphoOracleFactoryImplemAddr = address(new MetaMorphoOracleFactory());
-            deployment.metaMorphoOracleFactory = MetaMorphoOracleFactory(
-                address(
-                    new TransparentUpgradeableProxy(
-                        metaMorphoOracleFactoryImplemAddr,
-                        accessManager,
-                        abi.encodeCall(MetaMorphoOracleFactory.initialize, (accessManager))
-                    )
-                )
-            );
-        }
+        // MetaMorpho Oracle Factory
+        deployment.metaMorphoOracleFactory = _deployMetaMorphoOracleFactory(accessManager, accessManager);
 
-        {
-            address machineOracleImplemAddr = address(new MachineShareOracle(hubCoreRegistry));
-            deployment.machineShareOracleBeacon = new UpgradeableBeacon(machineOracleImplemAddr, accessManager);
-            address machineOracleFactoryImplemAddr = address(new MachineShareOracleFactory());
-            deployment.machineShareOracleFactory = MachineShareOracleFactory(
-                address(
-                    new TransparentUpgradeableProxy(
-                        machineOracleFactoryImplemAddr,
-                        accessManager,
-                        abi.encodeCall(
-                            MachineShareOracleFactory.initialize,
-                            (address(deployment.machineShareOracleBeacon), accessManager)
-                        )
-                    )
-                )
-            );
-        }
-    }
+        // Machine Share Oracle Beacon
+        deployment.machineShareOracleBeacon = _deployMachineShareOracleBeacon(accessManager, hubCoreRegistry);
 
-    function deployFlashloanAggregator(address caliberFactory, FlashloanProviders memory flProviders)
-        internal
-        virtual
-        returns (FlashloanAggregator)
-    {
-        return new FlashloanAggregator(
-            caliberFactory,
-            flProviders.balancerV2Pool,
-            flProviders.balancerV3Pool,
-            flProviders.morphoPool,
-            flProviders.dssFlash,
-            flProviders.aaveV3AddressProvider,
-            flProviders.dai
+        // Machine Share Oracle Factory
+        deployment.machineShareOracleFactory = _deployMachineShareOracleFactory(
+            accessManager, address(deployment.machineShareOracleBeacon), accessManager
         );
     }
 
@@ -216,8 +153,7 @@ abstract contract Base is ProxyUtils, JsonParser {
 
     function setupHubPeripheryAMFunctionRoles(address accessManager, HubPeriphery memory deployment) internal {
         // Transparent Proxy Admins
-        bytes4[] memory proxyAdminSelectors = new bytes4[](1);
-        proxyAdminSelectors[0] = ProxyAdmin.upgradeAndCall.selector;
+        bytes4[] memory proxyAdminSelectors = _proxyAdminAMSelectors();
         IAccessManager(accessManager)
             .setTargetFunctionRole(
                 getProxyAdmin(address(deployment.hubPeripheryRegistry)), proxyAdminSelectors, Roles.INFRA_UPGRADE_ROLE
@@ -240,8 +176,7 @@ abstract contract Base is ProxyUtils, JsonParser {
             );
 
         // Upgradeable Beacons
-        bytes4[] memory beaconSelectors = new bytes4[](1);
-        beaconSelectors[0] = UpgradeableBeacon.upgradeTo.selector;
+        bytes4[] memory beaconSelectors = _beaconAMSelectors();
         IAccessManager(accessManager)
             .setTargetFunctionRole(address(deployment.directDepositorBeacon), beaconSelectors, Roles.INFRA_UPGRADE_ROLE);
         IAccessManager(accessManager)
@@ -311,5 +246,198 @@ abstract contract Base is ProxyUtils, JsonParser {
                 machineShareOracleFactorySelectors,
                 Roles.INFRA_CONFIG_ROLE
             );
+    }
+
+    ///
+    /// DEPLOYMENT UTILS
+    ///
+
+    function _deployFlashloanAggregator(address _caliberFactory, FlashloanProviders memory _flProviders)
+        internal
+        returns (FlashloanAggregator)
+    {
+        return FlashloanAggregator(
+            _deployCode(
+                abi.encodePacked(
+                    type(FlashloanAggregator).creationCode,
+                    abi.encode(
+                        _caliberFactory,
+                        _flProviders.balancerV2Pool,
+                        _flProviders.balancerV3Pool,
+                        _flProviders.morphoPool,
+                        _flProviders.dssFlash,
+                        _flProviders.aaveV3AddressProvider,
+                        _flProviders.dai
+                    )
+                ),
+                FLASHLOAN_AGGREGATOR_SALT_DOMAIN
+            )
+        );
+    }
+
+    function _deployHubPeripheryRegistry(address _proxyOwner, address _accessManager)
+        internal
+        returns (HubPeripheryRegistry)
+    {
+        address implem = _deployCode(type(HubPeripheryRegistry).creationCode, 0);
+        return HubPeripheryRegistry(
+            _deployCode(
+                abi.encodePacked(
+                    type(TransparentUpgradeableProxy).creationCode,
+                    abi.encode(implem, _proxyOwner, abi.encodeCall(HubPeripheryRegistry.initialize, (_accessManager)))
+                ),
+                PERIPHERY_REGISTRY_SALT_DOMAIN
+            )
+        );
+    }
+
+    function _deployHubPeripheryFactory(address _proxyOwner, address _hubPeripheryRegistry, address _accessManager)
+        internal
+        returns (HubPeripheryFactory)
+    {
+        address implem =
+            _deployCode(abi.encodePacked(type(HubPeripheryFactory).creationCode, abi.encode(_hubPeripheryRegistry)), 0);
+        return HubPeripheryFactory(
+            _deployCode(
+                abi.encodePacked(
+                    type(TransparentUpgradeableProxy).creationCode,
+                    abi.encode(implem, _proxyOwner, abi.encodeCall(HubPeripheryFactory.initialize, (_accessManager)))
+                ),
+                PERIPHERY_FACTORY_SALT_DOMAIN
+            )
+        );
+    }
+
+    function _deployDirectDepositorBeacon(address _beaconOwner, address _hubPeripheryRegistry, address _sanctionsOracle)
+        internal
+        returns (UpgradeableBeacon)
+    {
+        address implem = _deployCode(
+            abi.encodePacked(type(DirectDepositor).creationCode, abi.encode(_hubPeripheryRegistry, _sanctionsOracle)), 0
+        );
+        return UpgradeableBeacon(
+            _deployCode(
+                abi.encodePacked(type(UpgradeableBeacon).creationCode, abi.encode(implem, _beaconOwner)),
+                DIRECT_DEPOSITOR_SALT_DOMAIN
+            )
+        );
+    }
+
+    function _deployAsyncRedeemerBeacon(address _beaconOwner, address _hubPeripheryRegistry, address _sanctionsOracle)
+        internal
+        returns (UpgradeableBeacon)
+    {
+        address implem = _deployCode(
+            abi.encodePacked(type(AsyncRedeemer).creationCode, abi.encode(_hubPeripheryRegistry, _sanctionsOracle)), 0
+        );
+        return UpgradeableBeacon(
+            _deployCode(
+                abi.encodePacked(type(UpgradeableBeacon).creationCode, abi.encode(implem, _beaconOwner)),
+                ASYNC_REDEEMER_SALT_DOMAIN
+            )
+        );
+    }
+
+    function _deployAsyncRedeemerFeeBeacon(
+        address _beaconOwner,
+        address _hubPeripheryRegistry,
+        address _sanctionsOracle
+    ) internal returns (UpgradeableBeacon) {
+        address implem = _deployCode(
+            abi.encodePacked(type(AsyncRedeemerFee).creationCode, abi.encode(_hubPeripheryRegistry, _sanctionsOracle)),
+            0
+        );
+        return UpgradeableBeacon(
+            _deployCode(
+                abi.encodePacked(type(UpgradeableBeacon).creationCode, abi.encode(implem, _beaconOwner)),
+                ASYNC_REDEEMER_FEE_SALT_DOMAIN
+            )
+        );
+    }
+
+    function _deployWatermarkFeeManagerBeacon(address _beaconOwner, address _hubPeripheryRegistry)
+        internal
+        returns (UpgradeableBeacon)
+    {
+        address implem = _deployCode(
+            abi.encodePacked(type(WatermarkFeeManager).creationCode, abi.encode(_hubPeripheryRegistry)), 0
+        );
+        return UpgradeableBeacon(
+            _deployCode(
+                abi.encodePacked(type(UpgradeableBeacon).creationCode, abi.encode(implem, _beaconOwner)),
+                WATERMARK_FEE_MANAGER_SALT_DOMAIN
+            )
+        );
+    }
+
+    function _deploySecurityModuleBeacon(address _beaconOwner, address _hubPeripheryRegistry)
+        internal
+        returns (UpgradeableBeacon)
+    {
+        address implem = _deployCode(
+            abi.encodePacked(type(SecurityModule).creationCode, abi.encode(_hubPeripheryRegistry)), 0
+        );
+        return UpgradeableBeacon(
+            _deployCode(
+                abi.encodePacked(type(UpgradeableBeacon).creationCode, abi.encode(implem, _beaconOwner)),
+                SECURITY_MODULE_SALT_DOMAIN
+            )
+        );
+    }
+
+    function _deployMetaMorphoOracleFactory(address _proxyOwner, address _accessManager)
+        internal
+        returns (MetaMorphoOracleFactory)
+    {
+        address implem = _deployCode(type(MetaMorphoOracleFactory).creationCode, 0);
+        return MetaMorphoOracleFactory(
+            _deployCode(
+                abi.encodePacked(
+                    type(TransparentUpgradeableProxy).creationCode,
+                    abi.encode(
+                        implem, _proxyOwner, abi.encodeCall(MetaMorphoOracleFactory.initialize, (_accessManager))
+                    )
+                ),
+                META_MORPHO_ORACLE_FACTORY_SALT_DOMAIN
+            )
+        );
+    }
+
+    function _deployMachineShareOracleBeacon(address _beaconOwner, address _hubCoreRegistry)
+        internal
+        returns (UpgradeableBeacon)
+    {
+        address implem = _deployCode(
+            abi.encodePacked(type(MachineShareOracle).creationCode, abi.encode(_hubCoreRegistry)), 0
+        );
+        return UpgradeableBeacon(
+            _deployCode(
+                abi.encodePacked(type(UpgradeableBeacon).creationCode, abi.encode(implem, _beaconOwner)),
+                MACHINE_SHARE_ORACLE_SALT_DOMAIN
+            )
+        );
+    }
+
+    function _deployMachineShareOracleFactory(
+        address _proxyOwner,
+        address _machineShareOracleBeacon,
+        address _accessManager
+    ) internal returns (MachineShareOracleFactory) {
+        address implem = _deployCode(type(MachineShareOracleFactory).creationCode, 0);
+        return MachineShareOracleFactory(
+            _deployCode(
+                abi.encodePacked(
+                    type(TransparentUpgradeableProxy).creationCode,
+                    abi.encode(
+                        implem,
+                        _proxyOwner,
+                        abi.encodeCall(
+                            MachineShareOracleFactory.initialize, (_machineShareOracleBeacon, _accessManager)
+                        )
+                    )
+                ),
+                MACHINE_SHARE_ORACLE_FACTORY_SALT_DOMAIN
+            )
+        );
     }
 }

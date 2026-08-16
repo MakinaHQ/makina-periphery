@@ -37,7 +37,7 @@ contract DeploySpokePeriphery is DeployPeriphery {
         return deployedInstance;
     }
 
-    function _deploySetupBefore() public override {
+    function _deploySetupBefore() internal override {
         spokeCoreRegistry = vm.parseJsonAddress(inputJson, ".spokeCoreRegistry");
         flProviders = parseFlashloanProviders(inputJson, ".flashloanProviders");
 
@@ -47,12 +47,12 @@ contract DeploySpokePeriphery is DeployPeriphery {
         (, deployer,) = vm.readCallers();
     }
 
-    function _coreSetup() public override {
+    function _coreSetup() internal override {
         address caliberFactory = ICoreRegistry(spokeCoreRegistry).coreFactory();
-        deployedInstance = deployFlashloanAggregator(caliberFactory, flProviders);
+        deployedInstance = _deployFlashloanAggregator(caliberFactory, flProviders);
     }
 
-    function _deploySetupAfter() public override {
+    function _deploySetupAfter() internal override {
         vm.stopBroadcast();
 
         // Write to file

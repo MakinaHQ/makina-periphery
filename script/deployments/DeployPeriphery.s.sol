@@ -6,11 +6,9 @@ import {stdJson} from "forge-std/StdJson.sol";
 
 import {CreateXUtils} from "@makina-core-script/deployments/utils/CreateXUtils.sol";
 
-import {FlashloanAggregator} from "../../src/flashloans/FlashloanAggregator.sol";
-
 import {Base} from "../../test/base/Base.sol";
 
-contract DeployPeriphery is Base, Script, CreateXUtils {
+abstract contract DeployPeriphery is Base, Script, CreateXUtils {
     using stdJson for string;
 
     string public inputJson;
@@ -24,38 +22,13 @@ contract DeployPeriphery is Base, Script, CreateXUtils {
         _deploySetupAfter();
     }
 
-    function deployFlashloanAggregator(address _caliberFactory, FlashloanProviders memory _flProviders)
-        internal
-        override
-        returns (FlashloanAggregator)
-    {
-        bytes32 salt;
-        if (vm.envOr("TEST_ENV", false)) {
-            salt = keccak256("TestFlashloanAggregator");
-        }
-        return FlashloanAggregator(
-            _deployCodeCreateX(
-                abi.encodePacked(
-                    type(FlashloanAggregator).creationCode,
-                    abi.encode(
-                        _caliberFactory,
-                        _flProviders.balancerV2Pool,
-                        _flProviders.balancerV3Pool,
-                        _flProviders.morphoPool,
-                        _flProviders.dssFlash,
-                        _flProviders.aaveV3AddressProvider,
-                        _flProviders.dai
-                    )
-                ),
-                salt,
-                deployer
-            )
-        );
+    function _coreSetup() internal virtual {}
+
+    function _deploySetupBefore() internal virtual {}
+
+    function _deploySetupAfter() internal virtual {}
+
+    function _deployCode(bytes memory bytecode, bytes32 salt) internal virtual override returns (address) {
+        return _deployCodeCreateX(bytecode, salt, deployer);
     }
-
-    function _coreSetup() public virtual {}
-
-    function _deploySetupBefore() public virtual {}
-
-    function _deploySetupAfter() public virtual {}
 }

@@ -40,8 +40,6 @@ contract Deploy_Scripts_Test is Base_Test {
     DeploySpokePeriphery public deploySpokePeriphery;
 
     function setUp() public override {
-        vm.setEnv("TEST_ENV", "true");
-
         ChainsInfo.ChainInfo memory chainInfo = ChainsInfo.getChainInfo(ChainsInfo.CHAIN_ID_ETHEREUM);
         vm.setEnv("HUB_PERIPHERY_INPUT_FILENAME", chainInfo.constantsFilename);
         vm.setEnv("HUB_PERIPHERY_OUTPUT_FILENAME", chainInfo.constantsFilename);

@@ -21,7 +21,7 @@ import {HubPeripheryFactory} from "../../src/factories/HubPeripheryFactory.sol";
 
 import {Base} from "../base/Base.sol";
 
-abstract contract Fork_Test is Base, Test, Core_Base.Base {
+abstract contract Fork_Test is Base, Test {
     address internal deployer;
 
     uint256 internal chainId;

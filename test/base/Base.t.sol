@@ -37,7 +37,7 @@ import {MockChainalysisSanctionsList} from "../mocks/MockChainalysisSanctionsLis
 
 import {Base} from "./Base.sol";
 
-abstract contract Base_Test is Base, Test, Constants, Core_Base.Base, Core_Constants.Constants {
+abstract contract Base_Test is Base, Test, Constants, Core_Constants.Constants {
     address internal deployer;
 
     uint256 internal hubChainId;

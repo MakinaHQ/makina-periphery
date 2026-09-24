@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.28;
 
-import {ICoreRegistry} from "@makina-core/interfaces/ICoreRegistry.sol";
-
 import {FlashloanAggregator} from "../../src/flashloans/FlashloanAggregator.sol";
 
 import {DeployPeriphery} from "./DeployPeriphery.s.sol";
 
 /// @notice Deploys the Makina spoke periphery: a FlashloanAggregator bound to the caliber factory of the spoke core
 ///         named in the input file.
+/// @dev The aggregator is deployed at an address discriminated by the hub chain id of the spoke's instance, read from
+///      the spoke core, which must be wired beforehand. See `Base.deploySpokePeriphery`.
 ///
 /// Env vars (unless `setFilenames` was called):
 ///   SPOKE_PERIPHERY_INPUT_FILENAME  - spoke periphery input file holding the deployment parameters
@@ -31,8 +31,7 @@ contract DeploySpokePeriphery is DeployPeriphery {
     }
 
     function _peripherySetup() internal override {
-        address caliberFactory = ICoreRegistry(spokeCoreRegistry).coreFactory();
-        _flashloanAggregator = _deployFlashloanAggregator(caliberFactory, flProviders);
+        _flashloanAggregator = deploySpokePeriphery(spokeCoreRegistry, flProviders);
     }
 
     function _writeOutput() internal override {

@@ -115,3 +115,7 @@ forge script script/deployments/DeploySpokePeriphery.s.sol --rpc-url <network-al
 ```
 
 Note: Same as for hub chain shared contracts deployment, this script performs deterministic deployment based on the deployer wallet address via the [CreateX Factory contract](https://github.com/pcaversaccio/createx).
+
+### Aggregator addresses
+
+A hub periphery is deployed with plain salts. A spoke periphery's `FlashloanAggregator` salt also mixes in the hub chain id of its instance, read from the spoke core's `CaliberMailbox` beacon, so the spoke core must be wired beforehand. Each instance thus gets its own aggregator address, the same on every chain for a given deployer wallet, and a chain hosting a hub and spokes of other instances holds one aggregator per instance. A spoke of a foreign instance needs nothing more than its own `spokeCoreRegistry` in the input file.

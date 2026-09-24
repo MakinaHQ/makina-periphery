@@ -11,6 +11,7 @@ import {UpgradeableBeacon} from "@openzeppelin/contracts/proxy/beacon/Upgradeabl
 
 import {Constants as CoreConstants} from "@makina-core-test/utils/Constants.sol";
 import {Roles} from "@makina-core/libraries/Roles.sol";
+import {CreateXUtils} from "@makina-core-script/deploy/utils/CreateXUtils.sol";
 
 import {AsyncRedeemer} from "src/redeemers/AsyncRedeemer.sol";
 import {AsyncRedeemerFee} from "src/redeemers/AsyncRedeemerFee.sol";
@@ -18,6 +19,7 @@ import {DirectDepositor} from "src/depositors/DirectDepositor.sol";
 import {FlashloanAggregator} from "src/flashloans/FlashloanAggregator.sol";
 import {IHubPeripheryFactory} from "src/interfaces/IHubPeripheryFactory.sol";
 import {IHubPeripheryRegistry} from "src/interfaces/IHubPeripheryRegistry.sol";
+import {ICoreRegistry} from "@makina-core/interfaces/ICoreRegistry.sol";
 import {SecurityModule} from "src/security-module/SecurityModule.sol";
 import {WatermarkFeeManager} from "src/fee-managers/WatermarkFeeManager.sol";
 
@@ -33,7 +35,19 @@ import {SetupHubPeripheryRegistry} from "script/deployments/SetupHubPeripheryReg
 
 import {Base} from "../base/Base.sol";
 
-contract Deploy_Scripts_Test is Base, Test, CoreConstants {
+/// @dev Exposes the Base spoke periphery composer externally, so that its reverts can be asserted.
+contract BaseHarness is Base {
+    function spokePeriphery(address spokeCoreRegistry, FlashloanProviders memory flProviders)
+        external
+        returns (FlashloanAggregator)
+    {
+        return deploySpokePeriphery(spokeCoreRegistry, flProviders);
+    }
+}
+
+/// @dev Deployments made by the test itself (the foreign spoke core) go through CreateX from the broadcaster, like the
+///      scripts do, so that their addresses match the fixtures.
+contract Deploy_Scripts_Test is Base, Test, CoreConstants, CreateXUtils {
     /// @dev Admin of the live Mainnet AccessManager the test hub periphery is bound to, see `_forkHubChain`.
     address internal constant LIVE_AM_ADMIN = 0xae7f67EE9B8c465ACE4a1ec1138FaA483d93691A;
 
@@ -153,7 +167,7 @@ contract Deploy_Scripts_Test is Base, Test, CoreConstants {
     function testScript_DeployHubPeriphery() public {
         _forkHubChain();
 
-        // Periphery deployment, writing the output file, then registry setup
+        // Periphery deployment, then registry setup
         HubPeriphery memory hubPeripheryDeployment = _deployHubPeriphery();
         _setupHubPeripheryRegistry();
 
@@ -191,8 +205,8 @@ contract Deploy_Scripts_Test is Base, Test, CoreConstants {
             hubPeripheryRegistry.feeManagerBeacon(_implemId(".watermarkFeeManagerImplemId"))
         );
 
-        // Check that the output file is written
-        string memory outputJson = vm.readFile(deployHubPeriphery.outputPath());
+        // Check that the deployment matches the committed record
+        string memory outputJson = _record("hub-peripheries", _hubTestFilename());
         assertEq(
             vm.parseJsonAddress(outputJson, ".FlashloanAggregator"), address(hubPeripheryDeployment.flashloanAggregator)
         );
@@ -290,9 +304,9 @@ contract Deploy_Scripts_Test is Base, Test, CoreConstants {
     function testScript_DeploySpokePeriphery() public {
         vm.createSelectFork({urlOrAlias: getChain(BASE_CHAIN_ID).chainAlias});
 
-        // Periphery deployment, writing the output file
+        // Periphery deployment
         deploySpokePeriphery = new DeploySpokePeriphery();
-        deploySpokePeriphery.setFilenames(_spokeTestFilename(), _spokeTestFilename());
+        deploySpokePeriphery.setFilenames(_spokeTestFilename(), "");
         deploySpokePeriphery.run();
 
         FlashloanAggregator deployment = deploySpokePeriphery.deployment();
@@ -307,11 +321,73 @@ contract Deploy_Scripts_Test is Base, Test, CoreConstants {
         assertEq(address(deployment.aaveV3AddressProvider()), flProviders.aaveV3AddressProvider);
         assertEq(address(deployment.dai()), flProviders.dai);
 
-        // Check that the output file is written
+        // Check that the aggregator is discriminated by the hub chain id of the main instance
         assertEq(
-            vm.parseJsonAddress(vm.readFile(deploySpokePeriphery.outputPath()), ".FlashloanAggregator"),
+            address(deployment),
+            _computeCreateXAddress(
+                "", _instanceSalt(FLASHLOAN_AGGREGATOR_SALT_DOMAIN, ETHEREUM_CHAIN_ID), _broadcaster()
+            )
+        );
+
+        // Check that the deployment matches the committed record
+        assertEq(
+            vm.parseJsonAddress(_record("spoke-peripheries", _spokeTestFilename()), ".FlashloanAggregator"),
             address(deployment)
         );
+    }
+
+    function testScript_DeploySpokePeriphery_ForeignInstance() public {
+        _forkHubChain();
+
+        // Main instance: the hub periphery of the Ethereum hub, its aggregator holding the plain salt domain
+        HubPeriphery memory hubPeripheryDeployment = _deployHubPeriphery();
+        assertEq(
+            address(hubPeripheryDeployment.flashloanAggregator),
+            _computeCreateXAddress("", FLASHLOAN_AGGREGATOR_SALT_DOMAIN, _broadcaster())
+        );
+
+        // Foreign instance: Ethereum also hosts a spoke core of the Base hub
+        SpokeCore memory foreignCore = _deployForeignSpokeCore(true);
+
+        // Spoke periphery of the foreign instance
+        deploySpokePeriphery = new DeploySpokePeriphery();
+        deploySpokePeriphery.setFilenames(_foreignSpokeTestFilename(), "");
+        deploySpokePeriphery.run();
+
+        FlashloanAggregator deployment = deploySpokePeriphery.deployment();
+
+        // Check that the aggregator is bound to the foreign caliber factory
+        assertEq(deployment.caliberFactory(), address(foreignCore.spokeCoreFactory));
+
+        // Check that it is discriminated by the hub chain id of its instance, leaving the hub aggregator in place
+        assertEq(
+            address(deployment),
+            _computeCreateXAddress("", _instanceSalt(FLASHLOAN_AGGREGATOR_SALT_DOMAIN, BASE_CHAIN_ID), _broadcaster())
+        );
+        assertNotEq(address(deployment), address(hubPeripheryDeployment.flashloanAggregator));
+        assertEq(
+            hubPeripheryDeployment.flashloanAggregator.caliberFactory(),
+            ICoreRegistry(vm.parseJsonAddress(deployHubPeriphery.inputJson(), ".hubCoreRegistry")).coreFactory()
+        );
+
+        // Check that the deployment matches the committed record
+        assertEq(
+            vm.parseJsonAddress(_record("spoke-peripheries", _foreignSpokeTestFilename()), ".FlashloanAggregator"),
+            address(deployment)
+        );
+    }
+
+    function test_DeploySpokePeriphery_RevertWhen_CaliberMailboxBeaconNotSet() public {
+        _forkHubChain();
+
+        // The spoke core is not wired yet, so its hub chain id cannot be read
+        SpokeCore memory foreignCore = _deployForeignSpokeCore(false);
+
+        BaseHarness harness = new BaseHarness();
+        FlashloanProviders memory flProviders;
+
+        vm.expectRevert(bytes("Base: spoke CaliberMailboxBeacon not set"));
+        harness.spokePeriphery(address(foreignCore.spokeCoreRegistry), flProviders);
     }
 
     function testScript_DeploySecurityModule() public {
@@ -321,9 +397,7 @@ contract Deploy_Scripts_Test is Base, Test, CoreConstants {
 
         // Security module deployment
         deploySecurityModule = new DeploySecurityModule();
-        deploySecurityModule.setParams(
-            address(hubPeripheryDeployment.hubPeripheryFactory), _hubTestFilename(), _hubTestFilename()
-        );
+        deploySecurityModule.setParams(address(hubPeripheryDeployment.hubPeripheryFactory), _hubTestFilename(), "");
         deploySecurityModule.run();
 
         SecurityModule securityModule = SecurityModule(deploySecurityModule.deployedInstance());
@@ -342,9 +416,9 @@ contract Deploy_Scripts_Test is Base, Test, CoreConstants {
             vm.parseJsonUint(deploySecurityModule.inputJson(), ".initialMinBalanceAfterSlash")
         );
 
-        // Check that the output file is written
+        // Check that the deployment matches the committed record
         assertEq(
-            vm.parseJsonAddress(vm.readFile(deploySecurityModule.outputPath()), ".SecurityModule"),
+            vm.parseJsonAddress(_record("security-modules", _hubTestFilename()), ".SecurityModule"),
             address(securityModule)
         );
     }
@@ -376,9 +450,7 @@ contract Deploy_Scripts_Test is Base, Test, CoreConstants {
 
         // Depositor deployment
         deployDirectDepositor = new DeployDirectDepositor();
-        deployDirectDepositor.setParams(
-            address(hubPeripheryDeployment.hubPeripheryFactory), _hubTestFilename(), _hubTestFilename()
-        );
+        deployDirectDepositor.setParams(address(hubPeripheryDeployment.hubPeripheryFactory), _hubTestFilename(), "");
         deployDirectDepositor.setImplemId(_implemId(".directDepositorImplemId"));
         deployDirectDepositor.run();
 
@@ -389,9 +461,9 @@ contract Deploy_Scripts_Test is Base, Test, CoreConstants {
             vm.parseJsonBool(deployDirectDepositor.inputJson(), ".whitelistStatus")
         );
 
-        // Check that the output file is written
+        // Check that the deployment matches the committed record
         assertEq(
-            vm.parseJsonAddress(vm.readFile(deployDirectDepositor.outputPath()), ".DirectDepositor"),
+            vm.parseJsonAddress(_record("depositors/direct-depositors", _hubTestFilename()), ".DirectDepositor"),
             address(directDepositor)
         );
     }
@@ -403,9 +475,7 @@ contract Deploy_Scripts_Test is Base, Test, CoreConstants {
 
         // Redeemer deployment
         deployAsyncRedeemer = new DeployAsyncRedeemer();
-        deployAsyncRedeemer.setParams(
-            address(hubPeripheryDeployment.hubPeripheryFactory), _hubTestFilename(), _hubTestFilename()
-        );
+        deployAsyncRedeemer.setParams(address(hubPeripheryDeployment.hubPeripheryFactory), _hubTestFilename(), "");
         deployAsyncRedeemer.setImplemId(_implemId(".asyncRedeemerImplemId"));
         deployAsyncRedeemer.run();
 
@@ -419,9 +489,10 @@ contract Deploy_Scripts_Test is Base, Test, CoreConstants {
             asyncRedeemer.isWhitelistEnabled(), vm.parseJsonBool(deployAsyncRedeemer.inputJson(), ".whitelistStatus")
         );
 
-        // Check that the output file is written
+        // Check that the deployment matches the committed record
         assertEq(
-            vm.parseJsonAddress(vm.readFile(deployAsyncRedeemer.outputPath()), ".AsyncRedeemer"), address(asyncRedeemer)
+            vm.parseJsonAddress(_record("redeemers/async-redeemers", _hubTestFilename()), ".AsyncRedeemer"),
+            address(asyncRedeemer)
         );
     }
 
@@ -432,9 +503,7 @@ contract Deploy_Scripts_Test is Base, Test, CoreConstants {
 
         // Redeemer deployment
         deployAsyncRedeemerFee = new DeployAsyncRedeemerFee();
-        deployAsyncRedeemerFee.setParams(
-            address(hubPeripheryDeployment.hubPeripheryFactory), _hubTestFilename(), _hubTestFilename()
-        );
+        deployAsyncRedeemerFee.setParams(address(hubPeripheryDeployment.hubPeripheryFactory), _hubTestFilename(), "");
         deployAsyncRedeemerFee.setImplemId(_implemId(".asyncRedeemerFeeImplemId"));
         deployAsyncRedeemerFee.run();
 
@@ -459,9 +528,9 @@ contract Deploy_Scripts_Test is Base, Test, CoreConstants {
             vm.parseJsonUint(deployAsyncRedeemerFee.inputJson(), ".maxRedeemFeeRate")
         );
 
-        // Check that the output file is written
+        // Check that the deployment matches the committed record
         assertEq(
-            vm.parseJsonAddress(vm.readFile(deployAsyncRedeemerFee.outputPath()), ".AsyncRedeemerFee"),
+            vm.parseJsonAddress(_record("redeemers/async-redeemer-fees", _hubTestFilename()), ".AsyncRedeemerFee"),
             address(asyncRedeemerFee)
         );
     }
@@ -473,9 +542,7 @@ contract Deploy_Scripts_Test is Base, Test, CoreConstants {
 
         // FeeManager deployment
         deployWatermarkFeeManager = new DeployWatermarkFeeManager();
-        deployWatermarkFeeManager.setParams(
-            address(hubPeripheryDeployment.hubPeripheryFactory), _hubTestFilename(), _hubTestFilename()
-        );
+        deployWatermarkFeeManager.setParams(address(hubPeripheryDeployment.hubPeripheryFactory), _hubTestFilename(), "");
         deployWatermarkFeeManager.setImplemId(_implemId(".watermarkFeeManagerImplemId"));
         deployWatermarkFeeManager.run();
 
@@ -530,9 +597,11 @@ contract Deploy_Scripts_Test is Base, Test, CoreConstants {
             assertEq(watermarkFeeManager.perfFeeReceivers()[i], feeReceivers[i]);
         }
 
-        // Check that the output file is written
+        // Check that the deployment matches the committed record
         assertEq(
-            vm.parseJsonAddress(vm.readFile(deployWatermarkFeeManager.outputPath()), ".WatermarkFeeManager"),
+            vm.parseJsonAddress(
+                _record("fee-managers/watermark-fee-managers", _hubTestFilename()), ".WatermarkFeeManager"
+            ),
             address(watermarkFeeManager)
         );
     }
@@ -564,6 +633,58 @@ contract Deploy_Scripts_Test is Base, Test, CoreConstants {
         return string.concat(getChain(BASE_CHAIN_ID).name, "-Test.json");
     }
 
+    /// @dev Spoke periphery of the Base hub instance, on Ethereum.
+    function _foreignSpokeTestFilename() internal returns (string memory) {
+        return string.concat("BaseHub-", getChain(ETHEREUM_CHAIN_ID).name, "-Test.json");
+    }
+
+    function _broadcaster() internal view returns (address broadcaster) {
+        (,, broadcaster) = vm.readCallers();
+    }
+
+    /// @dev Through CreateX from the broadcaster, an occupied CREATE2 slot (implementations) being reused.
+    function _deployCode(bytes memory bytecode, bytes32 salt) internal override returns (address deployed) {
+        deployed = _computeCreateXAddress(bytecode, salt, _broadcaster());
+
+        if (salt == 0 && deployed.code.length != 0) {
+            return deployed;
+        }
+
+        assertEq(_deployCodeCreateX(bytecode, salt, _broadcaster()), deployed);
+    }
+
+    /// @dev Spoke core of the Base hub instance on Ethereum, sharing the chain-scoped contracts of the live main hub
+    ///      core, and wired with what the spoke periphery reads: its factory and, unless `wireCaliberMailboxBeacon`
+    ///      is false, its CaliberMailbox beacon. The broadcaster holds ADMIN_ROLE on the shared AccessManager, see
+    ///      `_forkHubChain`.
+    function _deployForeignSpokeCore(bool wireCaliberMailboxBeacon) internal returns (SpokeCore memory core) {
+        address mainRegistry = vm.parseJsonAddress(
+            vm.readFile(
+                string.concat(vm.projectRoot(), "/script/deployments/inputs/hub-peripheries/", _hubTestFilename())
+            ),
+            ".hubCoreRegistry"
+        );
+        BridgeData[] memory noBridges;
+
+        vm.startBroadcast();
+
+        (core,) = deployForeignSpokeCore(readSharedCore(mainRegistry, noBridges), BASE_CHAIN_ID, noBridges);
+        core.spokeCoreRegistry.setCoreFactory(address(core.spokeCoreFactory));
+        if (wireCaliberMailboxBeacon) {
+            core.spokeCoreRegistry.setCaliberMailboxBeacon(address(core.caliberMailboxBeacon));
+        }
+
+        vm.stopBroadcast();
+
+        // The foreign spoke periphery fixture names this registry
+        string memory foreignSpokeInputJson = vm.readFile(
+            string.concat(
+                vm.projectRoot(), "/script/deployments/inputs/spoke-peripheries/", _foreignSpokeTestFilename()
+            )
+        );
+        assertEq(address(core.spokeCoreRegistry), vm.parseJsonAddress(foreignSpokeInputJson, ".spokeCoreRegistry"));
+    }
+
     /// @dev An implementation id of the hub test implementation ids file.
     function _implemId(string memory key) internal returns (uint16) {
         string memory implemIdsJson =
@@ -571,10 +692,10 @@ contract Deploy_Scripts_Test is Base, Test, CoreConstants {
         return uint16(vm.parseJsonUint(implemIdsJson, key));
     }
 
-    /// @dev Deploys the hub periphery, writing the output file the setup and instance scripts read from.
+    /// @dev Deploys the hub periphery. The setup and instance scripts read the committed hub periphery record.
     function _deployHubPeriphery() internal returns (HubPeriphery memory) {
         deployHubPeriphery = new DeployHubPeriphery();
-        deployHubPeriphery.setFilenames(_hubTestFilename(), _hubTestFilename());
+        deployHubPeriphery.setFilenames(_hubTestFilename(), "");
         deployHubPeriphery.run();
 
         return deployHubPeriphery.deployment();
@@ -591,5 +712,12 @@ contract Deploy_Scripts_Test is Base, Test, CoreConstants {
     function _deployAndSetupHubPeriphery() internal returns (HubPeriphery memory hubPeripheryDeployment) {
         hubPeripheryDeployment = _deployHubPeriphery();
         _setupHubPeripheryRegistry();
+    }
+
+    /// @dev A committed test record under `outputs/`. Test deployments are deterministic, so they match the records
+    ///      without rewriting them. A failing comparison means the record must be regenerated, by running the
+    ///      script with that output filename.
+    function _record(string memory dir, string memory filename) internal view returns (string memory) {
+        return vm.readFile(string.concat(vm.projectRoot(), "/script/deployments/outputs/", dir, "/", filename));
     }
 }

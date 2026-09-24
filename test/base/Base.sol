@@ -7,7 +7,9 @@ import {UpgradeableBeacon} from "@openzeppelin/contracts/proxy/beacon/Upgradeabl
 
 import {Base as CoreBase} from "@makina-core-test/base/Base.sol";
 import {ProxyUtils} from "@makina-core-test/utils/ProxyUtils.sol";
+import {ICaliberMailbox} from "@makina-core/interfaces/ICaliberMailbox.sol";
 import {ICoreRegistry} from "@makina-core/interfaces/ICoreRegistry.sol";
+import {ISpokeCoreRegistry} from "@makina-core/interfaces/ISpokeCoreRegistry.sol";
 import {Roles} from "@makina-core/libraries/Roles.sol";
 
 import {AsyncRedeemer} from "../../src/redeemers/AsyncRedeemer.sol";
@@ -50,6 +52,10 @@ abstract contract Base is ProxyUtils, JsonParser, SaltDomains, CoreBase {
         address sanctionsOracle,
         FlashloanProviders memory flProviders
     ) internal returns (HubPeriphery memory deployment) {
+        // A hub periphery uses the plain salt domains, spoke peripheries are discriminated by their hub chain id, see
+        // `deploySpokePeriphery`. A chain hosts one hub at most, so the two never collide.
+        _instanceId = 0;
+
         // Flashloan Aggregator
         deployment.flashloanAggregator =
             _deployFlashloanAggregator(ICoreRegistry(hubCoreRegistry).coreFactory(), flProviders);
@@ -91,6 +97,26 @@ abstract contract Base is ProxyUtils, JsonParser, SaltDomains, CoreBase {
         deployment.machineShareOracleFactory = _deployMachineShareOracleFactory(
             accessManager, address(deployment.machineShareOracleBeacon), accessManager
         );
+    }
+
+    ///
+    /// SPOKE PERIPHERY DEPLOYMENTS
+    ///
+
+    /// @notice Deploys the spoke periphery: a FlashloanAggregator bound to the caliber factory of `spokeCoreRegistry`.
+    /// @dev The aggregator's salt mixes in the hub chain id of the spoke's instance, read from the spoke core's
+    ///      CaliberMailbox beacon. A hub aggregator uses the plain salt, so a chain hosting a hub and spokes of other
+    ///      instances gets a distinct aggregator address per instance, the same on every chain for a given deployer.
+    function deploySpokePeriphery(address spokeCoreRegistry, FlashloanProviders memory flProviders)
+        internal
+        returns (FlashloanAggregator)
+    {
+        address caliberMailboxBeacon = ISpokeCoreRegistry(spokeCoreRegistry).caliberMailboxBeacon();
+        require(caliberMailboxBeacon != address(0), "Base: spoke CaliberMailboxBeacon not set");
+
+        _instanceId = ICaliberMailbox(UpgradeableBeacon(caliberMailboxBeacon).implementation()).hubChainId();
+
+        return _deployFlashloanAggregator(ICoreRegistry(spokeCoreRegistry).coreFactory(), flProviders);
     }
 
     ///
@@ -324,7 +350,7 @@ abstract contract Base is ProxyUtils, JsonParser, SaltDomains, CoreBase {
                         _flProviders.dai
                     )
                 ),
-                FLASHLOAN_AGGREGATOR_SALT_DOMAIN
+                _instanceSalt(FLASHLOAN_AGGREGATOR_SALT_DOMAIN, _instanceId)
             )
         );
     }

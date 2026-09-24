@@ -1,0 +1,32 @@
+{
+  "lib/aave-v3-origin": {
+    "rev": "68728ba2a215ec248f42e46abaf11aea34ba283d"
+  },
+  "lib/balancer-v2-monorepo": {
+    "rev": "36d282374b457dddea828be7884ee0d185db06ba"
+  },
+  "lib/balancer-v3-monorepo": {
+    "rev": "9c87e8f21907d1835fe93138fe2babcfca430a17"
+  },
+  "lib/forge-std": {
+    "tag": {
+      "name": "v1.16.2",
+      "rev": "bf647bd6046f2f7da30d0c2bf435e5c76a780c1b"
+    }
+  },
+  "lib/makina-core": {
+    "tag": {
+      "name": "v1.3.0",
+      "rev": "eb9a2fea6cac9f88783f9c769927ed7e5c2b7fd5"
+    }
+  },
+  "lib/morpho-blue": {
+    "rev": "8ae3d8410e049270a51c0a33d59db224d658712e"
+  },
+  "lib/openzeppelin-contracts-upgradeable": {
+    "tag": {
+      "name": "v5.6.1",
+      "rev": "7bf4727aacdbfaa0f36cbd664654d0c9e1dc52bf"
+    }
+  }
+}

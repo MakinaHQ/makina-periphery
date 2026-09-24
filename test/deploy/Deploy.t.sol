@@ -127,6 +127,22 @@ contract Deploy_Scripts_Test is Base_Test {
         );
     }
 
+    function testScript_DeployHubPeriphery_RevertWhen_AlreadyDeployed() public {
+        vm.createSelectFork({urlOrAlias: getChain(ETHEREUM_CHAIN_ID).chainAlias});
+
+        deployHubPeriphery = new DeployHubPeriphery();
+        deployHubPeriphery.run();
+
+        // The FlashloanAggregator is the first CREATE3 deployment, so a second run from the same deployer fails there
+        address occupied = address(deployHubPeriphery.deployment().flashloanAggregator);
+
+        deployHubPeriphery = new DeployHubPeriphery();
+        vm.expectRevert(
+            bytes(string.concat("DeployPeriphery: CREATE3 target already has code: ", vm.toString(occupied)))
+        );
+        deployHubPeriphery.run();
+    }
+
     function testScript_DeploySpokePeriphery() public {
         vm.createSelectFork({urlOrAlias: getChain(BASE_CHAIN_ID).chainAlias});
 

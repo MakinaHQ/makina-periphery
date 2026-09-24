@@ -7,8 +7,7 @@ import {
     AccessManagerUpgradeable
 } from "@openzeppelin/contracts-upgradeable/access/manager/AccessManagerUpgradeable.sol";
 
-import "@makina-core-test/base/Base.sol" as Core_Base;
-import "@makina-core-test/utils/Constants.sol" as Core_Constants;
+import {Constants as CoreConstants} from "@makina-core-test/utils/Constants.sol";
 import {HubCoreRegistry} from "@makina-core/registries/HubCoreRegistry.sol";
 import {HubCoreFactory} from "@makina-core/factories/HubCoreFactory.sol";
 import {OracleRegistry} from "@makina-core/registries/OracleRegistry.sol";
@@ -21,7 +20,7 @@ import {HubPeripheryFactory} from "../../src/factories/HubPeripheryFactory.sol";
 
 import {Base} from "../base/Base.sol";
 
-abstract contract Fork_Test is Base, Test, Core_Constants.Constants {
+abstract contract Fork_Test is Base, Test, CoreConstants {
     address internal deployer;
 
     uint256 internal chainId;
@@ -80,7 +79,7 @@ abstract contract Fork_Test is Base, Test, Core_Constants.Constants {
         });
 
         // hub Core
-        Core_Base.Base.HubCore memory coreDeployment = deployHubCore(deployer, address(0));
+        HubCore memory coreDeployment = deployHubCore(deployer, address(0));
         accessManager = coreDeployment.accessManager;
         hubCoreRegistry = coreDeployment.hubCoreRegistry;
         hubCoreFactory = coreDeployment.hubCoreFactory;

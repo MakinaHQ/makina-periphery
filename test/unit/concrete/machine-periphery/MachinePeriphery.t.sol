@@ -9,7 +9,6 @@ import {Unit_Concrete_Test} from "../UnitConcrete.t.sol";
 abstract contract MachinePeriphery_Unit_Concrete_Test is Unit_Concrete_Test {
     IMachinePeriphery internal machinePeriphery;
 
-    // solhint-disable-next-line no-empty-blocks
     function setUp() public virtual override {}
 }
 

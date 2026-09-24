@@ -5,7 +5,7 @@ import {IAccessManager} from "@openzeppelin/contracts/access/manager/IAccessMana
 import {TransparentUpgradeableProxy} from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 import {UpgradeableBeacon} from "@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol";
 
-import "@makina-core-test/base/Base.sol" as Core_Base;
+import {Base as CoreBase} from "@makina-core-test/base/Base.sol";
 import {ProxyUtils} from "@makina-core-test/utils/ProxyUtils.sol";
 import {ICoreRegistry} from "@makina-core/interfaces/ICoreRegistry.sol";
 import {Roles} from "@makina-core/libraries/Roles.sol";
@@ -25,7 +25,7 @@ import {SaltDomains} from "../utils/SaltDomains.sol";
 import {SecurityModule} from "../../src/security-module/SecurityModule.sol";
 import {WatermarkFeeManager} from "../../src/fee-managers/WatermarkFeeManager.sol";
 
-abstract contract Base is ProxyUtils, JsonParser, SaltDomains, Core_Base.Base {
+abstract contract Base is ProxyUtils, JsonParser, SaltDomains, CoreBase {
     struct HubPeriphery {
         FlashloanAggregator flashloanAggregator;
         HubPeripheryRegistry hubPeripheryRegistry;

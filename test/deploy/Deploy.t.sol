@@ -9,7 +9,7 @@ import {
 } from "@openzeppelin/contracts-upgradeable/access/manager/AccessManagerUpgradeable.sol";
 import {UpgradeableBeacon} from "@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol";
 
-import "@makina-core-test/utils/Constants.sol" as Core_Constants;
+import {Constants as CoreConstants} from "@makina-core-test/utils/Constants.sol";
 import {Roles} from "@makina-core/libraries/Roles.sol";
 
 import {AsyncRedeemer} from "src/redeemers/AsyncRedeemer.sol";
@@ -33,7 +33,7 @@ import {SetupHubPeripheryRegistry} from "script/deployments/SetupHubPeripheryReg
 
 import {Base} from "../base/Base.sol";
 
-contract Deploy_Scripts_Test is Base, Test, Core_Constants.Constants {
+contract Deploy_Scripts_Test is Base, Test, CoreConstants {
     /// @dev Admin of the live Mainnet AccessManager the test hub periphery is bound to, see `_forkHubChain`.
     address internal constant LIVE_AM_ADMIN = 0xae7f67EE9B8c465ACE4a1ec1138FaA483d93691A;
 

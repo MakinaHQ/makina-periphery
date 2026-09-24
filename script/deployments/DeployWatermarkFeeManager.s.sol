@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.28;
 
-// solhint-disable no-console
-
 import {console} from "forge-std/console.sol";
 
 import {IHubPeripheryFactory} from "../../src/interfaces/IHubPeripheryFactory.sol";

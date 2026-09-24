@@ -9,7 +9,6 @@ import {Unit_Concrete_Test} from "../UnitConcrete.t.sol";
 abstract contract SanctionsList_Unit_Concrete_Test is Unit_Concrete_Test {
     ISanctionsList internal sanctionsList;
 
-    // solhint-disable-next-line no-empty-blocks
     function setUp() public virtual override {}
 
     function test_Getters() public view {

@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.28;
 
-import {Script} from "forge-std/Script.sol";
-import {stdJson} from "forge-std/StdJson.sol";
-
+import {IAccessManager} from "@openzeppelin/contracts/access/manager/IAccessManager.sol";
 import {UpgradeableBeacon} from "@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol";
 
 import {FlashloanAggregator} from "../../src/flashloans/FlashloanAggregator.sol";
@@ -12,82 +10,49 @@ import {HubPeripheryRegistry} from "../../src/registries/HubPeripheryRegistry.so
 import {MachineShareOracleFactory} from "../../src/factories/MachineShareOracleFactory.sol";
 import {MetaMorphoOracleFactory} from "../../src/factories/MetaMorphoOracleFactory.sol";
 
-import {Base} from "../../test/base/Base.sol";
+import {SetupHubPeriphery} from "./SetupHubPeriphery.s.sol";
 
-contract SetupHubPeripheryAM is Base, Script {
-    using stdJson for string;
+/// @notice Sets the AccessManager function roles of the hub periphery deployed by `DeployHubPeriphery`, as listed by
+///         `Base.hubPeripheryAMFunctionRoles`. See `SetupHubPeriphery` for modes and env vars.
+/// @dev Every call requires ADMIN_ROLE on the hub AccessManager.
+///
+/// Env vars (unless `setFilenames` was called):
+///   HUB_PERIPHERY_INPUT_FILENAME  - hub periphery input file holding the AccessManager address
+///                                   (under script/deployments/inputs/hub-peripheries/)
+///   HUB_PERIPHERY_OUTPUT_FILENAME - hub periphery output file holding the deployed contract addresses
+///                                   (under script/deployments/outputs/hub-peripheries/)
+///   VIEW_MODE (optional)          - true for view mode, unset or false for broadcast mode
+contract SetupHubPeripheryAM is SetupHubPeriphery {
+    function _buildCalls() internal override {
+        address accessManager = vm.parseJsonAddress(inputJson, ".accessManager");
 
-    string public deploymentInputJson;
-    string public deploymentOutputJson;
-
-    address private _accessManager;
-
-    constructor() {
-        string memory deploymentInputFilename = vm.envString("HUB_PERIPHERY_INPUT_FILENAME");
-        string memory deploymentOutputFilename = vm.envString("HUB_PERIPHERY_OUTPUT_FILENAME");
-
-        string memory basePath = string.concat(vm.projectRoot(), "/script/deployments/");
-
-        // load deployment input params
-        string memory deploymentInputPath = string.concat(basePath, "inputs/hub-peripheries/");
-        deploymentInputPath = string.concat(deploymentInputPath, deploymentInputFilename);
-        deploymentInputJson = vm.readFile(deploymentInputPath);
-
-        // load deployment output params
-        string memory deploymentOutputPath = string.concat(basePath, "outputs/hub-peripheries/");
-        deploymentOutputPath = string.concat(deploymentOutputPath, deploymentOutputFilename);
-        deploymentOutputJson = vm.readFile(deploymentOutputPath);
+        AMFunctionRole[] memory functionRoles = hubPeripheryAMFunctionRoles(_deployedHubPeriphery());
+        for (uint256 i; i < functionRoles.length; ++i) {
+            _pushCall(
+                string.concat("AccessManager.setTargetFunctionRole ", functionRoles[i].targetName),
+                accessManager,
+                abi.encodeCall(
+                    IAccessManager.setTargetFunctionRole,
+                    (functionRoles[i].target, functionRoles[i].selectors, functionRoles[i].roleId)
+                )
+            );
+        }
     }
 
-    function run() public {
-        _accessManager = vm.parseJsonAddress(deploymentInputJson, ".accessManager");
-
-        address sender = vm.envOr("TEST_SENDER", address(0));
-        if (sender != address(0)) {
-            vm.startBroadcast(sender);
-        } else {
-            vm.startBroadcast();
-        }
-
-        setupHubPeripheryAMFunctionRoles(
-            _accessManager,
-            HubPeriphery({
-                flashloanAggregator: FlashloanAggregator(
-                    vm.parseJsonAddress(deploymentOutputJson, ".FlashloanAggregator")
-                ),
-                hubPeripheryRegistry: HubPeripheryRegistry(
-                    vm.parseJsonAddress(deploymentOutputJson, ".HubPeripheryRegistry")
-                ),
-                hubPeripheryFactory: HubPeripheryFactory(
-                    vm.parseJsonAddress(deploymentOutputJson, ".HubPeripheryFactory")
-                ),
-                directDepositorBeacon: UpgradeableBeacon(
-                    vm.parseJsonAddress(deploymentOutputJson, ".DirectDepositorBeacon")
-                ),
-                asyncRedeemerBeacon: UpgradeableBeacon(
-                    vm.parseJsonAddress(deploymentOutputJson, ".AsyncRedeemerBeacon")
-                ),
-                asyncRedeemerFeeBeacon: UpgradeableBeacon(
-                    vm.parseJsonAddress(deploymentOutputJson, ".AsyncRedeemerFeeBeacon")
-                ),
-                watermarkFeeManagerBeacon: UpgradeableBeacon(
-                    vm.parseJsonAddress(deploymentOutputJson, ".WatermarkFeeManagerBeacon")
-                ),
-                securityModuleBeacon: UpgradeableBeacon(
-                    vm.parseJsonAddress(deploymentOutputJson, ".SecurityModuleBeacon")
-                ),
-                metaMorphoOracleFactory: MetaMorphoOracleFactory(
-                    vm.parseJsonAddress(deploymentOutputJson, ".MetaMorphoOracleFactory")
-                ),
-                machineShareOracleBeacon: UpgradeableBeacon(
-                    vm.parseJsonAddress(deploymentOutputJson, ".MachineShareOracleBeacon")
-                ),
-                machineShareOracleFactory: MachineShareOracleFactory(
-                    vm.parseJsonAddress(deploymentOutputJson, ".MachineShareOracleFactory")
-                )
-            })
-        );
-
-        vm.stopBroadcast();
+    /// @dev The hub periphery of the output file.
+    function _deployedHubPeriphery() internal view returns (HubPeriphery memory) {
+        return HubPeriphery({
+            flashloanAggregator: FlashloanAggregator(_deployed("FlashloanAggregator")),
+            hubPeripheryRegistry: HubPeripheryRegistry(_deployed("HubPeripheryRegistry")),
+            hubPeripheryFactory: HubPeripheryFactory(_deployed("HubPeripheryFactory")),
+            directDepositorBeacon: UpgradeableBeacon(_deployed("DirectDepositorBeacon")),
+            asyncRedeemerBeacon: UpgradeableBeacon(_deployed("AsyncRedeemerBeacon")),
+            asyncRedeemerFeeBeacon: UpgradeableBeacon(_deployed("AsyncRedeemerFeeBeacon")),
+            watermarkFeeManagerBeacon: UpgradeableBeacon(_deployed("WatermarkFeeManagerBeacon")),
+            securityModuleBeacon: UpgradeableBeacon(_deployed("SecurityModuleBeacon")),
+            metaMorphoOracleFactory: MetaMorphoOracleFactory(_deployed("MetaMorphoOracleFactory")),
+            machineShareOracleBeacon: UpgradeableBeacon(_deployed("MachineShareOracleBeacon")),
+            machineShareOracleFactory: MachineShareOracleFactory(_deployed("MachineShareOracleFactory"))
+        });
     }
 }

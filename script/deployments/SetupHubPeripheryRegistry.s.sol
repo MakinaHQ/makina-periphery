@@ -1,91 +1,83 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.28;
 
-import {Script} from "forge-std/Script.sol";
-import {stdJson} from "forge-std/StdJson.sol";
+import {IHubPeripheryRegistry} from "../../src/interfaces/IHubPeripheryRegistry.sol";
 
-import {Base} from "../../test/base/Base.sol";
+import {SetupHubPeriphery} from "./SetupHubPeriphery.s.sol";
 
-contract SetupHubPeripheryRegistry is Base, Script {
-    using stdJson for string;
+/// @notice Wires the HubPeripheryRegistry deployed by `DeployHubPeriphery`: the periphery factory, the security module
+///         beacon and the machine periphery component beacons under their implementation ids. See `SetupHubPeriphery`
+///         for modes and env vars.
+/// @dev The registry setters are restricted to INFRA_UPGRADE_ROLE once `SetupHubPeripheryAM` has run, to ADMIN_ROLE
+///      before.
+///
+/// Env vars (unless `setFilenames` and `setImplemIdsFilename` were called):
+///   HUB_PERIPHERY_INPUT_FILENAME  - hub periphery input file (under script/deployments/inputs/hub-peripheries/),
+///                                   also naming the implementation ids input file
+///                                   (under script/deployments/inputs/implem-ids/)
+///   HUB_PERIPHERY_OUTPUT_FILENAME - hub periphery output file holding the deployed contract addresses
+///                                   (under script/deployments/outputs/hub-peripheries/)
+///   VIEW_MODE (optional)          - true for view mode, unset or false for broadcast mode
+contract SetupHubPeripheryRegistry is SetupHubPeriphery {
+    string public implemIdsJson;
 
-    string public deploymentInputJson;
-    string public deploymentOutputJson;
-    string public inputJson;
-
-    address private _accessManager;
-
-    uint16[] private mdImplemIds;
-    uint16[] private mrImplemIds;
-    uint16[] private fmImplemIds;
-
-    address[] private mdBeacons;
-    address[] private mrBeacons;
-    address[] private fmBeacons;
-
-    constructor() {
-        string memory deploymentInputFilename = vm.envString("HUB_PERIPHERY_INPUT_FILENAME");
-        string memory deploymentOutputFilename = vm.envString("HUB_PERIPHERY_OUTPUT_FILENAME");
-
-        string memory inputFilename = vm.envString("HUB_STRAT_INPUT_FILENAME");
-
-        string memory basePath = string.concat(vm.projectRoot(), "/script/deployments/");
-
-        // load deployment input params
-        string memory deploymentInputPath = string.concat(basePath, "inputs/hub-peripheries/");
-        deploymentInputPath = string.concat(deploymentInputPath, deploymentInputFilename);
-        deploymentInputJson = vm.readFile(deploymentInputPath);
-
-        // load deployment output params
-        string memory deploymentOutputPath = string.concat(basePath, "outputs/hub-peripheries/");
-        deploymentOutputPath = string.concat(deploymentOutputPath, deploymentOutputFilename);
-        deploymentOutputJson = vm.readFile(deploymentOutputPath);
-
-        // load implem ids
-        string memory inputPath = string.concat(basePath, "inputs/implem-ids/");
-        inputPath = string.concat(inputPath, inputFilename);
-        inputJson = vm.readFile(inputPath);
+    /// @dev Test hook to set the implementation ids filename explicitly, see `setFilenames`.
+    function setImplemIdsFilename(string memory implemIdsFilename) public {
+        implemIdsJson =
+            vm.readFile(string.concat(vm.projectRoot(), "/script/deployments/inputs/implem-ids/", implemIdsFilename));
     }
 
-    function run() public {
-        _accessManager = vm.parseJsonAddress(deploymentInputJson, ".accessManager");
+    function _buildCalls() internal override {
+        address registry = _deployed("HubPeripheryRegistry");
 
-        mdImplemIds = new uint16[](1);
-        mdImplemIds[0] = uint16(vm.parseJsonUint(inputJson, ".directDepositorImplemId"));
-        mdBeacons = new address[](1);
-        mdBeacons[0] = vm.parseJsonAddress(deploymentOutputJson, ".DirectDepositorBeacon");
-
-        mrImplemIds = new uint16[](2);
-        mrImplemIds[0] = uint16(vm.parseJsonUint(inputJson, ".asyncRedeemerImplemId"));
-        mrImplemIds[1] = uint16(vm.parseJsonUint(inputJson, ".asyncRedeemerFeeImplemId"));
-        mrBeacons = new address[](2);
-        mrBeacons[0] = vm.parseJsonAddress(deploymentOutputJson, ".AsyncRedeemerBeacon");
-        mrBeacons[1] = vm.parseJsonAddress(deploymentOutputJson, ".AsyncRedeemerFeeBeacon");
-
-        fmImplemIds = new uint16[](1);
-        fmImplemIds[0] = uint16(vm.parseJsonUint(inputJson, ".watermarkFeeManagerImplemId"));
-        fmBeacons = new address[](1);
-        fmBeacons[0] = vm.parseJsonAddress(deploymentOutputJson, ".WatermarkFeeManagerBeacon");
-
-        address sender = vm.envOr("TEST_SENDER", address(0));
-        if (sender != address(0)) {
-            vm.startBroadcast(sender);
-        } else {
-            vm.startBroadcast();
-        }
-
-        address hubPeripheryRegistry = vm.parseJsonAddress(deploymentOutputJson, ".HubPeripheryRegistry");
-
-        registerHubPeripheryFactory(
-            hubPeripheryRegistry, vm.parseJsonAddress(deploymentOutputJson, ".HubPeripheryFactory")
+        _pushCall(
+            "HubPeripheryRegistry.setPeripheryFactory",
+            registry,
+            abi.encodeCall(IHubPeripheryRegistry.setPeripheryFactory, (_deployed("HubPeripheryFactory")))
         );
-        registerSecurityModuleBeacon(
-            hubPeripheryRegistry, vm.parseJsonAddress(deploymentOutputJson, ".SecurityModuleBeacon")
+        _pushCall(
+            "HubPeripheryRegistry.setSecurityModuleBeacon",
+            registry,
+            abi.encodeCall(IHubPeripheryRegistry.setSecurityModuleBeacon, (_deployed("SecurityModuleBeacon")))
         );
-        registerDepositorBeacons(hubPeripheryRegistry, mdImplemIds, mdBeacons);
-        registerRedeemerBeacons(hubPeripheryRegistry, mrImplemIds, mrBeacons);
-        registerFeeManagerBeacons(hubPeripheryRegistry, fmImplemIds, fmBeacons);
 
-        vm.stopBroadcast();
+        uint16 implemId = _implemId(".directDepositorImplemId");
+        _pushCall(
+            string.concat("HubPeripheryRegistry.setDepositorBeacon, implem id ", vm.toString(uint256(implemId))),
+            registry,
+            abi.encodeCall(IHubPeripheryRegistry.setDepositorBeacon, (implemId, _deployed("DirectDepositorBeacon")))
+        );
+
+        implemId = _implemId(".asyncRedeemerImplemId");
+        _pushCall(
+            string.concat("HubPeripheryRegistry.setRedeemerBeacon, implem id ", vm.toString(uint256(implemId))),
+            registry,
+            abi.encodeCall(IHubPeripheryRegistry.setRedeemerBeacon, (implemId, _deployed("AsyncRedeemerBeacon")))
+        );
+
+        implemId = _implemId(".asyncRedeemerFeeImplemId");
+        _pushCall(
+            string.concat("HubPeripheryRegistry.setRedeemerBeacon, implem id ", vm.toString(uint256(implemId))),
+            registry,
+            abi.encodeCall(IHubPeripheryRegistry.setRedeemerBeacon, (implemId, _deployed("AsyncRedeemerFeeBeacon")))
+        );
+
+        implemId = _implemId(".watermarkFeeManagerImplemId");
+        _pushCall(
+            string.concat("HubPeripheryRegistry.setFeeManagerBeacon, implem id ", vm.toString(uint256(implemId))),
+            registry,
+            abi.encodeCall(
+                IHubPeripheryRegistry.setFeeManagerBeacon, (implemId, _deployed("WatermarkFeeManagerBeacon"))
+            )
+        );
+    }
+
+    function _loadFilenamesFromEnv() internal override {
+        super._loadFilenamesFromEnv();
+        setImplemIdsFilename(vm.envString("HUB_PERIPHERY_INPUT_FILENAME"));
+    }
+
+    function _implemId(string memory key) internal view returns (uint16) {
+        return uint16(vm.parseJsonUint(implemIdsJson, key));
     }
 }

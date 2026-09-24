@@ -1,64 +1,44 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.28;
 
-import {Script} from "forge-std/Script.sol";
-import {stdJson} from "forge-std/StdJson.sol";
-
 import {IHubPeripheryFactory} from "../../src/interfaces/IHubPeripheryFactory.sol";
-import {ISecurityModule} from "../../src/interfaces/ISecurityModule.sol";
 
-import {Base} from "../../test/base/Base.sol";
+import {DeployInstance} from "./DeployInstance.s.sol";
 
-contract DeploySecurityModule is Base, Script {
-    using stdJson for string;
-
-    string public deploymentOutputJson;
-    string public inputJson;
-    string public outputPath;
-
-    address public deployedInstance;
-
-    constructor() {
-        string memory deploymentOutputFilename = vm.envString("HUB_PERIPHERY_OUTPUT_FILENAME");
-
-        string memory inputFilename = vm.envString("HUB_STRAT_INPUT_FILENAME");
-        string memory outputFilename = vm.envString("HUB_STRAT_OUTPUT_FILENAME");
-
-        string memory basePath = string.concat(vm.projectRoot(), "/script/deployments/");
-
-        // load deployment output params
-        string memory deploymentOutputPath = string.concat(basePath, "outputs/hub-peripheries/");
-        deploymentOutputPath = string.concat(deploymentOutputPath, deploymentOutputFilename);
-        deploymentOutputJson = vm.readFile(deploymentOutputPath);
-
-        // load input params
-        string memory inputPath = string.concat(basePath, "inputs/security-modules/");
-        inputPath = string.concat(inputPath, inputFilename);
-        inputJson = vm.readFile(inputPath);
-
-        // output path to later save deployed contracts
-        outputPath = string.concat(basePath, "outputs/security-modules/");
-        outputPath = string.concat(outputPath, outputFilename);
+/// @notice Builds the `HubPeripheryFactory.createSecurityModule` call for a new security module, then broadcasts it
+///         or logs it. See `DeployInstance` for modes and env vars.
+///
+/// Env vars (unless `setParams` was called):
+///   HUB_PERIPHERY_OUTPUT_FILENAME - hub periphery output file holding the HubPeripheryFactory address
+///                                   (under script/deployments/outputs/hub-peripheries/)
+///   HUB_STRAT_INPUT_FILENAME      - security module init params input file
+///                                   (under script/deployments/inputs/security-modules/)
+///   HUB_STRAT_OUTPUT_FILENAME     - file to write the security module address to
+///                                   (under script/deployments/outputs/security-modules/, broadcast mode only)
+///   VIEW_MODE (optional)          - true for view mode, unset or false for broadcast mode
+contract DeploySecurityModule is DeployInstance {
+    function _createCall() internal view override returns (Call memory) {
+        return Call({
+            label: "HubPeripheryFactory.createSecurityModule",
+            target: peripheryFactory,
+            data: abi.encodeCall(IHubPeripheryFactory.createSecurityModule, (parseSecurityModuleInitParams(inputJson)))
+        });
     }
 
-    function run() public {
-        ISecurityModule.SecurityModuleInitParams memory initParams = parseSecurityModuleInitParams(inputJson);
-
-        address sender = vm.envOr("TEST_SENDER", address(0));
-        if (sender != address(0)) {
-            vm.startBroadcast(sender);
-        } else {
-            vm.startBroadcast();
-        }
-
-        deployedInstance = IHubPeripheryFactory(vm.parseJsonAddress(deploymentOutputJson, ".HubPeripheryFactory"))
-            .createSecurityModule(initParams);
-
-        vm.stopBroadcast();
-
+    function _writeOutput() internal override {
         string memory key = "key-deploy-security-module-output-file";
-
-        // write to file
         vm.writeJson(vm.serializeAddress(key, "SecurityModule", deployedInstance), outputPath);
+    }
+
+    function _recordDir() internal pure override returns (string memory) {
+        return "security-modules";
+    }
+
+    function _loadParamsFromEnv() internal override {
+        setParams(
+            _peripheryFactoryFromRecord(vm.envString("HUB_PERIPHERY_OUTPUT_FILENAME")),
+            vm.envString("HUB_STRAT_INPUT_FILENAME"),
+            _outputFilenameFromEnv("HUB_STRAT_OUTPUT_FILENAME")
+        );
     }
 }

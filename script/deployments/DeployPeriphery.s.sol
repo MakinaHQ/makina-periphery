@@ -4,7 +4,7 @@ pragma solidity 0.8.28;
 import {Script} from "forge-std/Script.sol";
 import {stdJson} from "forge-std/StdJson.sol";
 
-import {CreateXUtils} from "@makina-core-script/deployments/utils/CreateXUtils.sol";
+import {CreateXUtils} from "@makina-core-script/deploy/utils/CreateXUtils.sol";
 
 import {Base} from "../../test/base/Base.sol";
 

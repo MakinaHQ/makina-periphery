@@ -4,8 +4,6 @@ pragma solidity 0.8.28;
 import {stdJson} from "forge-std/StdJson.sol";
 import {stdStorage, StdStorage} from "forge-std/StdStorage.sol";
 
-import {ChainsInfo} from "@makina-core-test/utils/ChainsInfo.sol";
-
 import {FlashloanAggregator} from "src/flashloans/FlashloanAggregator.sol";
 import {AsyncRedeemer} from "src/redeemers/AsyncRedeemer.sol";
 import {AsyncRedeemerFee} from "src/redeemers/AsyncRedeemerFee.sol";
@@ -40,16 +38,16 @@ contract Deploy_Scripts_Test is Base_Test {
     DeploySpokePeriphery public deploySpokePeriphery;
 
     function setUp() public override {
-        ChainsInfo.ChainInfo memory chainInfo = ChainsInfo.getChainInfo(ChainsInfo.CHAIN_ID_ETHEREUM);
-        vm.setEnv("HUB_PERIPHERY_INPUT_FILENAME", chainInfo.constantsFilename);
-        vm.setEnv("HUB_PERIPHERY_OUTPUT_FILENAME", chainInfo.constantsFilename);
+        string memory hubFilename = string.concat(getChain(ETHEREUM_CHAIN_ID).name, "-Test.json");
+        vm.setEnv("HUB_PERIPHERY_INPUT_FILENAME", hubFilename);
+        vm.setEnv("HUB_PERIPHERY_OUTPUT_FILENAME", hubFilename);
 
-        vm.setEnv("HUB_STRAT_INPUT_FILENAME", chainInfo.constantsFilename);
-        vm.setEnv("HUB_STRAT_OUTPUT_FILENAME", chainInfo.constantsFilename);
+        vm.setEnv("HUB_STRAT_INPUT_FILENAME", hubFilename);
+        vm.setEnv("HUB_STRAT_OUTPUT_FILENAME", hubFilename);
 
-        chainInfo = ChainsInfo.getChainInfo(ChainsInfo.CHAIN_ID_BASE);
-        vm.setEnv("SPOKE_PERIPHERY_INPUT_FILENAME", chainInfo.constantsFilename);
-        vm.setEnv("SPOKE_PERIPHERY_OUTPUT_FILENAME", chainInfo.constantsFilename);
+        string memory spokeFilename = string.concat(getChain(BASE_CHAIN_ID).name, "-Test.json");
+        vm.setEnv("SPOKE_PERIPHERY_INPUT_FILENAME", spokeFilename);
+        vm.setEnv("SPOKE_PERIPHERY_OUTPUT_FILENAME", spokeFilename);
 
         // In provided access manager test instance, admin has permissions for setup below
         address admin = 0xae7f67EE9B8c465ACE4a1ec1138FaA483d93691A;
@@ -69,7 +67,7 @@ contract Deploy_Scripts_Test is Base_Test {
     }
 
     function testScript_DeployHubPeriphery() public {
-        vm.createSelectFork({urlOrAlias: ChainsInfo.getChainInfo(ChainsInfo.CHAIN_ID_ETHEREUM).foundryAlias});
+        vm.createSelectFork({urlOrAlias: getChain(ETHEREUM_CHAIN_ID).chainAlias});
 
         // Periphery deployment
         deployHubPeriphery = new DeployHubPeriphery();
@@ -130,7 +128,7 @@ contract Deploy_Scripts_Test is Base_Test {
     }
 
     function testScript_DeploySpokePeriphery() public {
-        vm.createSelectFork({urlOrAlias: ChainsInfo.getChainInfo(ChainsInfo.CHAIN_ID_BASE).foundryAlias});
+        vm.createSelectFork({urlOrAlias: getChain(BASE_CHAIN_ID).chainAlias});
 
         // Periphery deployment
         deploySpokePeriphery = new DeploySpokePeriphery();
@@ -150,7 +148,7 @@ contract Deploy_Scripts_Test is Base_Test {
     }
 
     function testScript_DeploySecurityModule() public {
-        vm.createSelectFork({urlOrAlias: ChainsInfo.getChainInfo(ChainsInfo.CHAIN_ID_ETHEREUM).foundryAlias});
+        vm.createSelectFork({urlOrAlias: getChain(ETHEREUM_CHAIN_ID).chainAlias});
 
         HubPeriphery memory hubPeripheryDeployment = _deployHubPeriphery();
 
@@ -176,7 +174,7 @@ contract Deploy_Scripts_Test is Base_Test {
     }
 
     function testScript_DeployDirectDepositor() public {
-        vm.createSelectFork({urlOrAlias: ChainsInfo.getChainInfo(ChainsInfo.CHAIN_ID_ETHEREUM).foundryAlias});
+        vm.createSelectFork({urlOrAlias: getChain(ETHEREUM_CHAIN_ID).chainAlias});
 
         HubPeriphery memory hubPeripheryDeployment = _deployHubPeriphery();
 
@@ -193,7 +191,7 @@ contract Deploy_Scripts_Test is Base_Test {
     }
 
     function testScript_AsyncRedeemer() public {
-        vm.createSelectFork({urlOrAlias: ChainsInfo.getChainInfo(ChainsInfo.CHAIN_ID_ETHEREUM).foundryAlias});
+        vm.createSelectFork({urlOrAlias: getChain(ETHEREUM_CHAIN_ID).chainAlias});
 
         HubPeriphery memory hubPeripheryDeployment = _deployHubPeriphery();
 
@@ -213,7 +211,7 @@ contract Deploy_Scripts_Test is Base_Test {
     }
 
     function testScript_AsyncRedeemerFee() public {
-        vm.createSelectFork({urlOrAlias: ChainsInfo.getChainInfo(ChainsInfo.CHAIN_ID_ETHEREUM).foundryAlias});
+        vm.createSelectFork({urlOrAlias: getChain(ETHEREUM_CHAIN_ID).chainAlias});
 
         HubPeriphery memory hubPeripheryDeployment = _deployHubPeriphery();
 
@@ -244,7 +242,7 @@ contract Deploy_Scripts_Test is Base_Test {
     }
 
     function testScript_WatermarkFeeManager() public {
-        vm.createSelectFork({urlOrAlias: ChainsInfo.getChainInfo(ChainsInfo.CHAIN_ID_ETHEREUM).foundryAlias});
+        vm.createSelectFork({urlOrAlias: getChain(ETHEREUM_CHAIN_ID).chainAlias});
 
         HubPeriphery memory hubPeripheryDeployment = _deployHubPeriphery();
 

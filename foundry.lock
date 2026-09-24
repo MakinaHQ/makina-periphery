@@ -15,10 +15,7 @@
     }
   },
   "lib/makina-core": {
-    "tag": {
-      "name": "v1.3.0",
-      "rev": "eb9a2fea6cac9f88783f9c769927ed7e5c2b7fd5"
-    }
+    "rev": "9a44b295cf14c0a25f65eb006f44bdd0c97408be"
   },
   "lib/morpho-blue": {
     "rev": "8ae3d8410e049270a51c0a33d59db224d658712e"

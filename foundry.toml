@@ -7,7 +7,6 @@ solc_version = "0.8.28"
 optimizer = true
 optimizer_runs = 150
 ignored_warnings_from = ["lib"]
-ffi = true
 fs_permissions = [{ access = "read-write", path = "./"}]
 
 [rpc_endpoints]
@@ -23,6 +22,9 @@ monad = "${MONAD_RPC_URL}"
 plasma = "${PLASMA_RPC_URL}"
 hyper_evm = "${HYPER_EVM_RPC_URL}"
 polygon = "${POLYGON_RPC_URL}"
+robinhood = "${ROBINHOOD_RPC_URL}"
+arc = "${ARC_RPC_URL}"
+tempo = "${TEMPO_RPC_URL}"
 
 [etherscan]
 # Ink: Foundry's built-in URL (/api/v2) is not Etherscan-compatible

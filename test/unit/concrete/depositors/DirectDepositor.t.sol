@@ -9,14 +9,14 @@ import {IWhitelist} from "src/interfaces/IWhitelist.sol";
 import {DirectDepositor} from "src/depositors/DirectDepositor.sol";
 
 import {
-    MachinePeriphery_Util_Concrete_Test,
-    Getter_Setter_MachinePeriphery_Util_Concrete_Test
+    MachinePeriphery_Unit_Concrete_Test,
+    Getters_Setters_MachinePeriphery_Unit_Concrete_Test
 } from "../machine-periphery/MachinePeriphery.t.sol";
 import {SanctionsList_Unit_Concrete_Test} from "../sanctions-list/SanctionsList.t.sol";
 import {Whitelist_Unit_Concrete_Test} from "../whitelist/Whitelist.t.sol";
 import {Unit_Concrete_Test} from "../UnitConcrete.t.sol";
 
-abstract contract DirectDepositor_Util_Concrete_Test is MachinePeriphery_Util_Concrete_Test {
+abstract contract DirectDepositor_Unit_Concrete_Test is MachinePeriphery_Unit_Concrete_Test {
     DirectDepositor internal directDepositor;
     Machine internal machine;
 
@@ -37,12 +37,12 @@ abstract contract DirectDepositor_Util_Concrete_Test is MachinePeriphery_Util_Co
     }
 }
 
-contract Whitelist_DirectDepositor_Util_Concrete_Test is
+contract Whitelist_DirectDepositor_Unit_Concrete_Test is
     Whitelist_Unit_Concrete_Test,
-    DirectDepositor_Util_Concrete_Test
+    DirectDepositor_Unit_Concrete_Test
 {
-    function setUp() public override(Whitelist_Unit_Concrete_Test, DirectDepositor_Util_Concrete_Test) {
-        DirectDepositor_Util_Concrete_Test.setUp();
+    function setUp() public override(Whitelist_Unit_Concrete_Test, DirectDepositor_Unit_Concrete_Test) {
+        DirectDepositor_Unit_Concrete_Test.setUp();
         whitelist = IWhitelist(address(directDepositor));
 
         vm.prank(dao);
@@ -50,12 +50,12 @@ contract Whitelist_DirectDepositor_Util_Concrete_Test is
     }
 }
 
-contract SanctionsList_DirectDepositor_Util_Concrete_Test is
+contract SanctionsList_DirectDepositor_Unit_Concrete_Test is
     SanctionsList_Unit_Concrete_Test,
-    DirectDepositor_Util_Concrete_Test
+    DirectDepositor_Unit_Concrete_Test
 {
-    function setUp() public override(SanctionsList_Unit_Concrete_Test, DirectDepositor_Util_Concrete_Test) {
-        DirectDepositor_Util_Concrete_Test.setUp();
+    function setUp() public override(SanctionsList_Unit_Concrete_Test, DirectDepositor_Unit_Concrete_Test) {
+        DirectDepositor_Unit_Concrete_Test.setUp();
         sanctionsList = ISanctionsList(address(directDepositor));
 
         vm.prank(dao);
@@ -63,11 +63,11 @@ contract SanctionsList_DirectDepositor_Util_Concrete_Test is
     }
 }
 
-contract Getters_Setters_DirectDepositor_Util_Concrete_Test is
-    Getter_Setter_MachinePeriphery_Util_Concrete_Test,
-    DirectDepositor_Util_Concrete_Test
+contract Getters_Setters_DirectDepositor_Unit_Concrete_Test is
+    Getters_Setters_MachinePeriphery_Unit_Concrete_Test,
+    DirectDepositor_Unit_Concrete_Test
 {
-    function setUp() public override(DirectDepositor_Util_Concrete_Test, MachinePeriphery_Util_Concrete_Test) {
-        DirectDepositor_Util_Concrete_Test.setUp();
+    function setUp() public override(DirectDepositor_Unit_Concrete_Test, MachinePeriphery_Unit_Concrete_Test) {
+        DirectDepositor_Unit_Concrete_Test.setUp();
     }
 }

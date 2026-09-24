@@ -5,7 +5,7 @@ import {MathHelper} from "src/weiroll-helpers/MathHelper.sol";
 
 import {Unit_Concrete_Test} from "../../UnitConcrete.t.sol";
 
-contract MathHelper_Unit_concrete_Test is Unit_Concrete_Test {
+contract MathHelper_Unit_Concrete_Test is Unit_Concrete_Test {
     MathHelper internal mathHelper;
 
     function setUp() public virtual override {
@@ -63,7 +63,7 @@ contract MathHelper_Unit_concrete_Test is Unit_Concrete_Test {
         mathHelper.ceilDiv(a, 0);
     }
 
-    function test_mulDiv() public {
+    function test_MulDiv() public {
         uint256 a = 21;
         uint256 b = 2;
         uint256 c = 5;
@@ -75,7 +75,7 @@ contract MathHelper_Unit_concrete_Test is Unit_Concrete_Test {
         mathHelper.mulDiv(a, b, 0);
     }
 
-    function test_ceilMulDiv() public {
+    function test_CeilMulDiv() public {
         uint256 a = 21;
         uint256 b = 2;
         uint256 c = 5;

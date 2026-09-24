@@ -5,7 +5,7 @@ import {KeyValueStore} from "src/weiroll-helpers/KeyValueStore.sol";
 
 import {Unit_Concrete_Test} from "../../UnitConcrete.t.sol";
 
-contract KeyValueStore_Unit_concrete_Test is Unit_Concrete_Test {
+contract KeyValueStore_Unit_Concrete_Test is Unit_Concrete_Test {
     KeyValueStore internal keyValueStore;
 
     address internal caliberAddr;

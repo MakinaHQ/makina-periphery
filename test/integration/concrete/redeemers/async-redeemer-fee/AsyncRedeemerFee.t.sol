@@ -6,15 +6,13 @@ import {MachineShare} from "@makina-core/machine/MachineShare.sol";
 import {IAsyncRedeemer} from "src/interfaces/IAsyncRedeemer.sol";
 import {IAsyncRedeemerFee} from "src/interfaces/IAsyncRedeemerFee.sol";
 
-import {AsyncRedeemer_Shared_Integration_Concrete_Test} from "../async-machine-redeemer/AsyncRedeemerShared.t.sol";
-import {RequestRedeem_Integration_Concrete_Test} from "../async-machine-redeemer/request-redeem/requestRedeem.t.sol";
+import {AsyncRedeemer_Shared_Integration_Concrete_Test} from "../async-redeemer/AsyncRedeemerShared.t.sol";
+import {RequestRedeem_Integration_Concrete_Test} from "../async-redeemer/request-redeem/requestRedeem.t.sol";
 import {
     PreviewFinalizeRequests_Integration_Concrete_Test
-} from "../async-machine-redeemer/preview-finalize-requests/previewFinalizeRequests.t.sol";
-import {
-    FinalizeRequests_Integration_Concrete_Test
-} from "../async-machine-redeemer/finalize-requests/finalizeRequests.t.sol";
-import {ClaimAssets_Integration_Concrete_Test} from "../async-machine-redeemer/claim-assets/claimAssets.t.sol";
+} from "../async-redeemer/preview-finalize-requests/previewFinalizeRequests.t.sol";
+import {FinalizeRequests_Integration_Concrete_Test} from "../async-redeemer/finalize-requests/finalizeRequests.t.sol";
+import {ClaimAssets_Integration_Concrete_Test} from "../async-redeemer/claim-assets/claimAssets.t.sol";
 
 abstract contract AsyncRedeemerFee_Integration_Concrete_Test is AsyncRedeemer_Shared_Integration_Concrete_Test {
     function setUp() public virtual override {
@@ -61,7 +59,7 @@ contract AsyncRedeemerFee_RequestRedeem_Integration_Concrete_Test is
     }
 }
 
-contract AsyncRedeemer_PreviewFinalizeRequest_Integration_Concrete_Test is
+contract AsyncRedeemerFee_PreviewFinalizeRequests_Integration_Concrete_Test is
     AsyncRedeemerFee_Integration_Concrete_Test,
     PreviewFinalizeRequests_Integration_Concrete_Test
 {
@@ -74,7 +72,7 @@ contract AsyncRedeemer_PreviewFinalizeRequest_Integration_Concrete_Test is
     }
 }
 
-contract AsyncRedeemer_FinalizeRequest_Integration_Concrete_Test is
+contract AsyncRedeemerFee_FinalizeRequests_Integration_Concrete_Test is
     AsyncRedeemerFee_Integration_Concrete_Test,
     FinalizeRequests_Integration_Concrete_Test
 {
@@ -87,7 +85,7 @@ contract AsyncRedeemer_FinalizeRequest_Integration_Concrete_Test is
     }
 }
 
-contract AsyncRedeemer_ClaimAssets_Integration_Concrete_Test is
+contract AsyncRedeemerFee_ClaimAssets_Integration_Concrete_Test is
     AsyncRedeemerFee_Integration_Concrete_Test,
     ClaimAssets_Integration_Concrete_Test
 {

@@ -11,12 +11,12 @@ import {IMachinePeriphery} from "src/interfaces/IMachinePeriphery.sol";
 import {WatermarkFeeManager} from "src/fee-managers/WatermarkFeeManager.sol";
 
 import {
-    MachinePeriphery_Util_Concrete_Test,
-    Getter_Setter_MachinePeriphery_Util_Concrete_Test
+    MachinePeriphery_Unit_Concrete_Test,
+    Getters_Setters_MachinePeriphery_Unit_Concrete_Test
 } from "../machine-periphery/MachinePeriphery.t.sol";
 import {Unit_Concrete_Test} from "../UnitConcrete.t.sol";
 
-abstract contract WatermarkFeeManager_Util_Concrete_Test is MachinePeriphery_Util_Concrete_Test {
+abstract contract WatermarkFeeManager_Unit_Concrete_Test is MachinePeriphery_Unit_Concrete_Test {
     WatermarkFeeManager internal watermarkFeeManager;
     Machine internal machine;
 
@@ -56,16 +56,16 @@ abstract contract WatermarkFeeManager_Util_Concrete_Test is MachinePeriphery_Uti
     }
 }
 
-contract Getters_Setters_WatermarkFeeManager_Util_Concrete_Test is
-    Getter_Setter_MachinePeriphery_Util_Concrete_Test,
-    WatermarkFeeManager_Util_Concrete_Test
+contract Getters_Setters_WatermarkFeeManager_Unit_Concrete_Test is
+    Getters_Setters_MachinePeriphery_Unit_Concrete_Test,
+    WatermarkFeeManager_Unit_Concrete_Test
 {
     function setUp()
         public
         virtual
-        override(WatermarkFeeManager_Util_Concrete_Test, MachinePeriphery_Util_Concrete_Test)
+        override(WatermarkFeeManager_Unit_Concrete_Test, MachinePeriphery_Unit_Concrete_Test)
     {
-        WatermarkFeeManager_Util_Concrete_Test.setUp();
+        WatermarkFeeManager_Unit_Concrete_Test.setUp();
     }
 
     modifier withMachine(address _machine) {
@@ -102,12 +102,12 @@ contract Getters_Setters_WatermarkFeeManager_Util_Concrete_Test is
         assertEq(rfcSelectors[5], IWatermarkFeeManager.setPerfFeeSplit.selector);
     }
 
-    function test_authority_RevertWhen_MachineNotSet() public {
+    function test_Authority_RevertWhen_MachineNotSet() public {
         vm.expectRevert(Errors.MachineNotSet.selector);
         watermarkFeeManager.authority();
     }
 
-    function test_authority() public withMachine(address(machine)) {
+    function test_Authority() public withMachine(address(machine)) {
         assertEq(watermarkFeeManager.authority(), address(accessManager));
     }
 

@@ -13,7 +13,7 @@ import {FlashloanAggregator} from "src/flashloans/FlashloanAggregator.sol";
 
 import {FlashloanAggregator_Integration_Concrete_Test} from "../FlashloanAggregator.t.sol";
 
-contract ReceiveFlashloan_Integration_Concrete_Test is FlashloanAggregator_Integration_Concrete_Test {
+contract ReceiveFlashLoan_Integration_Concrete_Test is FlashloanAggregator_Integration_Concrete_Test {
     uint8 private constant FAULTY_MODE_NOT_BALANCER_V2_POOL = 1;
     uint8 private constant FAULTY_MODE_INVALID_TOKENS_LENGTH = 2;
     uint8 private constant FAULTY_MODE_INVALID_AMOUNTS_LENGTH = 3;

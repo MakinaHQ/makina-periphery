@@ -26,7 +26,7 @@ contract SettleSlashing_Integration_Concrete_Test is SecurityModule_Integration_
         securityModule.settleSlashing();
     }
 
-    function test_Slash() public {
+    function test_SettleSlashing() public {
         // User1 locks machine shares
         uint256 sharesToLock = machineShares;
         vm.startPrank(user1);

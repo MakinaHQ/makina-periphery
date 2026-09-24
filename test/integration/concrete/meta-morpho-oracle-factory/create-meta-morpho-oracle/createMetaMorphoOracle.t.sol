@@ -26,7 +26,7 @@ contract CreateMetaMorphoOracle_Integration_Concrete_Test is MetaMorphoOracleFac
         metaMorphoOracleFactory.createMetaMorphoOracle(address(morphoVaultFactory), address(metaMorphoVault), 17);
     }
 
-    function test_createMetaMorphoOracle_OracleDecimalsGreaterThanUnderlyingAsset() public {
+    function test_CreateMetaMorphoOracle_OracleDecimalsGreaterThanUnderlyingAsset() public {
         vm.prank(dao);
         ERC4626Oracle oracle1 = ERC4626Oracle(
             metaMorphoOracleFactory.createMetaMorphoOracle(address(morphoVaultFactory), address(metaMorphoVault), 19)
@@ -34,7 +34,7 @@ contract CreateMetaMorphoOracle_Integration_Concrete_Test is MetaMorphoOracleFac
         assertEq(oracle1.decimals(), 19);
     }
 
-    function test_createMetaMorphoOracle_OracleDecimalsEqualToUnderlyingAsset() public {
+    function test_CreateMetaMorphoOracle_OracleDecimalsEqualToUnderlyingAsset() public {
         vm.prank(dao);
         ERC4626Oracle oracle2 = ERC4626Oracle(
             metaMorphoOracleFactory.createMetaMorphoOracle(address(morphoVaultFactory), address(metaMorphoVault), 18)

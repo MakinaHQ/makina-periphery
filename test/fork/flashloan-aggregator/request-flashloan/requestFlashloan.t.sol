@@ -118,7 +118,7 @@ contract RequestFlashloan_Fork_Test is FlashloanAggregator_Fork_Test {
         flashloanAggregator.requestFlashloan(request);
     }
 
-    function test_dssFlash() public {
+    function test_DssFlash() public {
         ICaliber.Instruction memory instruction;
         address token = flashloanAggregator.dai();
         uint256 amount = 10e18;

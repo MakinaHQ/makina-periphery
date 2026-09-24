@@ -9,10 +9,10 @@ import {Errors, CoreErrors} from "src/libraries/Errors.sol";
 import {ISecurityModule} from "src/interfaces/ISecurityModule.sol";
 import {SecurityModule} from "src/security-module/SecurityModule.sol";
 
-import {MachinePeriphery_Util_Concrete_Test} from "../machine-periphery/MachinePeriphery.t.sol";
+import {MachinePeriphery_Unit_Concrete_Test} from "../machine-periphery/MachinePeriphery.t.sol";
 import {Unit_Concrete_Test} from "../UnitConcrete.t.sol";
 
-abstract contract SecurityModule_Util_Concrete_Test is MachinePeriphery_Util_Concrete_Test {
+abstract contract SecurityModule_Unit_Concrete_Test is MachinePeriphery_Unit_Concrete_Test {
     SecurityModule internal securityModule;
     Machine internal machine;
     MachineShare internal machineShare;
@@ -37,7 +37,7 @@ abstract contract SecurityModule_Util_Concrete_Test is MachinePeriphery_Util_Con
     }
 }
 
-contract Getters_Setters_SecurityModule_Util_Concrete_Test is SecurityModule_Util_Concrete_Test {
+contract Getters_Setters_SecurityModule_Unit_Concrete_Test is SecurityModule_Unit_Concrete_Test {
     function test_Getters() public view {
         assertEq(securityModule.decimals(), DecimalsUtils.SHARE_TOKEN_DECIMALS);
         assertEq(securityModule.machine(), address(machine));

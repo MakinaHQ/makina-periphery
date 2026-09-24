@@ -20,7 +20,7 @@ Set the `HUB_PERIPHERY_INPUT_FILENAME` and `HUB_PERIPHERY_OUTPUT_FILENAME` value
 1. Copy `script/deployments/inputs/hub-peripheries/TEMPLATE.json` to `script/deployments/inputs/hub-peripheries/{HUB_PERIPHERY_INPUT_FILENAME}` and fill in the required variables.
 2. Run the following command to initiate the deployment. This will generate an output file at `script/deployments/outputs/hub-peripheries/{HUB_PERIPHERY_OUTPUT_FILENAME}` containing the deployed contract addresses.
 
-```
+```shell
 forge script script/deployments/DeployHubPeriphery.s.sol --rpc-url <network-alias> <wallet-options> --slow --broadcast --verify -vvvv
 ```
 
@@ -36,7 +36,7 @@ Set `VIEW_MODE=true` to log each call's target and calldata, alongside its `Acce
 
 3. Run the following command to set the `AccessManager` function roles of the deployed contracts. Every call requires the `ADMIN_ROLE`.
 
-```
+```shell
 VIEW_MODE=true forge script script/deployments/SetupHubPeripheryAM.s.sol --rpc-url <network-alias> -vvvv
 ```
 
@@ -44,7 +44,7 @@ VIEW_MODE=true forge script script/deployments/SetupHubPeripheryAM.s.sol --rpc-u
 
 5. Run the following command to wire the `HubPeripheryRegistry`: the periphery factory, the security module beacon and the component beacons under their implementation ids. Every call requires the `INFRA_UPGRADE_ROLE` once step 3 has run, the `ADMIN_ROLE` otherwise.
 
-```
+```shell
 VIEW_MODE=true forge script script/deployments/SetupHubPeripheryRegistry.s.sol --rpc-url <network-alias> -vvvv
 ```
 
@@ -59,7 +59,7 @@ The factory functions creating machine periphery components are restricted to th
 1. Copy `script/deployments/inputs/security-modules/TEMPLATE.json` to `script/deployments/inputs/security-modules/{HUB_STRAT_INPUT_FILENAME}` and fill in the required variables.
 2. Run the following command to initiate the deployment. This will generate an output file at `script/deployments/outputs/security-modules/{HUB_STRAT_OUTPUT_FILENAME}` containing the deployed contract address.
 
-```
+```shell
 forge script script/deployments/DeploySecurityModule.s.sol --rpc-url <network-alias> <wallet-options> --slow --broadcast --verify -vvvv
 ```
 
@@ -68,7 +68,7 @@ forge script script/deployments/DeploySecurityModule.s.sol --rpc-url <network-al
 1. Copy `script/deployments/inputs/depositors/direct-depositors/TEMPLATE.json` to `script/deployments/inputs/depositors/direct-depositors/{HUB_STRAT_INPUT_FILENAME}` and fill in the required variables.
 2. Run the following command to initiate the deployment. This will generate an output file at `script/deployments/outputs/depositors/direct-depositors/{HUB_STRAT_OUTPUT_FILENAME}` containing the deployed contract address.
 
-```
+```shell
 forge script script/deployments/DeployDirectDepositor.s.sol --rpc-url <network-alias> <wallet-options> --slow --broadcast --verify -vvvv
 ```
 
@@ -77,7 +77,7 @@ forge script script/deployments/DeployDirectDepositor.s.sol --rpc-url <network-a
 1. Copy `script/deployments/inputs/redeemers/async-redeemers/TEMPLATE.json` to `script/deployments/inputs/redeemers/async-redeemers/{HUB_STRAT_INPUT_FILENAME}` and fill in the required variables.
 2. Run the following command to initiate the deployment. This will generate an output file at `script/deployments/outputs/redeemers/async-redeemers/{HUB_STRAT_OUTPUT_FILENAME}` containing the deployed contract address.
 
-```
+```shell
 forge script script/deployments/DeployAsyncRedeemer.s.sol --rpc-url <network-alias> <wallet-options> --slow --broadcast --verify -vvvv
 ```
 
@@ -86,7 +86,7 @@ forge script script/deployments/DeployAsyncRedeemer.s.sol --rpc-url <network-ali
 1. Copy `script/deployments/inputs/redeemers/async-redeemer-fees/TEMPLATE.json` to `script/deployments/inputs/redeemers/async-redeemer-fees/{HUB_STRAT_INPUT_FILENAME}` and fill in the required variables.
 2. Run the following command to initiate the deployment. This will generate an output file at `script/deployments/outputs/redeemers/async-redeemer-fees/{HUB_STRAT_OUTPUT_FILENAME}` containing the deployed contract address.
 
-```
+```shell
 forge script script/deployments/DeployAsyncRedeemerFee.s.sol --rpc-url <network-alias> <wallet-options> --slow --broadcast --verify -vvvv
 ```
 
@@ -95,7 +95,7 @@ forge script script/deployments/DeployAsyncRedeemerFee.s.sol --rpc-url <network-
 1. Copy `script/deployments/inputs/fee-managers/watermark-fee-managers/TEMPLATE.json` to `script/deployments/inputs/fee-managers/watermark-fee-managers/{HUB_STRAT_INPUT_FILENAME}` and fill in the required variables.
 2. Run the following command to initiate the deployment. This will generate an output file at `script/deployments/outputs/fee-managers/watermark-fee-managers/{HUB_STRAT_OUTPUT_FILENAME}` containing the deployed contract address.
 
-```
+```shell
 forge script script/deployments/DeployWatermarkFeeManager.s.sol --rpc-url <network-alias> <wallet-options> --slow --broadcast --verify -vvvv
 ```
 
@@ -110,7 +110,7 @@ Set the `SPOKE_PERIPHERY_INPUT_FILENAME` and `SPOKE_PERIPHERY_OUTPUT_FILENAME` v
 1. Copy `script/deployments/inputs/spoke-peripheries/TEMPLATE.json` to `script/deployments/inputs/spoke-peripheries/{SPOKE_PERIPHERY_INPUT_FILENAME}` and fill in the required variables.
 2. Run the following command to initiate the deployment. This will generate an output file at `script/deployments/outputs/spoke-peripheries/{SPOKE_PERIPHERY_OUTPUT_FILENAME}` containing the deployed contract address.
 
-```
+```shell
 forge script script/deployments/DeploySpokePeriphery.s.sol --rpc-url <network-alias> <wallet-options> --slow --broadcast --verify -vvvv
 ```
 

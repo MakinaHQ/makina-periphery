@@ -7,7 +7,7 @@ import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
 import {AMGovCalldata} from "@makina-core-script/deploy/utils/AMGovCalldata.sol";
 
-import {Base} from "../../test/base/Base.sol";
+import {Base} from "../../../test/base/Base.sol";
 
 /// @notice Shared logic of the scripts creating machine periphery components (security module, depositor, redeemer,
 ///         fee manager) through the HubPeripheryFactory.
@@ -44,7 +44,7 @@ abstract contract DeployInstance is Base, Script, AMGovCalldata {
     function setParams(address _peripheryFactory, string memory inputFilename, string memory outputFilename) public {
         peripheryFactory = _peripheryFactory;
 
-        string memory basePath = string.concat(vm.projectRoot(), "/script/deployments/");
+        string memory basePath = string.concat(vm.projectRoot(), "/script/deploy/");
 
         inputJson = vm.readFile(string.concat(basePath, "inputs/", _recordDir(), "/", inputFilename));
 
@@ -115,14 +115,13 @@ abstract contract DeployInstance is Base, Script, AMGovCalldata {
     /// @dev HubPeripheryFactory address read from a hub periphery output record.
     function _peripheryFactoryFromRecord(string memory outputFilename) internal view returns (address) {
         string memory recordPath =
-            string.concat(vm.projectRoot(), "/script/deployments/outputs/hub-peripheries/", outputFilename);
+            string.concat(vm.projectRoot(), "/script/deploy/outputs/hub-peripheries/", outputFilename);
         return vm.parseJsonAddress(vm.readFile(recordPath), ".HubPeripheryFactory");
     }
 
     /// @dev Implementation id read from an implementation ids input record.
     function _implemIdFromRecord(string memory inputFilename, string memory key) internal view returns (uint16) {
-        string memory recordPath =
-            string.concat(vm.projectRoot(), "/script/deployments/inputs/implem-ids/", inputFilename);
+        string memory recordPath = string.concat(vm.projectRoot(), "/script/deploy/inputs/implem-ids/", inputFilename);
         return uint16(vm.parseJsonUint(vm.readFile(recordPath), key));
     }
 

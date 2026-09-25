@@ -5,7 +5,7 @@ import {Script} from "forge-std/Script.sol";
 
 import {CreateXUtils} from "@makina-core-script/deploy/utils/CreateXUtils.sol";
 
-import {Base} from "../../test/base/Base.sol";
+import {Base} from "../../../test/base/Base.sol";
 
 /// @notice Shared logic of the scripts deploying the periphery shared contracts of a chain (hub or spoke).
 /// @dev Deployments go through CreateX and are bound to the broadcasting address, see `_deployCode`.
@@ -22,7 +22,7 @@ abstract contract DeployPeriphery is Base, Script, CreateXUtils {
     /// @dev Test hook to set the input and output filenames explicitly, instead of having `run` resolve them from
     ///      the env vars. An empty output filename skips writing the output file.
     function setFilenames(string memory inputFilename, string memory outputFilename) public {
-        string memory basePath = string.concat(vm.projectRoot(), "/script/deployments/");
+        string memory basePath = string.concat(vm.projectRoot(), "/script/deploy/");
 
         inputJson = vm.readFile(string.concat(basePath, "inputs/", _recordDir(), "/", inputFilename));
 

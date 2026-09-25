@@ -3,7 +3,7 @@ pragma solidity 0.8.28;
 
 import {FlashloanAggregator} from "../../src/flashloans/FlashloanAggregator.sol";
 
-import {DeployPeriphery} from "./DeployPeriphery.s.sol";
+import {DeployPeriphery} from "./base/DeployPeriphery.s.sol";
 
 /// @notice Deploys the Makina spoke periphery: a FlashloanAggregator bound to the caliber factory of the spoke core
 ///         named in the input file.
@@ -12,9 +12,9 @@ import {DeployPeriphery} from "./DeployPeriphery.s.sol";
 ///
 /// Env vars (unless `setFilenames` was called):
 ///   SPOKE_PERIPHERY_INPUT_FILENAME  - spoke periphery input file holding the deployment parameters
-///                                     (under script/deployments/inputs/spoke-peripheries/)
+///                                     (under script/deploy/inputs/spoke-peripheries/)
 ///   SPOKE_PERIPHERY_OUTPUT_FILENAME - spoke periphery output file to write the deployed contract address to
-///                                     (under script/deployments/outputs/spoke-peripheries/)
+///                                     (under script/deploy/outputs/spoke-peripheries/)
 contract DeploySpokePeriphery is DeployPeriphery {
     address internal spokeCoreRegistry;
     FlashloanProviders internal flProviders;

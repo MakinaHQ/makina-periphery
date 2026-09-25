@@ -23,15 +23,15 @@ import {ICoreRegistry} from "@makina-core/interfaces/ICoreRegistry.sol";
 import {SecurityModule} from "src/security-module/SecurityModule.sol";
 import {WatermarkFeeManager} from "src/fee-managers/WatermarkFeeManager.sol";
 
-import {DeployAsyncRedeemer} from "script/deployments/DeployAsyncRedeemer.s.sol";
-import {DeployAsyncRedeemerFee} from "script/deployments/DeployAsyncRedeemerFee.s.sol";
-import {DeployDirectDepositor} from "script/deployments/DeployDirectDepositor.s.sol";
-import {DeployHubPeriphery} from "script/deployments/DeployHubPeriphery.s.sol";
-import {DeploySecurityModule} from "script/deployments/DeploySecurityModule.s.sol";
-import {DeploySpokePeriphery} from "script/deployments/DeploySpokePeriphery.s.sol";
-import {DeployWatermarkFeeManager} from "script/deployments/DeployWatermarkFeeManager.s.sol";
-import {SetupHubPeripheryAM} from "script/deployments/SetupHubPeripheryAM.s.sol";
-import {SetupHubPeripheryRegistry} from "script/deployments/SetupHubPeripheryRegistry.s.sol";
+import {DeployAsyncRedeemer} from "script/deploy/DeployAsyncRedeemer.s.sol";
+import {DeployAsyncRedeemerFee} from "script/deploy/DeployAsyncRedeemerFee.s.sol";
+import {DeployDirectDepositor} from "script/deploy/DeployDirectDepositor.s.sol";
+import {DeployHubPeriphery} from "script/deploy/DeployHubPeriphery.s.sol";
+import {DeploySecurityModule} from "script/deploy/DeploySecurityModule.s.sol";
+import {DeploySpokePeriphery} from "script/deploy/DeploySpokePeriphery.s.sol";
+import {DeployWatermarkFeeManager} from "script/deploy/DeployWatermarkFeeManager.s.sol";
+import {SetupHubPeripheryAM} from "script/deploy/SetupHubPeripheryAM.s.sol";
+import {SetupHubPeripheryRegistry} from "script/deploy/SetupHubPeripheryRegistry.s.sol";
 
 import {Base} from "../base/Base.sol";
 
@@ -64,7 +64,7 @@ contract Deploy_Scripts_Test is Base, Test, CoreConstants, CreateXUtils {
     DeploySpokePeriphery public deploySpokePeriphery;
 
     function test_LoadParamsFromEnv() public {
-        string memory basePath = string.concat(vm.projectRoot(), "/script/deployments/");
+        string memory basePath = string.concat(vm.projectRoot(), "/script/deploy/");
         string memory hubFilename = _hubTestFilename();
         string memory spokeFilename = _spokeTestFilename();
         address peripheryFactory = vm.parseJsonAddress(
@@ -612,9 +612,8 @@ contract Deploy_Scripts_Test is Base, Test, CoreConstants, CreateXUtils {
     function _forkHubChain() internal {
         vm.createSelectFork({urlOrAlias: getChain(ETHEREUM_CHAIN_ID).chainAlias});
 
-        string memory inputJson = vm.readFile(
-            string.concat(vm.projectRoot(), "/script/deployments/inputs/hub-peripheries/", _hubTestFilename())
-        );
+        string memory inputJson =
+            vm.readFile(string.concat(vm.projectRoot(), "/script/deploy/inputs/hub-peripheries/", _hubTestFilename()));
         AccessManagerUpgradeable accessManager =
             AccessManagerUpgradeable(vm.parseJsonAddress(inputJson, ".accessManager"));
         uint64 adminRole = accessManager.ADMIN_ROLE();
@@ -659,9 +658,7 @@ contract Deploy_Scripts_Test is Base, Test, CoreConstants, CreateXUtils {
     ///      `_forkHubChain`.
     function _deployForeignSpokeCore(bool wireCaliberMailboxBeacon) internal returns (SpokeCore memory core) {
         address mainRegistry = vm.parseJsonAddress(
-            vm.readFile(
-                string.concat(vm.projectRoot(), "/script/deployments/inputs/hub-peripheries/", _hubTestFilename())
-            ),
+            vm.readFile(string.concat(vm.projectRoot(), "/script/deploy/inputs/hub-peripheries/", _hubTestFilename())),
             ".hubCoreRegistry"
         );
         BridgeData[] memory noBridges;
@@ -678,9 +675,7 @@ contract Deploy_Scripts_Test is Base, Test, CoreConstants, CreateXUtils {
 
         // The foreign spoke periphery fixture names this registry
         string memory foreignSpokeInputJson = vm.readFile(
-            string.concat(
-                vm.projectRoot(), "/script/deployments/inputs/spoke-peripheries/", _foreignSpokeTestFilename()
-            )
+            string.concat(vm.projectRoot(), "/script/deploy/inputs/spoke-peripheries/", _foreignSpokeTestFilename())
         );
         assertEq(address(core.spokeCoreRegistry), vm.parseJsonAddress(foreignSpokeInputJson, ".spokeCoreRegistry"));
     }
@@ -688,7 +683,7 @@ contract Deploy_Scripts_Test is Base, Test, CoreConstants, CreateXUtils {
     /// @dev An implementation id of the hub test implementation ids file.
     function _implemId(string memory key) internal returns (uint16) {
         string memory implemIdsJson =
-            vm.readFile(string.concat(vm.projectRoot(), "/script/deployments/inputs/implem-ids/", _hubTestFilename()));
+            vm.readFile(string.concat(vm.projectRoot(), "/script/deploy/inputs/implem-ids/", _hubTestFilename()));
         return uint16(vm.parseJsonUint(implemIdsJson, key));
     }
 
@@ -718,6 +713,6 @@ contract Deploy_Scripts_Test is Base, Test, CoreConstants, CreateXUtils {
     ///      without rewriting them. A failing comparison means the record must be regenerated, by running the
     ///      script with that output filename.
     function _record(string memory dir, string memory filename) internal view returns (string memory) {
-        return vm.readFile(string.concat(vm.projectRoot(), "/script/deployments/outputs/", dir, "/", filename));
+        return vm.readFile(string.concat(vm.projectRoot(), "/script/deploy/outputs/", dir, "/", filename));
     }
 }

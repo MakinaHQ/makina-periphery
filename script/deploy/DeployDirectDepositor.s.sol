@@ -3,19 +3,19 @@ pragma solidity 0.8.28;
 
 import {IHubPeripheryFactory} from "../../src/interfaces/IHubPeripheryFactory.sol";
 
-import {DeployInstance} from "./DeployInstance.s.sol";
+import {DeployInstance} from "./base/DeployInstance.s.sol";
 
 /// @notice Builds the `HubPeripheryFactory.createDepositor` call for a new direct depositor, then broadcasts it or
 ///         logs it. See `DeployInstance` for modes and env vars.
 ///
 /// Env vars (unless `setParams` and `setImplemId` were called):
 ///   HUB_PERIPHERY_OUTPUT_FILENAME - hub periphery output file holding the HubPeripheryFactory address
-///                                   (under script/deployments/outputs/hub-peripheries/)
-///   HUB_PERIPHERY_INPUT_FILENAME  - implementation ids input file (under script/deployments/inputs/implem-ids/)
+///                                   (under script/deploy/outputs/hub-peripheries/)
+///   HUB_PERIPHERY_INPUT_FILENAME  - implementation ids input file (under script/deploy/inputs/implem-ids/)
 ///   HUB_STRAT_INPUT_FILENAME      - direct depositor init params input file
-///                                   (under script/deployments/inputs/depositors/direct-depositors/)
+///                                   (under script/deploy/inputs/depositors/direct-depositors/)
 ///   HUB_STRAT_OUTPUT_FILENAME     - file to write the direct depositor address to
-///                                   (under script/deployments/outputs/depositors/direct-depositors/, broadcast mode only)
+///                                   (under script/deploy/outputs/depositors/direct-depositors/, broadcast mode only)
 ///   VIEW_MODE (optional)          - true for view mode, unset or false for broadcast mode
 contract DeployDirectDepositor is DeployInstance {
     function _createCall() internal view override returns (Call memory) {

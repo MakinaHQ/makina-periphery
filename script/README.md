@@ -17,11 +17,11 @@ Set the `HUB_PERIPHERY_INPUT_FILENAME` and `HUB_PERIPHERY_OUTPUT_FILENAME` value
 
 ### Shared contracts
 
-1. Copy `script/deployments/inputs/hub-peripheries/TEMPLATE.json` to `script/deployments/inputs/hub-peripheries/{HUB_PERIPHERY_INPUT_FILENAME}` and fill in the required variables.
-2. Run the following command to initiate the deployment. This will generate an output file at `script/deployments/outputs/hub-peripheries/{HUB_PERIPHERY_OUTPUT_FILENAME}` containing the deployed contract addresses.
+1. Copy `script/deploy/inputs/hub-peripheries/TEMPLATE.json` to `script/deploy/inputs/hub-peripheries/{HUB_PERIPHERY_INPUT_FILENAME}` and fill in the required variables.
+2. Run the following command to initiate the deployment. This will generate an output file at `script/deploy/outputs/hub-peripheries/{HUB_PERIPHERY_OUTPUT_FILENAME}` containing the deployed contract addresses.
 
 ```shell
-forge script script/deployments/DeployHubPeriphery.s.sol --rpc-url <network-alias> <wallet-options> --slow --broadcast --verify -vvvv
+forge script script/deploy/DeployHubPeriphery.s.sol --rpc-url <network-alias> <wallet-options> --slow --broadcast --verify -vvvv
 ```
 
 Note: This script performs deterministic deployment based on the deployer wallet address via the [CreateX Factory contract](https://github.com/pcaversaccio/createx). Implementation contracts already deployed by the same wallet are reused, and the script fails before broadcasting when a deterministic address is already occupied.
@@ -37,15 +37,15 @@ Set `VIEW_MODE=true` to log each call's target and calldata, alongside its `Acce
 3. Run the following command to set the `AccessManager` function roles of the deployed contracts. Every call requires the `ADMIN_ROLE`.
 
 ```shell
-VIEW_MODE=true forge script script/deployments/SetupHubPeripheryAM.s.sol --rpc-url <network-alias> -vvvv
+VIEW_MODE=true forge script script/deploy/SetupHubPeripheryAM.s.sol --rpc-url <network-alias> -vvvv
 ```
 
-4. Copy `script/deployments/inputs/implem-ids/TEMPLATE.json` to `script/deployments/inputs/implem-ids/{HUB_PERIPHERY_INPUT_FILENAME}` and fill in the implementation ids of the machine periphery components.
+4. Copy `script/deploy/inputs/implem-ids/TEMPLATE.json` to `script/deploy/inputs/implem-ids/{HUB_PERIPHERY_INPUT_FILENAME}` and fill in the implementation ids of the machine periphery components.
 
 5. Run the following command to wire the `HubPeripheryRegistry`: the periphery factory, the security module beacon and the component beacons under their implementation ids. Every call requires the `INFRA_UPGRADE_ROLE` once step 3 has run, the `ADMIN_ROLE` otherwise.
 
 ```shell
-VIEW_MODE=true forge script script/deployments/SetupHubPeripheryRegistry.s.sol --rpc-url <network-alias> -vvvv
+VIEW_MODE=true forge script script/deploy/SetupHubPeripheryRegistry.s.sol --rpc-url <network-alias> -vvvv
 ```
 
 ### Strategy instances
@@ -56,47 +56,47 @@ The factory functions creating machine periphery components are restricted to th
 
 #### Security Module instance
 
-1. Copy `script/deployments/inputs/security-modules/TEMPLATE.json` to `script/deployments/inputs/security-modules/{HUB_STRAT_INPUT_FILENAME}` and fill in the required variables.
-2. Run the following command to initiate the deployment. This will generate an output file at `script/deployments/outputs/security-modules/{HUB_STRAT_OUTPUT_FILENAME}` containing the deployed contract address.
+1. Copy `script/deploy/inputs/security-modules/TEMPLATE.json` to `script/deploy/inputs/security-modules/{HUB_STRAT_INPUT_FILENAME}` and fill in the required variables.
+2. Run the following command to initiate the deployment. This will generate an output file at `script/deploy/outputs/security-modules/{HUB_STRAT_OUTPUT_FILENAME}` containing the deployed contract address.
 
 ```shell
-forge script script/deployments/DeploySecurityModule.s.sol --rpc-url <network-alias> <wallet-options> --slow --broadcast --verify -vvvv
+forge script script/deploy/DeploySecurityModule.s.sol --rpc-url <network-alias> <wallet-options> --slow --broadcast --verify -vvvv
 ```
 
 #### Direct Depositor instance
 
-1. Copy `script/deployments/inputs/depositors/direct-depositors/TEMPLATE.json` to `script/deployments/inputs/depositors/direct-depositors/{HUB_STRAT_INPUT_FILENAME}` and fill in the required variables.
-2. Run the following command to initiate the deployment. This will generate an output file at `script/deployments/outputs/depositors/direct-depositors/{HUB_STRAT_OUTPUT_FILENAME}` containing the deployed contract address.
+1. Copy `script/deploy/inputs/depositors/direct-depositors/TEMPLATE.json` to `script/deploy/inputs/depositors/direct-depositors/{HUB_STRAT_INPUT_FILENAME}` and fill in the required variables.
+2. Run the following command to initiate the deployment. This will generate an output file at `script/deploy/outputs/depositors/direct-depositors/{HUB_STRAT_OUTPUT_FILENAME}` containing the deployed contract address.
 
 ```shell
-forge script script/deployments/DeployDirectDepositor.s.sol --rpc-url <network-alias> <wallet-options> --slow --broadcast --verify -vvvv
+forge script script/deploy/DeployDirectDepositor.s.sol --rpc-url <network-alias> <wallet-options> --slow --broadcast --verify -vvvv
 ```
 
 #### Async Redeemer instance
 
-1. Copy `script/deployments/inputs/redeemers/async-redeemers/TEMPLATE.json` to `script/deployments/inputs/redeemers/async-redeemers/{HUB_STRAT_INPUT_FILENAME}` and fill in the required variables.
-2. Run the following command to initiate the deployment. This will generate an output file at `script/deployments/outputs/redeemers/async-redeemers/{HUB_STRAT_OUTPUT_FILENAME}` containing the deployed contract address.
+1. Copy `script/deploy/inputs/redeemers/async-redeemers/TEMPLATE.json` to `script/deploy/inputs/redeemers/async-redeemers/{HUB_STRAT_INPUT_FILENAME}` and fill in the required variables.
+2. Run the following command to initiate the deployment. This will generate an output file at `script/deploy/outputs/redeemers/async-redeemers/{HUB_STRAT_OUTPUT_FILENAME}` containing the deployed contract address.
 
 ```shell
-forge script script/deployments/DeployAsyncRedeemer.s.sol --rpc-url <network-alias> <wallet-options> --slow --broadcast --verify -vvvv
+forge script script/deploy/DeployAsyncRedeemer.s.sol --rpc-url <network-alias> <wallet-options> --slow --broadcast --verify -vvvv
 ```
 
 #### Async Redeemer Fee instance
 
-1. Copy `script/deployments/inputs/redeemers/async-redeemer-fees/TEMPLATE.json` to `script/deployments/inputs/redeemers/async-redeemer-fees/{HUB_STRAT_INPUT_FILENAME}` and fill in the required variables.
-2. Run the following command to initiate the deployment. This will generate an output file at `script/deployments/outputs/redeemers/async-redeemer-fees/{HUB_STRAT_OUTPUT_FILENAME}` containing the deployed contract address.
+1. Copy `script/deploy/inputs/redeemers/async-redeemer-fees/TEMPLATE.json` to `script/deploy/inputs/redeemers/async-redeemer-fees/{HUB_STRAT_INPUT_FILENAME}` and fill in the required variables.
+2. Run the following command to initiate the deployment. This will generate an output file at `script/deploy/outputs/redeemers/async-redeemer-fees/{HUB_STRAT_OUTPUT_FILENAME}` containing the deployed contract address.
 
 ```shell
-forge script script/deployments/DeployAsyncRedeemerFee.s.sol --rpc-url <network-alias> <wallet-options> --slow --broadcast --verify -vvvv
+forge script script/deploy/DeployAsyncRedeemerFee.s.sol --rpc-url <network-alias> <wallet-options> --slow --broadcast --verify -vvvv
 ```
 
 #### Watermark Fee Manager instance
 
-1. Copy `script/deployments/inputs/fee-managers/watermark-fee-managers/TEMPLATE.json` to `script/deployments/inputs/fee-managers/watermark-fee-managers/{HUB_STRAT_INPUT_FILENAME}` and fill in the required variables.
-2. Run the following command to initiate the deployment. This will generate an output file at `script/deployments/outputs/fee-managers/watermark-fee-managers/{HUB_STRAT_OUTPUT_FILENAME}` containing the deployed contract address.
+1. Copy `script/deploy/inputs/fee-managers/watermark-fee-managers/TEMPLATE.json` to `script/deploy/inputs/fee-managers/watermark-fee-managers/{HUB_STRAT_INPUT_FILENAME}` and fill in the required variables.
+2. Run the following command to initiate the deployment. This will generate an output file at `script/deploy/outputs/fee-managers/watermark-fee-managers/{HUB_STRAT_OUTPUT_FILENAME}` containing the deployed contract address.
 
 ```shell
-forge script script/deployments/DeployWatermarkFeeManager.s.sol --rpc-url <network-alias> <wallet-options> --slow --broadcast --verify -vvvv
+forge script script/deploy/DeployWatermarkFeeManager.s.sol --rpc-url <network-alias> <wallet-options> --slow --broadcast --verify -vvvv
 ```
 
 A non-zero `securityModule` in the input file is wired to the created fee manager with `HubPeripheryFactory.setSecurityModule`, right after the creation in broadcast mode. In view mode the script logs a reminder instead, as the fee manager address is only known once the creation is submitted.
@@ -107,11 +107,11 @@ Set the `SPOKE_PERIPHERY_INPUT_FILENAME` and `SPOKE_PERIPHERY_OUTPUT_FILENAME` v
 
 ### Shared contracts
 
-1. Copy `script/deployments/inputs/spoke-peripheries/TEMPLATE.json` to `script/deployments/inputs/spoke-peripheries/{SPOKE_PERIPHERY_INPUT_FILENAME}` and fill in the required variables.
-2. Run the following command to initiate the deployment. This will generate an output file at `script/deployments/outputs/spoke-peripheries/{SPOKE_PERIPHERY_OUTPUT_FILENAME}` containing the deployed contract address.
+1. Copy `script/deploy/inputs/spoke-peripheries/TEMPLATE.json` to `script/deploy/inputs/spoke-peripheries/{SPOKE_PERIPHERY_INPUT_FILENAME}` and fill in the required variables.
+2. Run the following command to initiate the deployment. This will generate an output file at `script/deploy/outputs/spoke-peripheries/{SPOKE_PERIPHERY_OUTPUT_FILENAME}` containing the deployed contract address.
 
 ```shell
-forge script script/deployments/DeploySpokePeriphery.s.sol --rpc-url <network-alias> <wallet-options> --slow --broadcast --verify -vvvv
+forge script script/deploy/DeploySpokePeriphery.s.sol --rpc-url <network-alias> <wallet-options> --slow --broadcast --verify -vvvv
 ```
 
 Note: Same as for hub chain shared contracts deployment, this script performs deterministic deployment based on the deployer wallet address via the [CreateX Factory contract](https://github.com/pcaversaccio/createx).

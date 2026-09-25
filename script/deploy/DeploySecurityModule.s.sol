@@ -3,18 +3,18 @@ pragma solidity 0.8.28;
 
 import {IHubPeripheryFactory} from "../../src/interfaces/IHubPeripheryFactory.sol";
 
-import {DeployInstance} from "./DeployInstance.s.sol";
+import {DeployInstance} from "./base/DeployInstance.s.sol";
 
 /// @notice Builds the `HubPeripheryFactory.createSecurityModule` call for a new security module, then broadcasts it
 ///         or logs it. See `DeployInstance` for modes and env vars.
 ///
 /// Env vars (unless `setParams` was called):
 ///   HUB_PERIPHERY_OUTPUT_FILENAME - hub periphery output file holding the HubPeripheryFactory address
-///                                   (under script/deployments/outputs/hub-peripheries/)
+///                                   (under script/deploy/outputs/hub-peripheries/)
 ///   HUB_STRAT_INPUT_FILENAME      - security module init params input file
-///                                   (under script/deployments/inputs/security-modules/)
+///                                   (under script/deploy/inputs/security-modules/)
 ///   HUB_STRAT_OUTPUT_FILENAME     - file to write the security module address to
-///                                   (under script/deployments/outputs/security-modules/, broadcast mode only)
+///                                   (under script/deploy/outputs/security-modules/, broadcast mode only)
 ///   VIEW_MODE (optional)          - true for view mode, unset or false for broadcast mode
 contract DeploySecurityModule is DeployInstance {
     function _createCall() internal view override returns (Call memory) {

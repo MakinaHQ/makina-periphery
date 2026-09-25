@@ -3,7 +3,7 @@ pragma solidity 0.8.28;
 
 import {IHubPeripheryRegistry} from "../../src/interfaces/IHubPeripheryRegistry.sol";
 
-import {SetupHubPeriphery} from "./SetupHubPeriphery.s.sol";
+import {SetupHubPeriphery} from "./base/SetupHubPeriphery.s.sol";
 
 /// @notice Wires the HubPeripheryRegistry deployed by `DeployHubPeriphery`: the periphery factory, the security module
 ///         beacon and the machine periphery component beacons under their implementation ids. See `SetupHubPeriphery`
@@ -12,11 +12,11 @@ import {SetupHubPeriphery} from "./SetupHubPeriphery.s.sol";
 ///      before.
 ///
 /// Env vars (unless `setFilenames` and `setImplemIdsFilename` were called):
-///   HUB_PERIPHERY_INPUT_FILENAME  - hub periphery input file (under script/deployments/inputs/hub-peripheries/),
+///   HUB_PERIPHERY_INPUT_FILENAME  - hub periphery input file (under script/deploy/inputs/hub-peripheries/),
 ///                                   also naming the implementation ids input file
-///                                   (under script/deployments/inputs/implem-ids/)
+///                                   (under script/deploy/inputs/implem-ids/)
 ///   HUB_PERIPHERY_OUTPUT_FILENAME - hub periphery output file holding the deployed contract addresses
-///                                   (under script/deployments/outputs/hub-peripheries/)
+///                                   (under script/deploy/outputs/hub-peripheries/)
 ///   VIEW_MODE (optional)          - true for view mode, unset or false for broadcast mode
 contract SetupHubPeripheryRegistry is SetupHubPeriphery {
     string public implemIdsJson;
@@ -24,7 +24,7 @@ contract SetupHubPeripheryRegistry is SetupHubPeriphery {
     /// @dev Test hook to set the implementation ids filename explicitly, see `setFilenames`.
     function setImplemIdsFilename(string memory implemIdsFilename) public {
         implemIdsJson =
-            vm.readFile(string.concat(vm.projectRoot(), "/script/deployments/inputs/implem-ids/", implemIdsFilename));
+            vm.readFile(string.concat(vm.projectRoot(), "/script/deploy/inputs/implem-ids/", implemIdsFilename));
     }
 
     function _buildCalls() internal override {

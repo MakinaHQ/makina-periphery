@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.28;
 
-import {DeployPeriphery} from "./DeployPeriphery.s.sol";
+import {DeployPeriphery} from "./base/DeployPeriphery.s.sol";
 
 /// @notice Deploys the Makina hub periphery shared contracts, bound to the hub core and AccessManager named in the
 ///         input file. Their registry and AccessManager setup run separately, see `SetupHubPeripheryRegistry` and
@@ -9,9 +9,9 @@ import {DeployPeriphery} from "./DeployPeriphery.s.sol";
 ///
 /// Env vars (unless `setFilenames` was called):
 ///   HUB_PERIPHERY_INPUT_FILENAME  - hub periphery input file holding the deployment parameters
-///                                   (under script/deployments/inputs/hub-peripheries/)
+///                                   (under script/deploy/inputs/hub-peripheries/)
 ///   HUB_PERIPHERY_OUTPUT_FILENAME - hub periphery output file to write the deployed contract addresses to
-///                                   (under script/deployments/outputs/hub-peripheries/)
+///                                   (under script/deploy/outputs/hub-peripheries/)
 contract DeployHubPeriphery is DeployPeriphery {
     address internal accessManager;
     address internal hubCoreRegistry;

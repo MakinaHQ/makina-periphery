@@ -6,7 +6,7 @@ import {console} from "forge-std/console.sol";
 import {IHubPeripheryFactory} from "../../src/interfaces/IHubPeripheryFactory.sol";
 import {IWatermarkFeeManager} from "../../src/interfaces/IWatermarkFeeManager.sol";
 
-import {DeployInstance} from "./DeployInstance.s.sol";
+import {DeployInstance} from "./base/DeployInstance.s.sol";
 
 /// @notice Builds the `HubPeripheryFactory.createFeeManager` call for a new watermark fee manager, then broadcasts it
 ///         or logs it. See `DeployInstance` for modes and env vars.
@@ -16,12 +16,12 @@ import {DeployInstance} from "./DeployInstance.s.sol";
 ///
 /// Env vars (unless `setParams` and `setImplemId` were called):
 ///   HUB_PERIPHERY_OUTPUT_FILENAME - hub periphery output file holding the HubPeripheryFactory address
-///                                   (under script/deployments/outputs/hub-peripheries/)
-///   HUB_PERIPHERY_INPUT_FILENAME  - implementation ids input file (under script/deployments/inputs/implem-ids/)
+///                                   (under script/deploy/outputs/hub-peripheries/)
+///   HUB_PERIPHERY_INPUT_FILENAME  - implementation ids input file (under script/deploy/inputs/implem-ids/)
 ///   HUB_STRAT_INPUT_FILENAME      - watermark fee manager init params input file
-///                                   (under script/deployments/inputs/fee-managers/watermark-fee-managers/)
+///                                   (under script/deploy/inputs/fee-managers/watermark-fee-managers/)
 ///   HUB_STRAT_OUTPUT_FILENAME     - file to write the watermark fee manager address to
-///                                   (under script/deployments/outputs/fee-managers/watermark-fee-managers/,
+///                                   (under script/deploy/outputs/fee-managers/watermark-fee-managers/,
 ///                                   broadcast mode only)
 ///   VIEW_MODE (optional)          - true for view mode, unset or false for broadcast mode
 contract DeployWatermarkFeeManager is DeployInstance {

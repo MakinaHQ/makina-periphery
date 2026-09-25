@@ -53,7 +53,7 @@ contract AsyncRedeemer_RequestRedeem_Integration_Concrete_Test is
     }
 }
 
-contract AsyncRedeemer_PreviewFinalizeRequest_Integration_Concrete_Test is
+contract AsyncRedeemer_PreviewFinalizeRequests_Integration_Concrete_Test is
     AsyncRedeemer_Integration_Concrete_Test,
     PreviewFinalizeRequests_Integration_Concrete_Test
 {
@@ -66,7 +66,7 @@ contract AsyncRedeemer_PreviewFinalizeRequest_Integration_Concrete_Test is
     }
 }
 
-contract AsyncRedeemer_FinalizeRequest_Integration_Concrete_Test is
+contract AsyncRedeemer_FinalizeRequests_Integration_Concrete_Test is
     AsyncRedeemer_Integration_Concrete_Test,
     FinalizeRequests_Integration_Concrete_Test
 {

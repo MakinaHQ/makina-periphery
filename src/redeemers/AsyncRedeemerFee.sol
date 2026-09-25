@@ -80,7 +80,8 @@ contract AsyncRedeemerFee is AsyncRedeemer, IAsyncRedeemerFee {
 
     /// @inheritdoc AsyncRedeemer
     function _previewRedeem(uint256 shares) internal view virtual override returns (uint256) {
-        return IMachine(machine()).convertToAssets(shares)
+        return IMachine(machine())
+            .convertToAssets(shares)
             .mulDiv(MAX_FEE_RATE - _getAsyncRedeemerFeeStorage()._redeemFeeRate, MAX_FEE_RATE);
     }
 }

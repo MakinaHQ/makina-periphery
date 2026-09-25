@@ -6,14 +6,13 @@ import {Errors, CoreErrors} from "src/libraries/Errors.sol";
 
 import {Unit_Concrete_Test} from "../UnitConcrete.t.sol";
 
-abstract contract MachinePeriphery_Util_Concrete_Test is Unit_Concrete_Test {
+abstract contract MachinePeriphery_Unit_Concrete_Test is Unit_Concrete_Test {
     IMachinePeriphery internal machinePeriphery;
 
-    // solhint-disable-next-line no-empty-blocks
     function setUp() public virtual override {}
 }
 
-abstract contract Getter_Setter_MachinePeriphery_Util_Concrete_Test is MachinePeriphery_Util_Concrete_Test {
+abstract contract Getters_Setters_MachinePeriphery_Unit_Concrete_Test is MachinePeriphery_Unit_Concrete_Test {
     function test_GetMachine_RevertGiven_MachineNotSet() public {
         vm.expectRevert(Errors.MachineNotSet.selector);
         machinePeriphery.machine();

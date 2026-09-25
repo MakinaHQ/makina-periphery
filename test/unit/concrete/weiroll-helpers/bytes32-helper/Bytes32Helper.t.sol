@@ -5,7 +5,7 @@ import {Bytes32Helper} from "src/weiroll-helpers/Bytes32Helper.sol";
 
 import {Unit_Concrete_Test} from "../../UnitConcrete.t.sol";
 
-contract Bytes32Helper_Unit_concrete_Test is Unit_Concrete_Test {
+contract Bytes32Helper_Unit_Concrete_Test is Unit_Concrete_Test {
     Bytes32Helper internal bytes32Helper;
 
     function setUp() public virtual override {

@@ -7,8 +7,7 @@ import {
     AccessManagerUpgradeable
 } from "@openzeppelin/contracts-upgradeable/access/manager/AccessManagerUpgradeable.sol";
 
-import "@makina-core-test/base/Base.sol" as Core_Base;
-import {ChainsInfo} from "@makina-core-test/utils/ChainsInfo.sol";
+import {Constants as CoreConstants} from "@makina-core-test/utils/Constants.sol";
 import {HubCoreRegistry} from "@makina-core/registries/HubCoreRegistry.sol";
 import {HubCoreFactory} from "@makina-core/factories/HubCoreFactory.sol";
 import {OracleRegistry} from "@makina-core/registries/OracleRegistry.sol";
@@ -21,7 +20,7 @@ import {HubPeripheryFactory} from "../../src/factories/HubPeripheryFactory.sol";
 
 import {Base} from "../base/Base.sol";
 
-abstract contract Fork_Test is Base, Test {
+abstract contract Fork_Test is Base, Test, CoreConstants {
     address internal deployer;
 
     uint256 internal chainId;
@@ -49,16 +48,18 @@ abstract contract Fork_Test is Base, Test {
     HubPeripheryFactory internal hubPeripheryFactory;
 
     function setUp() public virtual {
-        chainId = ChainsInfo.CHAIN_ID_ETHEREUM;
-        ChainsInfo.ChainInfo memory chainInfo = ChainsInfo.getChainInfo(chainId);
+        chainId = ETHEREUM_CHAIN_ID;
+        Chain memory chain = getChain(chainId);
 
-        vm.createSelectFork({urlOrAlias: chainInfo.foundryAlias, blockNumber: 24906014});
+        vm.createSelectFork({urlOrAlias: chain.chainAlias, blockNumber: 24906014});
+
+        string memory constantsFilename = string.concat(chain.name, "-Test.json");
 
         string memory coreInputPath = string.concat(vm.projectRoot(), "/lib/makina-core/test/fork/constants/");
-        string memory coreInputJson = vm.readFile(string.concat(coreInputPath, chainInfo.constantsFilename));
+        string memory coreInputJson = vm.readFile(string.concat(coreInputPath, constantsFilename));
 
         string memory peripheryInputPath = string.concat(vm.projectRoot(), "/test/fork/constants/");
-        string memory peripheryInputJson = vm.readFile(string.concat(peripheryInputPath, chainInfo.constantsFilename));
+        string memory peripheryInputJson = vm.readFile(string.concat(peripheryInputPath, constantsFilename));
 
         deployer = address(this);
         usdc = vm.parseJsonAddress(coreInputJson, ".usdc");
@@ -78,7 +79,7 @@ abstract contract Fork_Test is Base, Test {
         });
 
         // hub Core
-        Core_Base.Base.HubCore memory coreDeployment = deployHubCore(deployer, address(0));
+        HubCore memory coreDeployment = deployHubCore(deployer, address(0));
         accessManager = coreDeployment.accessManager;
         hubCoreRegistry = coreDeployment.hubCoreRegistry;
         hubCoreFactory = coreDeployment.hubCoreFactory;

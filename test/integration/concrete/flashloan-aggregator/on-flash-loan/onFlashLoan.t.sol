@@ -5,7 +5,7 @@ import {IFlashloanAggregator} from "src/interfaces/IFlashloanAggregator.sol";
 
 import {FlashloanAggregator_Integration_Concrete_Test} from "../FlashloanAggregator.t.sol";
 
-contract OnFlashloan_Integration_Concrete_Test is FlashloanAggregator_Integration_Concrete_Test {
+contract OnFlashLoan_Integration_Concrete_Test is FlashloanAggregator_Integration_Concrete_Test {
     function test_RevertWhen_NotDssFlash() public {
         vm.expectRevert(IFlashloanAggregator.NotDssFlash.selector);
         flashloanAggregator.onFlashLoan(address(0), address(0), 0, 0, "");

@@ -2,7 +2,8 @@
 pragma solidity 0.8.28;
 
 abstract contract SaltDomains {
-    /// @dev FlashloanAggregator is non-upgradeable, so its salt domain is versioned.
+    /// @dev FlashloanAggregator is non-upgradeable, so its salt domain is versioned. Plain for a hub periphery,
+    ///      discriminated by the hub chain id of the instance for a spoke periphery, see `Base.deploySpokePeriphery`.
     bytes32 internal constant FLASHLOAN_AGGREGATOR_SALT_DOMAIN = keccak256("makina.salt.FlashloanAggregator.v1.3.0");
 
     bytes32 internal constant PERIPHERY_REGISTRY_SALT_DOMAIN = keccak256("makina.salt.PeripheryRegistry");

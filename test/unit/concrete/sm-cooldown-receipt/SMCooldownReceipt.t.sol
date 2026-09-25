@@ -38,7 +38,7 @@ abstract contract SMCooldownReceipt_Unit_Concrete_Test is Unit_Concrete_Test {
     }
 }
 
-contract SMCooldownReceipt_Getters_Unit_Concrete_Test is SMCooldownReceipt_Unit_Concrete_Test {
+contract Getters_SMCooldownReceipt_Unit_Concrete_Test is SMCooldownReceipt_Unit_Concrete_Test {
     function test_Getters() public view {
         assertEq(cooldownReceipt.name(), "Makina Security Module Cooldown NFT");
         assertEq(cooldownReceipt.symbol(), "MakinaSMCooldownNFT");

@@ -1,13 +1,18 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.28;
 
-import {stdJson} from "forge-std/StdJson.sol";
+import {DeployPeriphery} from "./base/DeployPeriphery.s.sol";
 
-import {DeployPeriphery} from "./DeployPeriphery.s.sol";
-
+/// @notice Deploys the Makina hub periphery shared contracts, bound to the hub core and AccessManager named in the
+///         input file. Their registry and AccessManager setup run separately, see `SetupHubPeripheryRegistry` and
+///         `SetupHubPeripheryAM`.
+///
+/// Env vars (unless `setFilenames` was called):
+///   HUB_PERIPHERY_INPUT_FILENAME  - hub periphery input file holding the deployment parameters
+///                                   (under script/deploy/inputs/hub-peripheries/)
+///   HUB_PERIPHERY_OUTPUT_FILENAME - hub periphery output file to write the deployed contract addresses to
+///                                   (under script/deploy/outputs/hub-peripheries/)
 contract DeployHubPeriphery is DeployPeriphery {
-    using stdJson for string;
-
     address internal accessManager;
     address internal hubCoreRegistry;
     address internal sanctionsOracle;
@@ -15,49 +20,24 @@ contract DeployHubPeriphery is DeployPeriphery {
 
     HubPeriphery private _hubPeriphery;
 
-    constructor() {
-        string memory inputFilename = vm.envString("HUB_PERIPHERY_INPUT_FILENAME");
-        string memory outputFilename = vm.envString("HUB_PERIPHERY_OUTPUT_FILENAME");
-
-        string memory basePath = string.concat(vm.projectRoot(), "/script/deployments/");
-
-        // load input params
-        string memory inputPath = string.concat(basePath, "inputs/hub-peripheries/");
-        inputPath = string.concat(inputPath, inputFilename);
-        inputJson = vm.readFile(inputPath);
-
-        // output path to later save deployed contracts
-        outputPath = string.concat(basePath, "outputs/hub-peripheries/");
-        outputPath = string.concat(outputPath, outputFilename);
-    }
-
     function deployment() public view returns (HubPeriphery memory) {
         return _hubPeriphery;
     }
 
-    function _deploySetupBefore() internal override {
+    function _parseInputs() internal override {
         accessManager = vm.parseJsonAddress(inputJson, ".accessManager");
         hubCoreRegistry = vm.parseJsonAddress(inputJson, ".hubCoreRegistry");
         sanctionsOracle = vm.parseJsonAddress(inputJson, ".sanctionsOracle");
         flProviders = parseFlashloanProviders(inputJson, ".flashloanProviders");
-
-        // start broadcasting transactions
-        vm.startBroadcast();
-
-        (, deployer,) = vm.readCallers();
     }
 
-    function _coreSetup() internal override {
+    function _peripherySetup() internal override {
         _hubPeriphery = deployHubPeriphery(accessManager, hubCoreRegistry, sanctionsOracle, flProviders);
     }
 
-    function _deploySetupAfter() internal override {
-        // finish broadcasting transactions
-        vm.stopBroadcast();
-
+    function _writeOutput() internal override {
         string memory key = "key-deploy-hub-periphery-output-file";
 
-        // write to file
         vm.serializeAddress(key, "FlashloanAggregator", address(_hubPeriphery.flashloanAggregator));
         vm.serializeAddress(key, "HubPeripheryRegistry", address(_hubPeriphery.hubPeripheryRegistry));
         vm.serializeAddress(key, "HubPeripheryFactory", address(_hubPeriphery.hubPeripheryFactory));
@@ -72,5 +52,13 @@ contract DeployHubPeriphery is DeployPeriphery {
             vm.serializeAddress(key, "MetaMorphoOracleFactory", address(_hubPeriphery.metaMorphoOracleFactory)),
             outputPath
         );
+    }
+
+    function _recordDir() internal pure override returns (string memory) {
+        return "hub-peripheries";
+    }
+
+    function _loadFilenamesFromEnv() internal override {
+        setFilenames(vm.envString("HUB_PERIPHERY_INPUT_FILENAME"), vm.envString("HUB_PERIPHERY_OUTPUT_FILENAME"));
     }
 }

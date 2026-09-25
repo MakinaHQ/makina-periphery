@@ -3,8 +3,7 @@ pragma solidity 0.8.28;
 
 import {Test} from "forge-std/Test.sol";
 
-import "@makina-core-test/base/Base.sol" as Core_Base;
-import "@makina-core-test/utils/Constants.sol" as Core_Constants;
+import {Constants as CoreConstants} from "@makina-core-test/utils/Constants.sol";
 
 import {
     AccessManagerUpgradeable
@@ -37,7 +36,7 @@ import {MockChainalysisSanctionsList} from "../mocks/MockChainalysisSanctionsLis
 
 import {Base} from "./Base.sol";
 
-abstract contract Base_Test is Base, Test, Constants, Core_Constants.Constants {
+abstract contract Base_Test is Base, Test, Constants, CoreConstants {
     address internal deployer;
 
     uint256 internal hubChainId;
@@ -145,7 +144,7 @@ abstract contract Base_Hub_Test is Base_Test {
         dai = makeAddr("DAI");
 
         // Hub Core
-        Core_Base.Base.HubCore memory coreDeployment = deployHubCore(deployer, address(0));
+        HubCore memory coreDeployment = deployHubCore(deployer, address(0));
         accessManager = coreDeployment.accessManager;
         oracleRegistry = coreDeployment.oracleRegistry;
         swapModule = coreDeployment.swapModule;

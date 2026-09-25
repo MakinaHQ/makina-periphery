@@ -2,14 +2,14 @@
 pragma solidity 0.8.28;
 
 import {IAccessManager} from "@openzeppelin/contracts/access/manager/IAccessManager.sol";
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-import {ProxyAdmin} from "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
 import {TransparentUpgradeableProxy} from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 import {UpgradeableBeacon} from "@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol";
 
-import "@makina-core-test/base/Base.sol" as Core_Base;
+import {Base as CoreBase} from "@makina-core-test/base/Base.sol";
 import {ProxyUtils} from "@makina-core-test/utils/ProxyUtils.sol";
+import {ICaliberMailbox} from "@makina-core/interfaces/ICaliberMailbox.sol";
 import {ICoreRegistry} from "@makina-core/interfaces/ICoreRegistry.sol";
+import {ISpokeCoreRegistry} from "@makina-core/interfaces/ISpokeCoreRegistry.sol";
 import {Roles} from "@makina-core/libraries/Roles.sol";
 
 import {AsyncRedeemer} from "../../src/redeemers/AsyncRedeemer.sol";
@@ -27,7 +27,7 @@ import {SaltDomains} from "../utils/SaltDomains.sol";
 import {SecurityModule} from "../../src/security-module/SecurityModule.sol";
 import {WatermarkFeeManager} from "../../src/fee-managers/WatermarkFeeManager.sol";
 
-abstract contract Base is ProxyUtils, JsonParser, SaltDomains, Core_Base.Base {
+abstract contract Base is ProxyUtils, JsonParser, SaltDomains, CoreBase {
     struct HubPeriphery {
         FlashloanAggregator flashloanAggregator;
         HubPeripheryRegistry hubPeripheryRegistry;
@@ -52,6 +52,10 @@ abstract contract Base is ProxyUtils, JsonParser, SaltDomains, Core_Base.Base {
         address sanctionsOracle,
         FlashloanProviders memory flProviders
     ) internal returns (HubPeriphery memory deployment) {
+        // A hub periphery uses the plain salt domains, spoke peripheries are discriminated by their hub chain id, see
+        // `deploySpokePeriphery`. A chain hosts one hub at most, so the two never collide.
+        _instanceId = 0;
+
         // Flashloan Aggregator
         deployment.flashloanAggregator =
             _deployFlashloanAggregator(ICoreRegistry(hubCoreRegistry).coreFactory(), flProviders);
@@ -93,6 +97,26 @@ abstract contract Base is ProxyUtils, JsonParser, SaltDomains, Core_Base.Base {
         deployment.machineShareOracleFactory = _deployMachineShareOracleFactory(
             accessManager, address(deployment.machineShareOracleBeacon), accessManager
         );
+    }
+
+    ///
+    /// SPOKE PERIPHERY DEPLOYMENTS
+    ///
+
+    /// @notice Deploys the spoke periphery: a FlashloanAggregator bound to the caliber factory of `spokeCoreRegistry`.
+    /// @dev The aggregator's salt mixes in the hub chain id of the spoke's instance, read from the spoke core's
+    ///      CaliberMailbox beacon. A hub aggregator uses the plain salt, so a chain hosting a hub and spokes of other
+    ///      instances gets a distinct aggregator address per instance, the same on every chain for a given deployer.
+    function deploySpokePeriphery(address spokeCoreRegistry, FlashloanProviders memory flProviders)
+        internal
+        returns (FlashloanAggregator)
+    {
+        address caliberMailboxBeacon = ISpokeCoreRegistry(spokeCoreRegistry).caliberMailboxBeacon();
+        require(caliberMailboxBeacon != address(0), "Base: spoke CaliberMailboxBeacon not set");
+
+        _instanceId = ICaliberMailbox(UpgradeableBeacon(caliberMailboxBeacon).implementation()).hubChainId();
+
+        return _deployFlashloanAggregator(ICoreRegistry(spokeCoreRegistry).coreFactory(), flProviders);
     }
 
     ///
@@ -151,101 +175,157 @@ abstract contract Base is ProxyUtils, JsonParser, SaltDomains, Core_Base.Base {
     /// ACCESS MANAGER SETUP
     ///
 
+    /// @dev A `setTargetFunctionRole` assignment, `targetName` labelling it in logs.
+    struct AMFunctionRole {
+        string targetName;
+        address target;
+        bytes4[] selectors;
+        uint64 roleId;
+    }
+
     function setupHubPeripheryAMFunctionRoles(address accessManager, HubPeriphery memory deployment) internal {
+        AMFunctionRole[] memory functionRoles = hubPeripheryAMFunctionRoles(deployment);
+        for (uint256 i; i < functionRoles.length; ++i) {
+            IAccessManager(accessManager)
+                .setTargetFunctionRole(functionRoles[i].target, functionRoles[i].selectors, functionRoles[i].roleId);
+        }
+    }
+
+    /// @dev The AccessManager function roles of a hub periphery, in setup order. Single source for the setup above
+    ///      and for the calls the setup script broadcasts or logs, so that the two cannot drift apart.
+    function hubPeripheryAMFunctionRoles(HubPeriphery memory deployment)
+        internal
+        view
+        returns (AMFunctionRole[] memory functionRoles)
+    {
+        functionRoles = new AMFunctionRole[](15);
+
         // Transparent Proxy Admins
         bytes4[] memory proxyAdminSelectors = _proxyAdminAMSelectors();
-        IAccessManager(accessManager)
-            .setTargetFunctionRole(
-                getProxyAdmin(address(deployment.hubPeripheryRegistry)), proxyAdminSelectors, Roles.INFRA_UPGRADE_ROLE
-            );
-        IAccessManager(accessManager)
-            .setTargetFunctionRole(
-                getProxyAdmin(address(deployment.hubPeripheryFactory)), proxyAdminSelectors, Roles.INFRA_UPGRADE_ROLE
-            );
-        IAccessManager(accessManager)
-            .setTargetFunctionRole(
-                getProxyAdmin(address(deployment.metaMorphoOracleFactory)),
-                proxyAdminSelectors,
-                Roles.INFRA_UPGRADE_ROLE
-            );
-        IAccessManager(accessManager)
-            .setTargetFunctionRole(
-                getProxyAdmin(address(deployment.machineShareOracleFactory)),
-                proxyAdminSelectors,
-                Roles.INFRA_UPGRADE_ROLE
-            );
+        functionRoles[0] = AMFunctionRole(
+            "ProxyAdmin of HubPeripheryRegistry",
+            getProxyAdmin(address(deployment.hubPeripheryRegistry)),
+            proxyAdminSelectors,
+            Roles.INFRA_UPGRADE_ROLE
+        );
+        functionRoles[1] = AMFunctionRole(
+            "ProxyAdmin of HubPeripheryFactory",
+            getProxyAdmin(address(deployment.hubPeripheryFactory)),
+            proxyAdminSelectors,
+            Roles.INFRA_UPGRADE_ROLE
+        );
+        functionRoles[2] = AMFunctionRole(
+            "ProxyAdmin of MetaMorphoOracleFactory",
+            getProxyAdmin(address(deployment.metaMorphoOracleFactory)),
+            proxyAdminSelectors,
+            Roles.INFRA_UPGRADE_ROLE
+        );
+        functionRoles[3] = AMFunctionRole(
+            "ProxyAdmin of MachineShareOracleFactory",
+            getProxyAdmin(address(deployment.machineShareOracleFactory)),
+            proxyAdminSelectors,
+            Roles.INFRA_UPGRADE_ROLE
+        );
 
         // Upgradeable Beacons
         bytes4[] memory beaconSelectors = _beaconAMSelectors();
-        IAccessManager(accessManager)
-            .setTargetFunctionRole(address(deployment.directDepositorBeacon), beaconSelectors, Roles.INFRA_UPGRADE_ROLE);
-        IAccessManager(accessManager)
-            .setTargetFunctionRole(address(deployment.asyncRedeemerBeacon), beaconSelectors, Roles.INFRA_UPGRADE_ROLE);
-        IAccessManager(accessManager)
-            .setTargetFunctionRole(
-                address(deployment.asyncRedeemerFeeBeacon), beaconSelectors, Roles.INFRA_UPGRADE_ROLE
-            );
-        IAccessManager(accessManager)
-            .setTargetFunctionRole(
-                address(deployment.watermarkFeeManagerBeacon), beaconSelectors, Roles.INFRA_UPGRADE_ROLE
-            );
-        IAccessManager(accessManager)
-            .setTargetFunctionRole(address(deployment.securityModuleBeacon), beaconSelectors, Roles.INFRA_UPGRADE_ROLE);
-        IAccessManager(accessManager)
-            .setTargetFunctionRole(
-                address(deployment.machineShareOracleBeacon), beaconSelectors, Roles.INFRA_UPGRADE_ROLE
-            );
+        functionRoles[4] = AMFunctionRole(
+            "DirectDepositorBeacon",
+            address(deployment.directDepositorBeacon),
+            beaconSelectors,
+            Roles.INFRA_UPGRADE_ROLE
+        );
+        functionRoles[5] = AMFunctionRole(
+            "AsyncRedeemerBeacon", address(deployment.asyncRedeemerBeacon), beaconSelectors, Roles.INFRA_UPGRADE_ROLE
+        );
+        functionRoles[6] = AMFunctionRole(
+            "AsyncRedeemerFeeBeacon",
+            address(deployment.asyncRedeemerFeeBeacon),
+            beaconSelectors,
+            Roles.INFRA_UPGRADE_ROLE
+        );
+        functionRoles[7] = AMFunctionRole(
+            "WatermarkFeeManagerBeacon",
+            address(deployment.watermarkFeeManagerBeacon),
+            beaconSelectors,
+            Roles.INFRA_UPGRADE_ROLE
+        );
+        functionRoles[8] = AMFunctionRole(
+            "SecurityModuleBeacon", address(deployment.securityModuleBeacon), beaconSelectors, Roles.INFRA_UPGRADE_ROLE
+        );
+        functionRoles[9] = AMFunctionRole(
+            "MachineShareOracleBeacon",
+            address(deployment.machineShareOracleBeacon),
+            beaconSelectors,
+            Roles.INFRA_UPGRADE_ROLE
+        );
 
-        // HubPeripheryRegistry
-        bytes4[] memory hubPeripheryRegistrySelectors = new bytes4[](5);
-        hubPeripheryRegistrySelectors[0] = IHubPeripheryRegistry.setPeripheryFactory.selector;
-        hubPeripheryRegistrySelectors[1] = IHubPeripheryRegistry.setDepositorBeacon.selector;
-        hubPeripheryRegistrySelectors[2] = IHubPeripheryRegistry.setRedeemerBeacon.selector;
-        hubPeripheryRegistrySelectors[3] = IHubPeripheryRegistry.setFeeManagerBeacon.selector;
-        hubPeripheryRegistrySelectors[4] = IHubPeripheryRegistry.setSecurityModuleBeacon.selector;
-        IAccessManager(accessManager)
-            .setTargetFunctionRole(
-                address(deployment.hubPeripheryRegistry), hubPeripheryRegistrySelectors, Roles.INFRA_UPGRADE_ROLE
-            );
+        // Registry and factories
+        functionRoles[10] = AMFunctionRole(
+            "HubPeripheryRegistry",
+            address(deployment.hubPeripheryRegistry),
+            _hubPeripheryRegistryAMSelectors(),
+            Roles.INFRA_UPGRADE_ROLE
+        );
+        functionRoles[11] = AMFunctionRole(
+            "HubPeripheryFactory",
+            address(deployment.hubPeripheryFactory),
+            _hubPeripheryFactoryAMSelectors(),
+            Roles.STRATEGY_DEPLOYMENT_ROLE
+        );
+        functionRoles[12] = AMFunctionRole(
+            "MetaMorphoOracleFactory",
+            address(deployment.metaMorphoOracleFactory),
+            _metaMorphoOracleFactoryAMSelectors(),
+            Roles.INFRA_CONFIG_ROLE
+        );
+        functionRoles[13] = AMFunctionRole(
+            "MachineShareOracleFactory (upgrade)",
+            address(deployment.machineShareOracleFactory),
+            _machineShareOracleFactoryUpgradeAMSelectors(),
+            Roles.INFRA_UPGRADE_ROLE
+        );
+        functionRoles[14] = AMFunctionRole(
+            "MachineShareOracleFactory (config)",
+            address(deployment.machineShareOracleFactory),
+            _machineShareOracleFactoryConfigAMSelectors(),
+            Roles.INFRA_CONFIG_ROLE
+        );
+    }
 
-        // HubPeripheryFactory
-        bytes4[] memory hubPeripheryFactorySelectors = new bytes4[](6);
-        hubPeripheryFactorySelectors[0] = HubPeripheryFactory.setMachine.selector;
-        hubPeripheryFactorySelectors[1] = HubPeripheryFactory.setSecurityModule.selector;
-        hubPeripheryFactorySelectors[2] = HubPeripheryFactory.createDepositor.selector;
-        hubPeripheryFactorySelectors[3] = HubPeripheryFactory.createRedeemer.selector;
-        hubPeripheryFactorySelectors[4] = HubPeripheryFactory.createFeeManager.selector;
-        hubPeripheryFactorySelectors[5] = HubPeripheryFactory.createSecurityModule.selector;
-        IAccessManager(accessManager)
-            .setTargetFunctionRole(
-                address(deployment.hubPeripheryFactory), hubPeripheryFactorySelectors, Roles.STRATEGY_DEPLOYMENT_ROLE
-            );
+    function _hubPeripheryRegistryAMSelectors() internal pure returns (bytes4[] memory selectors) {
+        selectors = new bytes4[](5);
+        selectors[0] = IHubPeripheryRegistry.setPeripheryFactory.selector;
+        selectors[1] = IHubPeripheryRegistry.setDepositorBeacon.selector;
+        selectors[2] = IHubPeripheryRegistry.setRedeemerBeacon.selector;
+        selectors[3] = IHubPeripheryRegistry.setFeeManagerBeacon.selector;
+        selectors[4] = IHubPeripheryRegistry.setSecurityModuleBeacon.selector;
+    }
 
-        // MetaMorphoOracleFactory
-        bytes4[] memory metaMorphoOracleFactorySelectors = new bytes4[](2);
-        metaMorphoOracleFactorySelectors[0] = MetaMorphoOracleFactory.setMorphoFactory.selector;
-        metaMorphoOracleFactorySelectors[1] = MetaMorphoOracleFactory.createMetaMorphoOracle.selector;
-        IAccessManager(accessManager)
-            .setTargetFunctionRole(
-                address(deployment.metaMorphoOracleFactory), metaMorphoOracleFactorySelectors, Roles.INFRA_CONFIG_ROLE
-            );
+    function _hubPeripheryFactoryAMSelectors() internal pure returns (bytes4[] memory selectors) {
+        selectors = new bytes4[](6);
+        selectors[0] = HubPeripheryFactory.setMachine.selector;
+        selectors[1] = HubPeripheryFactory.setSecurityModule.selector;
+        selectors[2] = HubPeripheryFactory.createDepositor.selector;
+        selectors[3] = HubPeripheryFactory.createRedeemer.selector;
+        selectors[4] = HubPeripheryFactory.createFeeManager.selector;
+        selectors[5] = HubPeripheryFactory.createSecurityModule.selector;
+    }
 
-        // MachineShareOracleFactory
-        bytes4[] memory machineShareOracleFactorySelectors = new bytes4[](1);
-        machineShareOracleFactorySelectors[0] = MachineShareOracleFactory.setMachineShareOracleBeacon.selector;
-        IAccessManager(accessManager)
-            .setTargetFunctionRole(
-                address(deployment.machineShareOracleFactory),
-                machineShareOracleFactorySelectors,
-                Roles.INFRA_UPGRADE_ROLE
-            );
-        machineShareOracleFactorySelectors[0] = MachineShareOracleFactory.createMachineShareOracle.selector;
-        IAccessManager(accessManager)
-            .setTargetFunctionRole(
-                address(deployment.machineShareOracleFactory),
-                machineShareOracleFactorySelectors,
-                Roles.INFRA_CONFIG_ROLE
-            );
+    function _metaMorphoOracleFactoryAMSelectors() internal pure returns (bytes4[] memory selectors) {
+        selectors = new bytes4[](2);
+        selectors[0] = MetaMorphoOracleFactory.setMorphoFactory.selector;
+        selectors[1] = MetaMorphoOracleFactory.createMetaMorphoOracle.selector;
+    }
+
+    function _machineShareOracleFactoryUpgradeAMSelectors() internal pure returns (bytes4[] memory selectors) {
+        selectors = new bytes4[](1);
+        selectors[0] = MachineShareOracleFactory.setMachineShareOracleBeacon.selector;
+    }
+
+    function _machineShareOracleFactoryConfigAMSelectors() internal pure returns (bytes4[] memory selectors) {
+        selectors = new bytes4[](1);
+        selectors[0] = MachineShareOracleFactory.createMachineShareOracle.selector;
     }
 
     ///
@@ -270,7 +350,7 @@ abstract contract Base is ProxyUtils, JsonParser, SaltDomains, Core_Base.Base {
                         _flProviders.dai
                     )
                 ),
-                FLASHLOAN_AGGREGATOR_SALT_DOMAIN
+                _instanceSalt(FLASHLOAN_AGGREGATOR_SALT_DOMAIN, _instanceId)
             )
         );
     }

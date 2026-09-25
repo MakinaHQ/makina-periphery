@@ -11,14 +11,14 @@ import {IWhitelist} from "src/interfaces/IWhitelist.sol";
 import {AsyncRedeemer} from "src/redeemers/AsyncRedeemer.sol";
 
 import {
-    MachinePeriphery_Util_Concrete_Test,
-    Getter_Setter_MachinePeriphery_Util_Concrete_Test
+    MachinePeriphery_Unit_Concrete_Test,
+    Getters_Setters_MachinePeriphery_Unit_Concrete_Test
 } from "../machine-periphery/MachinePeriphery.t.sol";
 import {SanctionsList_Unit_Concrete_Test} from "../sanctions-list/SanctionsList.t.sol";
 import {Whitelist_Unit_Concrete_Test} from "../whitelist/Whitelist.t.sol";
 import {Unit_Concrete_Test} from "../UnitConcrete.t.sol";
 
-abstract contract AsyncRedeemer_Util_Concrete_Test is MachinePeriphery_Util_Concrete_Test {
+abstract contract AsyncRedeemer_Unit_Concrete_Test is MachinePeriphery_Unit_Concrete_Test {
     IAsyncRedeemer internal asyncRedeemer;
     Machine internal machine;
 
@@ -44,9 +44,9 @@ abstract contract AsyncRedeemer_Util_Concrete_Test is MachinePeriphery_Util_Conc
     }
 }
 
-contract Whitelist_AsyncRedeemer_Util_Concrete_Test is Whitelist_Unit_Concrete_Test, AsyncRedeemer_Util_Concrete_Test {
-    function setUp() public override(Whitelist_Unit_Concrete_Test, AsyncRedeemer_Util_Concrete_Test) {
-        AsyncRedeemer_Util_Concrete_Test.setUp();
+contract Whitelist_AsyncRedeemer_Unit_Concrete_Test is Whitelist_Unit_Concrete_Test, AsyncRedeemer_Unit_Concrete_Test {
+    function setUp() public override(Whitelist_Unit_Concrete_Test, AsyncRedeemer_Unit_Concrete_Test) {
+        AsyncRedeemer_Unit_Concrete_Test.setUp();
         whitelist = IWhitelist(address(asyncRedeemer));
 
         vm.prank(dao);
@@ -54,12 +54,12 @@ contract Whitelist_AsyncRedeemer_Util_Concrete_Test is Whitelist_Unit_Concrete_T
     }
 }
 
-contract SanctionsList_AsyncRedeemer_Util_Concrete_Test is
+contract SanctionsList_AsyncRedeemer_Unit_Concrete_Test is
     SanctionsList_Unit_Concrete_Test,
-    AsyncRedeemer_Util_Concrete_Test
+    AsyncRedeemer_Unit_Concrete_Test
 {
-    function setUp() public override(SanctionsList_Unit_Concrete_Test, AsyncRedeemer_Util_Concrete_Test) {
-        AsyncRedeemer_Util_Concrete_Test.setUp();
+    function setUp() public override(SanctionsList_Unit_Concrete_Test, AsyncRedeemer_Unit_Concrete_Test) {
+        AsyncRedeemer_Unit_Concrete_Test.setUp();
         sanctionsList = ISanctionsList(address(asyncRedeemer));
 
         vm.prank(dao);
@@ -67,12 +67,12 @@ contract SanctionsList_AsyncRedeemer_Util_Concrete_Test is
     }
 }
 
-contract Getters_Setters_AsyncRedeemer_Util_Concrete_Test is
-    Getter_Setter_MachinePeriphery_Util_Concrete_Test,
-    AsyncRedeemer_Util_Concrete_Test
+contract Getters_Setters_AsyncRedeemer_Unit_Concrete_Test is
+    Getters_Setters_MachinePeriphery_Unit_Concrete_Test,
+    AsyncRedeemer_Unit_Concrete_Test
 {
-    function setUp() public virtual override(AsyncRedeemer_Util_Concrete_Test, MachinePeriphery_Util_Concrete_Test) {
-        AsyncRedeemer_Util_Concrete_Test.setUp();
+    function setUp() public virtual override(AsyncRedeemer_Unit_Concrete_Test, MachinePeriphery_Unit_Concrete_Test) {
+        AsyncRedeemer_Unit_Concrete_Test.setUp();
     }
 
     modifier withMachine(address _machine) {

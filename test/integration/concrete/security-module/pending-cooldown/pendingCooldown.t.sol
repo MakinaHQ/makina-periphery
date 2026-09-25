@@ -74,7 +74,7 @@ contract PendingCooldown_Integration_Concrete_Test is SecurityModule_Integration
         (uint256 cooldownId1, uint256 maxAssets, uint256 maturity) =
             securityModule.startCooldown(securitySharesToRedeem, user4);
 
-        // negatve yield occurs through slashing
+        // negative yield occurs through slashing
         vm.prank(securityCouncil);
         securityModule.slash(1e17);
 
